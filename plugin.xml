@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         id="mackerBuilder"
+         name="Macker Project Builder"
+         point="org.eclipse.core.resources.builders">
+      <builder
+            hasNature="true">
+         <run
+               class="de.his.core.tools.cs.sys.quality.eclipsemacker.builder.MackerBuilder">
+         </run>
+      </builder>
+   </extension>
+   <extension
+         id="mackerNature"
+         name="Macker Project Nature"
+         point="org.eclipse.core.resources.natures">
+      <runtime>
+         <run
+               class="de.his.core.tools.cs.sys.quality.eclipsemacker.builder.MackerNature">
+         </run>
+      </runtime>
+      <builder
+            id="de.his.core.tools.cs.sys.quality.eclipsemacker.mackerBuilder">
+      </builder>
+   </extension>
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <objectContribution
+            adaptable="true"
+            objectClass="org.eclipse.core.resources.IProject"
+            nameFilter="*"
+            id="de.his.core.tools.cs.sys.quality.eclipsemacker.contribution1">
+         <action
+               label="Add/Remove Macker Nature"
+               class="de.his.core.tools.cs.sys.quality.eclipsemacker.builder.ToggleNatureAction"
+               menubarPath="additions"
+               enablesFor="+"
+               id="de.his.core.tools.cs.sys.quality.eclipsemacker.addRemoveNatureAction">
+         </action>
+      </objectContribution>
+   </extension>
+   <extension
+         id="xmlProblem"
+         name="XML Problem"
+         point="org.eclipse.core.resources.markers">
+      <super
+            type="org.eclipse.core.resources.problemmarker">
+      </super>
+      <persistent
+            value="true">
+      </persistent>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="de.his.core.tools.cs.sys.quality.eclipsemacker.gui.Preferences"
+            id="de.his.core.tools.cs.sys.quality.eclipsemacker.page1"
+            name="Macker Preference Page">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="de.his.core.tools.cs.sys.quality.eclipsemacker.gui.AbstractPreferenceInitializer">
+      </initializer>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="org.eclipse.jdt.ui.JavaPerspective">
+         <view
+               id="de.his.core.tools.cs.sys.quality.eclipsemacker.mackerview"
+               minimized="false"
+               relationship="stack">
+         </view>
+      </perspectiveExtension>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            category="de.his.MackerView"
+            class="de.his.core.tools.cs.sys.quality.eclipsemacker.view.MackerView"
+            id="de.his.core.tools.cs.sys.quality.eclipsemacker.view.MackerView"
+            name="Macker View"
+            restorable="true">
+      </view>
+   </extension> 
+
+</plugin>
