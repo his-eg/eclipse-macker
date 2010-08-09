@@ -72,16 +72,16 @@
       <perspectiveExtension
             targetID="org.eclipse.jdt.ui.JavaPerspective">
          <view
-               id="de.his.core.tools.cs.sys.quality.eclipsemacker.mackerview"
+               id="de.his.core.tools.cs.sys.quality.eclipsemacker.view.MackerView"
                minimized="false"
                relationship="stack">
          </view>
+         
       </perspectiveExtension>
    </extension>
    <extension
          point="org.eclipse.ui.views">
       <view
-            category="de.his.MackerView"
             class="de.his.core.tools.cs.sys.quality.eclipsemacker.view.MackerView"
             id="de.his.core.tools.cs.sys.quality.eclipsemacker.view.MackerView"
             name="Macker View"

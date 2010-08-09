@@ -23,7 +23,6 @@ import net.innig.macker.structure.ClassParseException;
 public class CustomMacker extends Macker{
 	public static ArrayList<CustomMacker> all = new ArrayList<CustomMacker>();
 
-	
 	/**
 	 * MackerEventListener, speichert Macker "AccessRuleViolation Events"
 	 * in einer ArrayList.
@@ -43,16 +42,8 @@ public class CustomMacker extends Macker{
 	
 	private IFile javaIFile;
 	
-	/**
-	 * Macker Rules.
-	 */
-	private File rulesLay;
 	
-	/**
-	 * Macker modRules.
-	 */
-	private File rulesMod;
-	
+	private ArrayList<File> ruleFiles; 
 	/**
 	 * Erweitertes Macker Objekt.
 	 * 
@@ -60,12 +51,11 @@ public class CustomMacker extends Macker{
 	 * @param fJava src file.
 	 * @param rules Macker Rules.
 	 */
-	public CustomMacker(File fClass, IFile fJava, File rules, File modRules) {
+	public CustomMacker(File fClass, IFile fJava, String rulePath) {
 		
 		this.javaClass = fClass;
 		this.javaIFile = fJava;
-		this.rulesLay = rules;
-		this.rulesMod = modRules;
+		this.ruleFiles = getRulesFromDirectory(rulePath);
 		/*
 		 * Listener speichert von Macker identifzierte
 		 * Regelverstoesse vom Typ AccessRuleViolation.
@@ -81,26 +71,25 @@ public class CustomMacker extends Macker{
 		
 	}
 
-
-	public File getRulesXml() {
-		return rulesLay;
+	
+	public ArrayList<File> getRulesFromDirectory(String path) {
+		
+		File dir = new File(path);
+		ArrayList<File> ruleFiles = new ArrayList<File>();
+		
+		if (dir.exists() && dir.isDirectory()) {
+			File[] fileList = dir.listFiles();
+		
+			for(File f : fileList) {
+				if (f.getName().endsWith(".xml")) {
+					ruleFiles.add(f);
+				}
+			}
+		}
+		return ruleFiles;
+		
 	}
-
-
-	public void setRulesXml(File rulesXml) {
-		this.rulesLay = rulesXml;
-	}
-
-
-	public File getModularityRules() {
-		return rulesMod;
-	}
-
-
-	public void setRulesMod(File rulesMod) {
-		this.rulesMod = rulesMod;
-	}
-
+	
 
 	/**
 	 * @return the javaClass
@@ -144,20 +133,15 @@ public class CustomMacker extends Macker{
 		this.listener = lis;
 	}
 
-	/**
-	 * @return the s
-	 */
-	public File getLayeringRules() {
-		return rulesLay;
+
+	public ArrayList<File> getRuleFiles() {
+		return ruleFiles;
 	}
 
-	/**
-	 * @param s the s to set
-	 */
-	public void setLayeringRules(File s) {
-		this.rulesLay = s;
-	}
 
+	public void setRuleFiles(ArrayList<File> ruleFiles) {
+		this.ruleFiles = ruleFiles;
+	}
 
 	/**
 	 * Class Datei wird anahnd der definierten Macker-Rules geprueft.
@@ -168,14 +152,17 @@ public class CustomMacker extends Macker{
 		boolean erfolg = true;
 		
 		System.out.println("Class datei gefunden: " + getJavaClass().exists());
-		System.out.println("Rules.xml gefunden: " + getLayeringRules().exists());
+		System.out.println("Rule Files gefunden: " + getRuleFiles().size());
 		
-		if (getJavaClass().exists() && getLayeringRules().exists() && getModularityRules().exists()) {
+		if (getJavaClass().exists() && getRuleFiles().size() > 0) {
 			
 			try {
 				this.addClass(getJavaClass());
-				this.addRulesFile(getLayeringRules());
-				this.addRulesFile(getModularityRules());
+				
+				for (File f: getRuleFiles()) {
+					this.addRulesFile(f);
+				}
+
 				this.check();
 				
 			} catch (RulesException e) {

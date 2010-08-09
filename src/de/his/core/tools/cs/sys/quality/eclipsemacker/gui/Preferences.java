@@ -33,10 +33,7 @@ import de.his.core.tools.cs.sys.quality.eclipsemacker.Activator;
 		}
 
 		public void createFieldEditors() {
-			addField(new FileFieldEditor(PreferenceConstants.LAYERING_RULES_PATH, "&Macker layering Rules Directory:",
-					getFieldEditorParent()));
-			
-			addField(new FileFieldEditor(PreferenceConstants.MODULARITY_RULES_PATH, "&Macker modularity Rules Directory:",
+			addField(new DirectoryFieldEditor(PreferenceConstants.RULES_PATH, "&Macker Rules Directory:",
 					getFieldEditorParent()));
 			
 			addField(new BooleanFieldEditor("find",

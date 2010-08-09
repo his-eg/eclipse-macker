@@ -13,8 +13,8 @@ public class AbstractPreferenceInitializer extends
 	@Override
 	public void initializeDefaultPreferences() {
 		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-		store.setDefault(PreferenceConstants.LAYERING_RULES_PATH, "D:/Tomcat/layering-rules.xml");
-		store.setDefault(PreferenceConstants.MODULARITY_RULES_PATH, "D:/Tomcat/modularity-rules.xml");
+		store.setDefault(PreferenceConstants.RULES_PATH, "D:/Tomcat/layering-rules.xml");
+		//store.setDefault(PreferenceConstants.MODULARITY_RULES_PATH, "D:/Tomcat/modularity-rules.xml");
 		
 		store.setDefault(PreferenceConstants.CHOICE, "DEFAULT");
 

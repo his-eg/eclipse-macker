@@ -45,6 +45,7 @@ public class MackerBuilder extends IncrementalProjectBuilder {
             this.monitor = monitor;
         }
 		
+        
 		/*
 		 * (non-Javadoc)
 		 * 
@@ -157,31 +158,33 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 			} catch (JavaModelException e1) {
 				e1.printStackTrace();
 			}
-			
-			File mackerRules = new File(store.getString(PreferenceConstants.LAYERING_RULES_PATH));
-			File mackerRulesM = new File(store.getString(PreferenceConstants.MODULARITY_RULES_PATH));
-			
-			
+
 			//TODO mackerRules File auf korrektheit pruefen.
-			if (classFile.exists() && mackerRules.exists() &&mackerRulesM.exists() && !mackerRules.isDirectory()) {
+			if (classFile.exists()) {
 				monitor.worked(25);
 	            /*
 	             * Falls Macker-Test erfolgreich, ordne den Macker-Events
 	             * die richtigen Zeilennummern zu.
 	             */
-				CustomMacker cm = new CustomMacker(classFile, javaFile, mackerRules, mackerRulesM);
+				CustomMacker cm = new CustomMacker(classFile, javaFile, store.getString(PreferenceConstants.RULES_PATH));
 				monitor.subTask("Lade Macker Rules");
-	            if (cm.checkClass()) {
-	            	monitor.worked(50);
-	            	try {
-	            		monitor.subTask("Setze Marker");
-	    				importCheck(cm);
-	    				monitor.worked(24);
-	    			} catch (CoreException e) {
-	    				e.printStackTrace();
-	    			}
-	            }
-            
+				if (cm.getRuleFiles().size() > 0) {
+					//Macker Classfile check
+		            if (cm.checkClass()) {
+		            	monitor.worked(50);
+		            	//pruefen ob macker events gefunden
+		            	if (cm.getListener().getViolationList().size() > 0) {
+			            	try {
+			            		monitor.subTask("Setze Marker");
+			            		//marker setzen
+			    				importCheck(cm);
+			    				monitor.worked(24);
+			    			} catch (CoreException e) {
+			    				e.printStackTrace();
+			    			}
+		            	}
+		            }
+				}
 		
 		} else {
 			System.out.println("xml oder class datei nicht gefunden");
@@ -221,7 +224,6 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 			
 		return src;
 	}
-	
 	
 	
 	/**
@@ -481,18 +483,18 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 	
 	public static void main(String[] args) {
 
-		File file = new File("C:/Dokumente und Einstellungen/bender/Desktop/TestJava/ExamGradesEditFromController.java");
-		
-        CustomMacker cm = new CustomMacker(new File("C:/Dokumente und Einstellungen/bender/Desktop/TestJava/ExamGradesEditFromController.class"), null, new File("C:/Dokumente und Einstellungen/bender/Desktop/macker plugin/layering-rules.xml"), null);
-
-        cm.checkClass();
-        try {
-			new MackerBuilder().importCheckZ(cm, file);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (CoreException e) {
-			e.printStackTrace();
-		}
+//		File file = new File("C:/Dokumente und Einstellungen/bender/Desktop/TestJava/ExamGradesEditFromController.java");
+//		
+//        CustomMacker cm = new CustomMacker(new File("C:/Dokumente und Einstellungen/bender/Desktop/TestJava/ExamGradesEditFromController.class"), null, new File("C:/Dokumente und Einstellungen/bender/Desktop/macker plugin/layering-rules.xml"), null);
+//
+//        cm.checkClass();
+//        try {
+//			new MackerBuilder().importCheckZ(cm, file);
+//		} catch (FileNotFoundException e) {
+//			e.printStackTrace();
+//		} catch (CoreException e) {
+//			e.printStackTrace();
+//		}
         
 
 	

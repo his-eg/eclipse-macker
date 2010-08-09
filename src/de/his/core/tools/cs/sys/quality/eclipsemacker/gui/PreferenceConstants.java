@@ -6,10 +6,10 @@ package de.his.core.tools.cs.sys.quality.eclipsemacker.gui;
 public class PreferenceConstants {
 	
 	/** Path to layering_rules.xml. */
-	public static final String LAYERING_RULES_PATH = "LAY_PATH";
+	public static final String RULES_PATH = "RULES_PATH";
 
-	/** Path to modularity_rules.xml */
-    public static final String MODULARITY_RULES_PATH = "MOD_PATH";
+//	/** Path to modularity_rules.xml */
+//    public static final String MODULARITY_RULES_PATH = "MOD_PATH";
     
 	/** Source Path  */
     public static final String SOURCE_PATH = "SOURCE_PATH";
