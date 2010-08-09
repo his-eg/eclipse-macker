@@ -23,6 +23,7 @@ import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
@@ -146,8 +147,15 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 			
 			deleteMarkers(javaFile);
 
+			try {
+				System.out.println("----->" + javaProject.getResource().getPersistentProperty(new QualifiedName("", PreferenceConstants.RULES_PATH)));
+				System.out.println("----->" + javaProject.getResource().getPersistentProperty(new QualifiedName("", PreferenceConstants.RUN_ON_INCREMENTAL_BUILD)));
+
+			} catch (CoreException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
 			
-			System.out.println(project.getLocation().toString());
 
 			/*
 			 *Bin file (*.Class) und Macker-Rules (*.XML) instanziieren.

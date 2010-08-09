@@ -87,6 +87,15 @@
             name="Macker View"
             restorable="true">
       </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.propertyPages">
+      <page
+            class="de.his.core.tools.cs.sys.quality.eclipsemacker.gui.Property"
+            id="de.his.core.tools.cs.sys.quality.eclipsemacker.page1"
+            name="Macker Property Page"
+            objectClass="org.eclipse.jdt.core.IJavaProject">
+      </page>
    </extension> 
 
 </plugin>

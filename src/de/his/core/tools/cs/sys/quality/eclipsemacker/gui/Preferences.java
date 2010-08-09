@@ -29,6 +29,7 @@ import de.his.core.tools.cs.sys.quality.eclipsemacker.Activator;
 
 		public Preferences() {
 			super(GRID);
+			
 
 		}
 
