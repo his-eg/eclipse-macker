@@ -146,6 +146,9 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 			
 			deleteMarkers(javaFile);
 
+			
+			System.out.println(project.getLocation().toString());
+
 			/*
 			 *Bin file (*.Class) und Macker-Rules (*.XML) instanziieren.
 			 */
@@ -166,7 +169,9 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 	             * Falls Macker-Test erfolgreich, ordne den Macker-Events
 	             * die richtigen Zeilennummern zu.
 	             */
-				CustomMacker cm = new CustomMacker(classFile, javaFile, store.getString(PreferenceConstants.RULES_PATH));
+				//TODO store.getString(PreferenceConstants.RULES_PATH
+				System.out.println(project.getLocation().toString()+store.getString(PreferenceConstants.RULES_PATH));
+				CustomMacker cm = new CustomMacker(classFile, javaFile, project.getLocation().toString()+store.getString(PreferenceConstants.RULES_PATH));
 				monitor.subTask("Lade Macker Rules");
 				if (cm.getRuleFiles().size() > 0) {
 					//Macker Classfile check
@@ -178,6 +183,10 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 			            		monitor.subTask("Setze Marker");
 			            		//marker setzen
 			    				importCheck(cm);
+			    				
+			    				if (store.getBoolean(PreferenceConstants.CHECK_CONTENT)) {
+			    					checkClassContent(cm);
+			    				}
 			    				monitor.worked(24);
 			    			} catch (CoreException e) {
 			    				e.printStackTrace();
@@ -238,12 +247,6 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 	 */
 	private boolean importCheck(CustomMacker cm) throws CoreException {
 		boolean erfolg = false;
-		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-		String severity = store.getString("CHOICE");
-		
-		if (store.getString("CHOICE").equals("")) {
-			severity = "ERROR";
-		}
 		
 		InputStream in = null;
 		in = cm.getJavaIFile().getContents();
@@ -267,21 +270,7 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 
 						if (checkImportViolation(line, cm.getListener().getViolationList().get(i).getTo().toString())) {
 
-							/*
-							 * Warnungen setzen, anhand der default Einstellungen oder angepasst. 
-							 */
-							if (ShowAs.valueOf(severity) == ShowAs.DEFAULT) {
-								//Severity direkt vom Event holen
-								severity = cm.getListener().getViolationList().get(i).getRule().getSeverity().getName().toUpperCase();
-								
-								addMarker(cm.getJavaIFile(), cm.getListener().getViolationList().get(i)
-										.getMessages().toString(), reader.getLineNumber(), setSeverity(ShowAs.valueOf(severity)));
-							} else {
-								//Severity anhand der angepassten Einstellung
-								addMarker(cm.getJavaIFile(), cm.getListener().getViolationList().get(i)
-										.getMessages().toString(), reader.getLineNumber(), setSeverity(ShowAs.valueOf(severity)));
-							}
-							
+							setMarker(cm, reader.getLineNumber(), i);
 							/*
 							 * bei Uebereinstimmung betreffenden Event aus Liste entfernen.
 							 */
@@ -305,6 +294,69 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 		
 		} 
 	
+	
+	
+	private void setMarker(CustomMacker cm, int line, int index) {
+		
+		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
+		String severity = store.getString("CHOICE");
+		
+		if (store.getString("CHOICE").equals("")) {
+			severity = "ERROR";
+		}
+		/*
+		 * Warnungen setzen, anhand der default Einstellungen oder angepasst. 
+		 */
+		if (ShowAs.valueOf(severity) == ShowAs.DEFAULT) {
+			//Severity direkt vom Event holen
+			severity = cm.getListener().getViolationList().get(index).getRule().getSeverity().getName().toUpperCase();
+			
+			addMarker(cm.getJavaIFile(), cm.getListener().getViolationList().get(index)
+					.getMessages().toString(), line, setSeverity(ShowAs.valueOf(severity)));
+		} else {
+			//Severity anhand der angepassten Einstellung
+			addMarker(cm.getJavaIFile(), cm.getListener().getViolationList().get(index)
+					.getMessages().toString(), line, setSeverity(ShowAs.valueOf(severity)));
+		}
+	}
+	
+	
+	private void checkClassContent(CustomMacker cm) {
+	
+		InputStream in = null;
+		try {
+			in = cm.getJavaIFile().getContents();
+			LineNumberReader reader = new LineNumberReader(new InputStreamReader(in));
+			String line = "";
+			
+			while (reader.ready()) {
+				line = reader.readLine();
+				line = line.replaceAll("\t", "").replaceAll(" ", "");
+				if (!line.startsWith("import") && !line.startsWith("package") && !line.startsWith("//") && !line.startsWith("/*")&& !line.startsWith("*")) {
+					
+					for (int i = 0; i < cm.getListener().getViolationList().size(); i++) {
+						String to = cm.getListener().getViolationList().get(i).getTo().toString();
+						int start = to.lastIndexOf(".") + 1;
+						
+						if (line.indexOf(to.substring(start)) > -1) {
+							setMarker(cm, reader.getLineNumber(), i);
+						}
+					}
+
+				}
+			}
+				
+
+		} catch (CoreException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+
+	}
+	
+
 	/**
 	 * @param choice ShowAs Enum
 	 * @return Severity Typ.
@@ -401,10 +453,15 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 	 * @throws CoreException
 	 */
 	protected void fullBuild(final IProgressMonitor monitor) throws CoreException {
-//		try {
-//			getProject().accept(new SampleResourceVisitor(monitor));
-//		} catch (CoreException e) {
-//		}
+		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
+		boolean run = store.getBoolean(PreferenceConstants.RUN_ON_FULL_BUILD);
+		
+		if (run) {
+			try {
+				getProject().accept(new SampleResourceVisitor(monitor));
+			} catch (CoreException e) {
+			}
+		}
 	}
 
 	
@@ -417,86 +474,22 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 	 */
 	protected void incrementalBuild(IResourceDelta delta, IProgressMonitor monitor) throws CoreException {
 		// the visitor does the work.
-		delta.accept(new MackerDeltaVisitor(monitor));
+		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
+		boolean run = store.getBoolean(PreferenceConstants.RUN_ON_INCREMENTAL_BUILD);
+		
+		if (run) {
+			delta.accept(new MackerDeltaVisitor(monitor));
+		}
+
 	}
 	
 	
-	private boolean importCheckZ(CustomMacker cm, File f) throws CoreException, FileNotFoundException {
-		boolean erfolg = false;
 
-		InputStream in = new FileInputStream(f);
-		//in = cm.getJavaIFile().getContents();
-
-		LineNumberReader reader = new LineNumberReader(new InputStreamReader(in));
-
-		try {
-			
-			String line = "";
-			ArrayList<AccessRuleViolation> tmp = (ArrayList<AccessRuleViolation>) cm.getListener().getViolationList().clone();
-			
-			while (reader.ready() && !line.startsWith("public class") && cm.getListener().getViolationList().size() > 0) {
-				line = reader.readLine();
-				
-				if (line.startsWith("import")) {
-					/*
-					 * Ein Import-Tag wird auf Uebereinstimmung mit den gefundenen Macker-Events geprueft.
-					 */
-
-					//TODO abbrechen wenn gefunden
-					for (int i = 0; i < cm.getListener().getViolationList().size(); i++) {
-	
-						if (checkImportViolation(line, cm.getListener().getViolationList().get(i).getTo().toString())) {
-
-							/*
-							 * Warnungen setzen, anhand der default Einstellungen oder angepasst. 
-							 */
-
-							System.out.println("addMarker" + cm.getListener().getViolationList().get(i)
-									.getTo());
-							
-							/*
-							 * bei Uebereinstimmung betreffenden Event aus Liste entfernen.
-							 */
-							cm.getListener().getViolationList().remove(i);
-							//TODO besser while
-						
-							
-						} else {
-							
-						}
-					}
-						
-				}
-			}
-			
-			reader.close();
-			//fuer debug ausgabe(view)
-			cm.getListener().setV(tmp);
-		} catch (IOException e) {
-			erfolg = false;
-			e.printStackTrace();
-		}
-		return erfolg;
-		
-		
-		} 
 	
 	public static void main(String[] args) {
 
-//		File file = new File("C:/Dokumente und Einstellungen/bender/Desktop/TestJava/ExamGradesEditFromController.java");
-//		
-//        CustomMacker cm = new CustomMacker(new File("C:/Dokumente und Einstellungen/bender/Desktop/TestJava/ExamGradesEditFromController.class"), null, new File("C:/Dokumente und Einstellungen/bender/Desktop/macker plugin/layering-rules.xml"), null);
-//
-//        cm.checkClass();
-//        try {
-//			new MackerBuilder().importCheckZ(cm, file);
-//		} catch (FileNotFoundException e) {
-//			e.printStackTrace();
-//		} catch (CoreException e) {
-//			e.printStackTrace();
-//		}
         
-
+//new MackerBuilder().getImportClassName("import de.his.ap.se.Name;");
 	
 	}
 	

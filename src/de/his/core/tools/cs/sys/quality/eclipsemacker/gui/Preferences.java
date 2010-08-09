@@ -33,14 +33,21 @@ import de.his.core.tools.cs.sys.quality.eclipsemacker.Activator;
 		}
 
 		public void createFieldEditors() {
-			addField(new DirectoryFieldEditor(PreferenceConstants.RULES_PATH, "&Macker Rules Directory:",
+//			addField(new DirectoryFieldEditor(PreferenceConstants.RULES_PATH, "&Macker Rules Directory:",
+//					getFieldEditorParent()));
+			
+			
+			addField(new StringFieldEditor(PreferenceConstants.RULES_PATH, "&Macker Rules Directory:",
 					getFieldEditorParent()));
 			
-			addField(new BooleanFieldEditor("find",
+			addField(new BooleanFieldEditor(PreferenceConstants.RUN_ON_FULL_BUILD,
 					"&Run Macker on Full Build", getFieldEditorParent()));
 			
-			addField(new BooleanFieldEditor("find",
+			addField(new BooleanFieldEditor(PreferenceConstants.RUN_ON_INCREMENTAL_BUILD,
 					"&Run Macker on Incremental Build", getFieldEditorParent()));
+			
+			addField(new BooleanFieldEditor(PreferenceConstants.CHECK_CONTENT,
+					"&Check Class Content", getFieldEditorParent()));
 			
 			addField(new RadioGroupFieldEditor("CHOICE",
 					"Show Macker Events as", 4,
