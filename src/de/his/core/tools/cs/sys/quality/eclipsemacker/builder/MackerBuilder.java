@@ -67,13 +67,13 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 		}
 	}
 
-	class SampleResourceVisitor implements IResourceVisitor {
+	class MackerResourceVisitor implements IResourceVisitor {
 		IProgressMonitor monitor;
 
         /**
          * @param monitor
          */
-        public SampleResourceVisitor(final IProgressMonitor monitor) {
+        public MackerResourceVisitor(final IProgressMonitor monitor) {
             this.monitor = monitor;
         }
         
@@ -146,16 +146,12 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 			
 			deleteMarkers(javaFile);
 			File classFile = new File("");
-			
-			
-			
+
 			/*
 			 *Bin file (*.Class) instanziieren und Project Propertys laden, falls noch nicht gesetzt.
 			 */
 			
 			try {
-
-				
 				classFile = new File(javaFile.getLocation().toString().replace(getSourceFolder(javaFile, javaProject),
 						javaProject.getOutputLocation().toOSString().replace(projectName, ""))
 						.replace("java", "class").replace("\\", "/"));
@@ -166,6 +162,7 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 
 			if (classFile.exists()) {
 				monitor.worked(25);
+				
 	            /*
 	             * Falls Macker-Test erfolgreich, ordne den Macker-Events
 	             * die richtigen Zeilennummern zu.
@@ -173,10 +170,7 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 				String rulesPath = getPersistentProperty(new QualifiedName("", PreferenceConstants.RULES_PATH));
 				
 				CustomMacker cm = new CustomMacker(classFile, javaFile, project.getLocation().toString() + rulesPath);
-				//D:\Tomcat\webapps\qisserver\WEB-INF\internal\macker\rules
-				
-				//CustomMacker cm = new CustomMacker(classFile, javaFile, "D:/Tomcat/webapps/qisserver/WEB-INF/internal/macker/rules");
-				
+								
 				monitor.subTask("Lade Macker Rules");
 				if (cm.getRuleFiles().size() > 0) {
 					//Macker Classfile check
@@ -192,7 +186,6 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 			    			
 			    				boolean checkC = new Boolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.CHECK_CONTENT)));
 			    				if (checkC) {
-			    				
 			    					checkClassContent(cm);
 			    				}
 			    				monitor.worked(24);
@@ -263,6 +256,7 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 		try {
 			
 			String line = "";
+			@SuppressWarnings("unchecked")
 			ArrayList<AccessRuleViolation> tmp = (ArrayList<AccessRuleViolation>) cm.getListener().getViolationList().clone();
 			
 			while (reader.ready() && !line.startsWith("public class") && cm.getListener().getViolationList().size() > 0) {
@@ -309,7 +303,7 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 		
 		String severity = "";
 		Boolean defaultM = new Boolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.DEFAULT)));
-		Boolean warning = new Boolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.WARNING)));
+		//Boolean warning = new Boolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.WARNING)));
 		Boolean error = new Boolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.ERROR)));
 
 		if (defaultM) {
@@ -323,16 +317,20 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 		/*
 		 * Warnungen setzen, anhand der default Einstellungen oder angepasst. 
 		 */
+		String message = cm.getListener().getViolationList().get(index)
+			.getTo().toString();
+		String source = message.substring(message.lastIndexOf(".")+1);
+		
 		if (ShowAs.valueOf(severity) == ShowAs.DEFAULT) {
 			//Severity direkt vom Event holen
 			severity = cm.getListener().getViolationList().get(index).getRule().getSeverity().getName().toUpperCase();
-			addMarker(cm.getJavaIFile(), cm.getListener().getViolationList().get(index)
+			addMarker(cm.getJavaIFile(), "(" + source + ") " + cm.getListener().getViolationList().get(index)
 					.getMessages().get(0).toString(), line, setSeverity(ShowAs.valueOf(severity)));
 
 		
 		} else {
 			//Severity anhand der angepassten Einstellung
-			addMarker(cm.getJavaIFile(), cm.getListener().getViolationList().get(index)
+			addMarker(cm.getJavaIFile(), "(" + source + ") " + cm.getListener().getViolationList().get(index)
 					.getMessages().get(0).toString(), line, setSeverity(ShowAs.valueOf(severity)));
 		}
 	}
@@ -474,7 +472,7 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 		
 		if (run) {
 			try {
-				getProject().accept(new SampleResourceVisitor(monitor));
+				getProject().accept(new MackerResourceVisitor(monitor));
 			} catch (CoreException e) {
 			}
 		}

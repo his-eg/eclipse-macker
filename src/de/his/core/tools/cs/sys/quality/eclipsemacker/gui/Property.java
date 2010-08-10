@@ -10,14 +10,9 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.jdt.core.IJavaProject;
-
 import org.eclipse.swt.SWT;
-
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -37,7 +32,6 @@ public class Property extends PropertyPage {
 	private static final boolean INC_BUILD = true;
 	private static final boolean FULL_BUILD = false;
 	private static final boolean CHECK_CONTENT = false;
-	
 	private static final boolean WARNING = false;
 	private static final boolean ERROR = false;
 	private static final boolean DEFAULT = true;
@@ -47,13 +41,19 @@ public class Property extends PropertyPage {
 	
 	private static final int TEXT_FIELD_WIDTH = 80;
 
+	/*
+	 * Gui Komponenten
+	 */
 	private Text rulesDir;
 	private Button incBuild;
 	private Button fullBuild;
 	private Button checkContent;
 	private Composite radioGroup;
+	private Button warning;
+	private Button error;
+	private Button defaultM;
 	
-	private Button warning, error, defaultM;
+	
 	/**
 	 * Constructor.
 	 */
@@ -67,8 +67,6 @@ public class Property extends PropertyPage {
 	
 
 	private void addSection(Composite parent) {
-		//Composite composite = createDefaultComposite(parent);
-
 		Label headerLabel = new Label(parent, SWT.NONE);
 		headerLabel.setText("Macker Propertys");
 
@@ -161,19 +159,6 @@ public class Property extends PropertyPage {
 		return composite;
 	}
 
-	private Composite createDefaultComposite(Composite parent) {
-		Composite composite = new Composite(parent, SWT.NULL);
-		GridLayout layout = new GridLayout();
-		layout.numColumns = 2;
-		composite.setLayout(layout);
-
-		GridData data = new GridData();
-		data.verticalAlignment = GridData.FILL;
-		data.horizontalAlignment = GridData.FILL;
-		composite.setLayoutData(data);
-
-		return composite;
-	}
 
 	protected void performDefaults() {
 		super.performDefaults();
@@ -228,12 +213,10 @@ public class Property extends PropertyPage {
 	}
 	
 	
-	//TEST
+	//Defaultwerte setzen
 	public boolean init(IResource resource) {
 		
 		try {
-			
-
 			resource.setPersistentProperty(
 					new QualifiedName("", PreferenceConstants.DEFAULT), new Boolean(DEFAULT).toString());
 			

@@ -5,12 +5,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import org.eclipse.core.resources.IFile;
 import net.innig.macker.Macker;
-import net.innig.macker.event.AccessRuleViolation;
 import net.innig.macker.event.ListenerException;
-import net.innig.macker.event.MackerEvent;
-import net.innig.macker.event.MackerEventListener;
 import net.innig.macker.event.MackerIsMadException;
-import net.innig.macker.rule.RuleSet;
 import net.innig.macker.rule.RulesException;
 import net.innig.macker.structure.ClassParseException;
 
