@@ -11,8 +11,11 @@ public class PreferenceConstants {
 	/** Source Path  */
     public static final String SOURCE_PATH = "SOURCE_PATH";
     
-	/** Class Path  */
-    public static final String CLASS_PATH = "CLASS_PATH";
+	/** Macker Events */
+    public static final String WARNING = "WARNING";
+    public static final String ERROR = "ERROR";
+    public static final String DEFAULT = "DEFAULT";
+    
     
     /**Severity Choice*/
     public static final String CHOICE = "CHOICE";

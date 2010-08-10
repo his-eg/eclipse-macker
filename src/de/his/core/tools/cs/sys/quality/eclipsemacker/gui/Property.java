@@ -13,8 +13,11 @@ import org.eclipse.jdt.core.IJavaProject;
 
 import org.eclipse.swt.SWT;
 
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -27,23 +30,32 @@ import org.eclipse.ui.dialogs.PropertyPage;
  *
  */
 public class Property extends PropertyPage {
-
+	/*
+	 * Default Values
+	 */
 	private static final String RULES_DIR = "test/rules/loc";
-	private static final String INC_BUILD = "true";
-	private static final String FULL_BUILD = "false";
-	private static final String CHECK_CONTENT = "false";
-
-	private static final int TEXT_FIELD_WIDTH = 50;
+	private static final boolean INC_BUILD = true;
+	private static final boolean FULL_BUILD = false;
+	private static final boolean CHECK_CONTENT = false;
+	
+	private static final boolean WARNING = false;
+	private static final boolean ERROR = false;
+	private static final boolean DEFAULT = true;
+	
+	
+	
+	
+	private static final int TEXT_FIELD_WIDTH = 80;
 
 	private Text rulesDir;
 	private Button incBuild;
 	private Button fullBuild;
 	private Button checkContent;
-	//private RadioGroupFieldEditor ra;
+	private Composite radioGroup;
 	
 	private Button warning, error, defaultM;
 	/**
-	 * Constructor for SamplePropertyPage.
+	 * Constructor.
 	 */
 	public Property() {
 		super();
@@ -51,38 +63,55 @@ public class Property extends PropertyPage {
 
 
 
+	
+	
 
-	private void addSecondSection(Composite parent) {
-		Composite composite = createDefaultComposite(parent);
+	private void addSection(Composite parent) {
+		//Composite composite = createDefaultComposite(parent);
 
-		// Label for owner field
-		Label ownerLabel = new Label(composite, SWT.NONE);
-		ownerLabel.setText("Macker Propertys");
+		Label headerLabel = new Label(parent, SWT.NONE);
+		headerLabel.setText("Macker Propertys");
 
-		// Owner text field
-		rulesDir = new Text(composite, SWT.SINGLE | SWT.BORDER);
-		GridData gd = new GridData();
+		Composite first = new Composite(parent, SWT.None);
+		
+		GridLayout r = new GridLayout();
+		r.numColumns = 2;
+		first.setLayout(r);
+		Label ruleLabel = new Label(first, SWT.NONE);
+		ruleLabel.setText("Macker Rules Directory:");
+		rulesDir = new Text(first, SWT.SINGLE | SWT.BORDER);
+		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
 		gd.widthHint = convertWidthInCharsToPixels(TEXT_FIELD_WIDTH);
 		rulesDir.setLayoutData(gd);
-
-		incBuild = new Button(composite, SWT.CHECK);
+		
+		Composite check = new Composite(parent, SWT.None);
+		check.setLayout(new GridLayout());
+		check.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		
+		incBuild = new Button(check, SWT.CHECK);
 		incBuild.setText("Run on Incremental Build");
 		
-		fullBuild = new Button(composite, SWT.CHECK);
+		fullBuild = new Button(check, SWT.CHECK);
 		fullBuild.setText("Run on Full Build");
 		
-		checkContent = new Button(composite, SWT.CHECK);
+		checkContent = new Button(check, SWT.CHECK);
 		checkContent.setText("Check Content");
 		
-		Composite radioGroup = new Composite(parent, SWT.NONE);
-		radioGroup.setLayout(new GridLayout());
-		radioGroup.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		  
+
+		Label events = new Label(parent, SWT.None);
+		events.setText("Show Macker Events as");
+		
+		radioGroup = new Composite(parent, SWT.NONE);
+		GridLayout g = new GridLayout();
+		g.numColumns = 3;
+		radioGroup.setLayout(g);
+		radioGroup.setLayoutData(new GridData(GridData.FILL_BOTH));
+
 		warning = createRadioButton(radioGroup, "Warning");
 		error = createRadioButton(radioGroup, "Error");
 		defaultM = createRadioButton(radioGroup, "Default");
 
-		// Populate owner text field
+		// Lade aktuelle Einstellungen
 		try {
 			IResource resource = ((IJavaProject) getElement()).getResource();
 			
@@ -90,18 +119,20 @@ public class Property extends PropertyPage {
 			String incB = resource.getPersistentProperty(new QualifiedName("", PreferenceConstants.RUN_ON_INCREMENTAL_BUILD));
 			String fullB = resource.getPersistentProperty(new QualifiedName("", PreferenceConstants.RUN_ON_FULL_BUILD));
 			String checkC = resource.getPersistentProperty(new QualifiedName("", PreferenceConstants.CHECK_CONTENT));
-			//String rA = resource.getPersistentProperty(new QualifiedName("", PreferenceConstants.CHOICE));
-
 			
+			String rW = resource.getPersistentProperty(new QualifiedName("", "WARNING"));
+			String rE = resource.getPersistentProperty(new QualifiedName("", "ERROR"));
+			String rD = resource.getPersistentProperty(new QualifiedName("", "DEFAULT"));
 			
-			checkContent.setSelection((checkC != null) ? new Boolean(checkC) : new Boolean(CHECK_CONTENT));
-			fullBuild.setSelection((fullB != null) ? new Boolean(fullB) : new Boolean(FULL_BUILD));
-			incBuild.setSelection((incB != null) ? new Boolean(incB) : new Boolean(INC_BUILD));
+			warning.setSelection((rW != null) ? new Boolean(rW) : WARNING);
+			error.setSelection((rE != null) ? new Boolean(rE) : ERROR);
+			defaultM.setSelection((rD != null) ? new Boolean(rD) : DEFAULT);
+			
+			checkContent.setSelection((checkC != null) ? new Boolean(checkC) : CHECK_CONTENT);
+			fullBuild.setSelection((fullB != null) ? new Boolean(fullB) : FULL_BUILD);
+			incBuild.setSelection((incB != null) ? new Boolean(incB) : INC_BUILD);
 			rulesDir.setText((owner != null) ? owner : RULES_DIR);
-			
-			
-			
-			
+
 		} catch (CoreException e) {
 			rulesDir.setText(RULES_DIR);
 		}
@@ -111,11 +142,9 @@ public class Property extends PropertyPage {
 	private Button createRadioButton(Composite parent, String label) {
 		  final Button button = new Button(parent, SWT.RADIO);
 		  button.setText(label);
-		
-
 		  return button;
 		}
-	
+
 	/**
 	 * @see PreferencePage#createContents(Composite)
 	 */
@@ -127,9 +156,8 @@ public class Property extends PropertyPage {
 		data.grabExcessHorizontalSpace = true;
 		composite.setLayoutData(data);
 
-	
+		addSection(composite);
 		
-		addSecondSection(composite);
 		return composite;
 	}
 
@@ -149,18 +177,37 @@ public class Property extends PropertyPage {
 
 	protected void performDefaults() {
 		super.performDefaults();
-		// Populate the owner text field with the default value
+		
 		rulesDir.setText(RULES_DIR);
+		checkContent.setSelection(CHECK_CONTENT);
+		fullBuild.setSelection(FULL_BUILD);
+		incBuild.setSelection(INC_BUILD);
+		
+		warning.setSelection(WARNING);
+		defaultM.setSelection(DEFAULT);
+		error.setSelection(ERROR);
 	}
 	
 	public boolean performOk() {
-		// store the value in the owner text field
+		// store the values
 		try {
 			IResource resource = ((IJavaProject) getElement()).getResource();
+
+			resource.setPersistentProperty(
+					new QualifiedName("", PreferenceConstants.DEFAULT),
+					new Boolean(defaultM.getSelection()).toString());
 			
 			resource.setPersistentProperty(
-				new QualifiedName("", PreferenceConstants.RULES_PATH),
-				rulesDir.getText());
+					new QualifiedName("", PreferenceConstants.ERROR),
+					new Boolean(error.getSelection()).toString());
+			
+			resource.setPersistentProperty(
+					new QualifiedName("", PreferenceConstants.WARNING),
+					new Boolean(warning.getSelection()).toString());
+			
+			resource.setPersistentProperty(
+					new QualifiedName("", PreferenceConstants.RULES_PATH),
+					rulesDir.getText());
 			
 			resource.setPersistentProperty(
 					new QualifiedName("", PreferenceConstants.RUN_ON_INCREMENTAL_BUILD),
@@ -179,5 +226,48 @@ public class Property extends PropertyPage {
 		}
 		return true;
 	}
+	
+	
+	//TEST
+	public boolean init(IResource resource) {
+		
+		try {
+			
+
+			resource.setPersistentProperty(
+					new QualifiedName("", PreferenceConstants.DEFAULT), new Boolean(DEFAULT).toString());
+			
+			resource.setPersistentProperty(
+					new QualifiedName("", PreferenceConstants.ERROR),
+					new Boolean(ERROR).toString());
+			
+			resource.setPersistentProperty(
+					new QualifiedName("", PreferenceConstants.WARNING),
+					new Boolean(WARNING).toString());
+			
+			resource.setPersistentProperty(
+				new QualifiedName("", PreferenceConstants.RULES_PATH),
+				RULES_DIR);
+			
+			resource.setPersistentProperty(
+					new QualifiedName("", PreferenceConstants.RUN_ON_INCREMENTAL_BUILD),
+					new Boolean(INC_BUILD).toString());
+			
+			resource.setPersistentProperty(
+					new QualifiedName("", PreferenceConstants.RUN_ON_FULL_BUILD),
+					new Boolean(FULL_BUILD).toString());
+			
+			resource.setPersistentProperty(
+					new QualifiedName("", PreferenceConstants.CHECK_CONTENT),
+					new Boolean(CHECK_CONTENT).toString());
+			
+		} catch (CoreException e) {
+			return false;
+		}
+		return true;
+	}
+	
+	
+	
 
 }

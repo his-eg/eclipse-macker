@@ -54,20 +54,6 @@
       </persistent>
    </extension>
    <extension
-         point="org.eclipse.ui.preferencePages">
-      <page
-            class="de.his.core.tools.cs.sys.quality.eclipsemacker.gui.Preferences"
-            id="de.his.core.tools.cs.sys.quality.eclipsemacker.page1"
-            name="Macker Preference Page">
-      </page>
-   </extension>
-   <extension
-         point="org.eclipse.core.runtime.preferences">
-      <initializer
-            class="de.his.core.tools.cs.sys.quality.eclipsemacker.gui.AbstractPreferenceInitializer">
-      </initializer>
-   </extension>
-   <extension
          point="org.eclipse.ui.perspectiveExtensions">
       <perspectiveExtension
             targetID="org.eclipse.jdt.ui.JavaPerspective">
@@ -92,10 +78,9 @@
          point="org.eclipse.ui.propertyPages">
       <page
             class="de.his.core.tools.cs.sys.quality.eclipsemacker.gui.Property"
-            id="de.his.core.tools.cs.sys.quality.eclipsemacker.page1"
-            name="Macker Property Page"
-            objectClass="org.eclipse.jdt.core.IJavaProject">
+            id="de.his.core.tools.cs.sys.quality.eclipsemacker.page2"
+            name="Macker Property Page">
       </page>
-   </extension> 
+   </extension>
 
 </plugin>

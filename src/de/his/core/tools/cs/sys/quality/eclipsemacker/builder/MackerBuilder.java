@@ -1,8 +1,6 @@
 package de.his.core.tools.cs.sys.quality.eclipsemacker.builder;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -17,24 +15,21 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.resources.IResourceVisitor;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.IWorkspaceDescription;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jface.preference.IPreferenceStore;
-import de.his.core.tools.cs.sys.quality.eclipsemacker.Activator;
 import de.his.core.tools.cs.sys.quality.eclipsemacker.gui.PreferenceConstants;
+import de.his.core.tools.cs.sys.quality.eclipsemacker.gui.Property;
 
 
 public class MackerBuilder extends IncrementalProjectBuilder {
 	
-    
+
+
 	class MackerDeltaVisitor implements IResourceDeltaVisitor {
         
 		private final IProgressMonitor monitor;
@@ -105,6 +100,11 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 	 */
 	protected IProject[] build(int kind, Map args, IProgressMonitor monitor)
 			throws CoreException {
+		
+		if (getProject().getPersistentProperty(new QualifiedName("", PreferenceConstants.RULES_PATH)) == null) {
+			new Property().init(getProject());
+		}
+		
 		if (kind == FULL_BUILD) {
 			fullBuild(monitor);
 		} else {
@@ -128,7 +128,6 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 	void checkMacker(IResource resource, IProgressMonitor monitor)  {
 		
 
-		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 
 		/*
 		 * Nur java Dateien sind fuer diesen Builder relevant.
@@ -146,40 +145,38 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 			monitor.beginTask(javaFile.getName(), 100);
 			
 			deleteMarkers(javaFile);
-
-			try {
-				System.out.println("----->" + javaProject.getResource().getPersistentProperty(new QualifiedName("", PreferenceConstants.RULES_PATH)));
-				System.out.println("----->" + javaProject.getResource().getPersistentProperty(new QualifiedName("", PreferenceConstants.RUN_ON_INCREMENTAL_BUILD)));
-
-			} catch (CoreException e2) {
-				// TODO Auto-generated catch block
-				e2.printStackTrace();
-			}
-			
-
-			/*
-			 *Bin file (*.Class) und Macker-Rules (*.XML) instanziieren.
-			 */
-
 			File classFile = new File("");
 			
 			
+			
+			/*
+			 *Bin file (*.Class) instanziieren und Project Propertys laden, falls noch nicht gesetzt.
+			 */
+			
 			try {
-				classFile = new File(javaFile.getLocation().toString().replace(getSourceFolder(javaFile, javaProject), javaProject.getOutputLocation().toOSString().replace(projectName, "")).replace("java", "class").replace("\\", "/"));
-			} catch (JavaModelException e1) {
-				e1.printStackTrace();
+
+				
+				classFile = new File(javaFile.getLocation().toString().replace(getSourceFolder(javaFile, javaProject),
+						javaProject.getOutputLocation().toOSString().replace(projectName, ""))
+						.replace("java", "class").replace("\\", "/"));
+			
+			} catch (CoreException e2) {
+				e2.printStackTrace();
 			}
 
-			//TODO mackerRules File auf korrektheit pruefen.
 			if (classFile.exists()) {
 				monitor.worked(25);
 	            /*
 	             * Falls Macker-Test erfolgreich, ordne den Macker-Events
 	             * die richtigen Zeilennummern zu.
 	             */
-				//TODO store.getString(PreferenceConstants.RULES_PATH
-				System.out.println(project.getLocation().toString()+store.getString(PreferenceConstants.RULES_PATH));
-				CustomMacker cm = new CustomMacker(classFile, javaFile, project.getLocation().toString()+store.getString(PreferenceConstants.RULES_PATH));
+				String rulesPath = getPersistentProperty(new QualifiedName("", PreferenceConstants.RULES_PATH));
+				
+				CustomMacker cm = new CustomMacker(classFile, javaFile, project.getLocation().toString() + rulesPath);
+				//D:\Tomcat\webapps\qisserver\WEB-INF\internal\macker\rules
+				
+				//CustomMacker cm = new CustomMacker(classFile, javaFile, "D:/Tomcat/webapps/qisserver/WEB-INF/internal/macker/rules");
+				
 				monitor.subTask("Lade Macker Rules");
 				if (cm.getRuleFiles().size() > 0) {
 					//Macker Classfile check
@@ -187,12 +184,15 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 		            	monitor.worked(50);
 		            	//pruefen ob macker events gefunden
 		            	if (cm.getListener().getViolationList().size() > 0) {
+		            		System.out.println("de1");
 			            	try {
 			            		monitor.subTask("Setze Marker");
 			            		//marker setzen
 			    				importCheck(cm);
-			    				
-			    				if (store.getBoolean(PreferenceConstants.CHECK_CONTENT)) {
+			    				System.out.println("de2");
+			    				boolean checkC = new Boolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.CHECK_CONTENT)));
+			    				if (checkC) {
+			    					System.out.println("de3");
 			    					checkClassContent(cm);
 			    				}
 			    				monitor.worked(24);
@@ -277,7 +277,7 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 					for (int i = 0; i < cm.getListener().getViolationList().size(); i++) {
 
 						if (checkImportViolation(line, cm.getListener().getViolationList().get(i).getTo().toString())) {
-
+							System.out.println("set");
 							setMarker(cm, reader.getLineNumber(), i);
 							/*
 							 * bei Uebereinstimmung betreffenden Event aus Liste entfernen.
@@ -306,22 +306,31 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 	
 	private void setMarker(CustomMacker cm, int line, int index) {
 		
-		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-		String severity = store.getString("CHOICE");
 		
-		if (store.getString("CHOICE").equals("")) {
+		String severity = "";
+		Boolean defaultM = new Boolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.DEFAULT)));
+		Boolean warning = new Boolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.WARNING)));
+		Boolean error = new Boolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.ERROR)));
+		System.out.println(defaultM.toString() + warning +error);
+		if (defaultM) {
+			severity = "DEFAULT";
+		} else if (error) {
 			severity = "ERROR";
+		} else {
+			severity = "WARNING";
 		}
+		
 		/*
 		 * Warnungen setzen, anhand der default Einstellungen oder angepasst. 
 		 */
 		if (ShowAs.valueOf(severity) == ShowAs.DEFAULT) {
 			//Severity direkt vom Event holen
 			severity = cm.getListener().getViolationList().get(index).getRule().getSeverity().getName().toUpperCase();
-			
+			System.out.println("add2");
 			addMarker(cm.getJavaIFile(), cm.getListener().getViolationList().get(index)
 					.getMessages().toString(), line, setSeverity(ShowAs.valueOf(severity)));
 		} else {
+			System.out.println("add");
 			//Severity anhand der angepassten Einstellung
 			addMarker(cm.getJavaIFile(), cm.getListener().getViolationList().get(index)
 					.getMessages().toString(), line, setSeverity(ShowAs.valueOf(severity)));
@@ -435,10 +444,11 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 			if (lineNumber == -1) {
 				lineNumber = 1;
 			}
-			
+			System.out.println(lineNumber);
 			marker.setAttribute(IMarker.LINE_NUMBER, lineNumber);
 			
 		} catch (CoreException e) {
+			System.out.println("fehler beim setzen");
 		}
 	}
 	
@@ -461,8 +471,7 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 	 * @throws CoreException
 	 */
 	protected void fullBuild(final IProgressMonitor monitor) throws CoreException {
-		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-		boolean run = store.getBoolean(PreferenceConstants.RUN_ON_FULL_BUILD);
+		boolean run = new Boolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.RUN_ON_FULL_BUILD)));
 		
 		if (run) {
 			try {
@@ -482,8 +491,7 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 	 */
 	protected void incrementalBuild(IResourceDelta delta, IProgressMonitor monitor) throws CoreException {
 		// the visitor does the work.
-		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-		boolean run = store.getBoolean(PreferenceConstants.RUN_ON_INCREMENTAL_BUILD);
+		boolean run = new Boolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.RUN_ON_INCREMENTAL_BUILD)));
 		
 		if (run) {
 			delta.accept(new MackerDeltaVisitor(monitor));
@@ -492,7 +500,16 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 	}
 	
 	
+	private String getPersistentProperty (QualifiedName qn) {
+		try {
+			return (String) getProject().getPersistentProperty(qn);
+		} catch (CoreException e) {
+			return "";
+		}
+	}
 
+	
+	
 	
 	public static void main(String[] args) {
 
