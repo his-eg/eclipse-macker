@@ -43,8 +43,8 @@
       </objectContribution>
    </extension>
    <extension
-         id="xmlProblem"
-         name="XML Problem"
+         id="mackerEvent"
+         name="Macker Event"
          point="org.eclipse.core.resources.markers">
       <super
             type="org.eclipse.core.resources.problemmarker">
@@ -79,7 +79,8 @@
       <page
             class="de.his.core.tools.cs.sys.quality.eclipsemacker.gui.Property"
             id="de.his.core.tools.cs.sys.quality.eclipsemacker.page2"
-            name="Macker Property Page">
+            name="Macker Property Page"
+            objectClass="org.eclipse.jdt.core.IJavaProject">
       </page>
    </extension>
 

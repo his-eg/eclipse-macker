@@ -88,7 +88,7 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 
 	public static final String BUILDER_ID = "de.his.core.tools.cs.sys.quality.eclipsemacker.mackerBuilder";
 
-	private static final String MARKER_TYPE = "de.his.core.tools.cs.sys.quality.eclipsemacker.xmlProblem";
+	private static final String MARKER_TYPE = "de.his.core.tools.cs.sys.quality.eclipsemacker.mackerEvent";
 
 	
 
@@ -184,15 +184,15 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 		            	monitor.worked(50);
 		            	//pruefen ob macker events gefunden
 		            	if (cm.getListener().getViolationList().size() > 0) {
-		            		System.out.println("de1");
+		            	
 			            	try {
 			            		monitor.subTask("Setze Marker");
 			            		//marker setzen
 			    				importCheck(cm);
-			    				System.out.println("de2");
+			    			
 			    				boolean checkC = new Boolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.CHECK_CONTENT)));
 			    				if (checkC) {
-			    					System.out.println("de3");
+			    				
 			    					checkClassContent(cm);
 			    				}
 			    				monitor.worked(24);
@@ -277,7 +277,7 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 					for (int i = 0; i < cm.getListener().getViolationList().size(); i++) {
 
 						if (checkImportViolation(line, cm.getListener().getViolationList().get(i).getTo().toString())) {
-							System.out.println("set");
+							
 							setMarker(cm, reader.getLineNumber(), i);
 							/*
 							 * bei Uebereinstimmung betreffenden Event aus Liste entfernen.
@@ -311,7 +311,7 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 		Boolean defaultM = new Boolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.DEFAULT)));
 		Boolean warning = new Boolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.WARNING)));
 		Boolean error = new Boolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.ERROR)));
-		System.out.println(defaultM.toString() + warning +error);
+
 		if (defaultM) {
 			severity = "DEFAULT";
 		} else if (error) {
@@ -326,14 +326,14 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 		if (ShowAs.valueOf(severity) == ShowAs.DEFAULT) {
 			//Severity direkt vom Event holen
 			severity = cm.getListener().getViolationList().get(index).getRule().getSeverity().getName().toUpperCase();
-			System.out.println("add2");
 			addMarker(cm.getJavaIFile(), cm.getListener().getViolationList().get(index)
-					.getMessages().toString(), line, setSeverity(ShowAs.valueOf(severity)));
+					.getMessages().get(0).toString(), line, setSeverity(ShowAs.valueOf(severity)));
+
+		
 		} else {
-			System.out.println("add");
 			//Severity anhand der angepassten Einstellung
 			addMarker(cm.getJavaIFile(), cm.getListener().getViolationList().get(index)
-					.getMessages().toString(), line, setSeverity(ShowAs.valueOf(severity)));
+					.getMessages().get(0).toString(), line, setSeverity(ShowAs.valueOf(severity)));
 		}
 	}
 	
@@ -444,11 +444,10 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 			if (lineNumber == -1) {
 				lineNumber = 1;
 			}
-			System.out.println(lineNumber);
+			
 			marker.setAttribute(IMarker.LINE_NUMBER, lineNumber);
 			
 		} catch (CoreException e) {
-			System.out.println("fehler beim setzen");
 		}
 	}
 	
