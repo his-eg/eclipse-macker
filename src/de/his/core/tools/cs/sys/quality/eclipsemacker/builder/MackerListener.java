@@ -40,10 +40,14 @@ class MackerListener implements  MackerEventListener {
 		 
 		 if (event instanceof AccessRuleViolation) {
 			 AccessRuleViolation e = (AccessRuleViolation) event;
+			
 			 this.getViolationList().add(e);
+			 
+			 
 		 }
 	 }
 
+	 
 	 
 	/**
 	 * @return the ViolationList

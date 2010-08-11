@@ -15,8 +15,8 @@ public class PreferenceConstants {
     public static final String WARNING = "WARNING";
     public static final String ERROR = "ERROR";
     public static final String DEFAULT = "DEFAULT";
-    
-    
+    public static final String FILTER = "FILTER";
+    public static final String USE_FILTER = "USE_FILTER";
     /**Severity Choice*/
     public static final String CHOICE = "CHOICE";
 

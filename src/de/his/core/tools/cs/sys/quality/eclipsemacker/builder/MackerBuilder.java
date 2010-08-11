@@ -7,6 +7,8 @@ import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.StringTokenizer;
+
 import net.innig.macker.event.AccessRuleViolation;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
@@ -17,6 +19,7 @@ import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.jdt.core.IJavaProject;
@@ -28,7 +31,7 @@ import de.his.core.tools.cs.sys.quality.eclipsemacker.gui.Property;
 
 public class MackerBuilder extends IncrementalProjectBuilder {
 	
-
+private int count = 0;
 
 	class MackerDeltaVisitor implements IResourceDeltaVisitor {
         
@@ -118,6 +121,22 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 		return null;
 	}
 
+	
+	private boolean toCheck(IPath path) {
+		boolean toCheck = false;
+
+		StringTokenizer st = new StringTokenizer(getPersistentProperty
+				(new QualifiedName("", PreferenceConstants.FILTER)), "\t");
+	     
+		while (st.hasMoreTokens()) { 
+			if (path.toString().indexOf(st.nextToken()) > -1) {
+				return true;
+			}
+	     }
+		return toCheck;
+	}
+	
+	
 	/**
 	 * Eine veraenderte/neue java-Datei wird anahnd vorgegebner Macker-Rules
 	 * auf Korrektheit geprueft.
@@ -133,20 +152,31 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 		 * Nur java Dateien sind fuer diesen Builder relevant.
 		 */
 		if (resource instanceof IFile && resource.getName().endsWith(".java")) {
-
+			count++;
 			/*
 			 * Die veranderte Ressource instanziieren.
 			 */
 			IFile javaFile = (IFile) resource;
+			boolean run = new Boolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_FILTER)));
+			
+			boolean checkFilter = true;
+			
+			if (run) {
+				checkFilter = toCheck(javaFile.getFullPath());
+			} 
+			
+			if (checkFilter) {
+				
+			
 			IProject project = getProject();
 			IJavaProject javaProject = JavaCore.create(project);
 			String projectName = resource.getProject().getName();
 			//TEST monitor
-			monitor.beginTask(javaFile.getName(), 100);
+			monitor.beginTask(javaFile.getName(), 8000);
 			
 			deleteMarkers(javaFile);
 			File classFile = new File("");
-
+			
 			/*
 			 *Bin file (*.Class) instanziieren und Project Propertys laden, falls noch nicht gesetzt.
 			 */
@@ -161,7 +191,7 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 			}
 
 			if (classFile.exists()) {
-				monitor.worked(25);
+				
 				
 	            /*
 	             * Falls Macker-Test erfolgreich, ordne den Macker-Events
@@ -171,36 +201,45 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 				
 				CustomMacker cm = new CustomMacker(classFile, javaFile, project.getLocation().toString() + rulesPath);
 								
-				monitor.subTask("Lade Macker Rules");
+				monitor.subTask("Pruefen: " +count+" "+ javaFile.getName());
 				if (cm.getRuleFiles().size() > 0) {
 					//Macker Classfile check
 		            if (cm.checkClass()) {
-		            	monitor.worked(50);
+		            	
 		            	//pruefen ob macker events gefunden
 		            	if (cm.getListener().getViolationList().size() > 0) {
 		            	
 			            	try {
-			            		monitor.subTask("Setze Marker");
+			            		monitor.subTask("Setze Marker: " + javaFile.getName());
 			            		//marker setzen
 			    				importCheck(cm);
-			    			
+			    				//TEST abbruch.
+			    				if (monitor.isCanceled()) {
+			    					return;
+			    				}
 			    				boolean checkC = new Boolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.CHECK_CONTENT)));
 			    				if (checkC) {
 			    					checkClassContent(cm);
 			    				}
-			    				monitor.worked(24);
+			    				
 			    			} catch (CoreException e) {
 			    				e.printStackTrace();
+			    			} finally {
+			    				monitor.done();
 			    			}
+			    			
 		            	}
-		            }
+		            	monitor.worked(1);
+		            	
+		           }
+				
 				}
 		
 		} else {
 			System.out.println("xml oder class datei nicht gefunden");
 		}
 		}
-		monitor.done();
+		}
 	}
 
 	
@@ -252,20 +291,21 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 		InputStream in = null;
 		in = cm.getJavaIFile().getContents();
 		LineNumberReader reader = new LineNumberReader(new InputStreamReader(in));
-
+		
 		try {
 			
 			String line = "";
 			@SuppressWarnings("unchecked")
 			ArrayList<AccessRuleViolation> tmp = (ArrayList<AccessRuleViolation>) cm.getListener().getViolationList().clone();
 			
-			while (reader.ready() && !line.startsWith("public class") && cm.getListener().getViolationList().size() > 0) {
-				line = reader.readLine();
-				
+		
+			while (reader.ready() && !line.startsWith("publicclass") && !line.startsWith("abstractclass") && cm.getListener().getViolationList().size() > 0) {
+				line = reader.readLine().replaceAll("\t", "").replaceAll(" ", "");
 				if (line.startsWith("import")) {
 					/*
 					 * Ein Import-Tag wird auf Uebereinstimmung mit den gefundenen Macker-Events geprueft.
 					 */
+					
 					
 					//TODO abbrechen wenn gefunden
 					for (int i = 0; i < cm.getListener().getViolationList().size(); i++) {
@@ -277,14 +317,14 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 							 * bei Uebereinstimmung betreffenden Event aus Liste entfernen.
 							 */
 							cm.getListener().getViolationList().remove(i);
-
+						
 						}
 					}
-
+					
 					
 				}
 			}
-			
+			in.close();
 			reader.close();
 			cm.getListener().setV(tmp);
 		} catch (IOException e) {
