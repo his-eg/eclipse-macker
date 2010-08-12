@@ -41,7 +41,6 @@ public class Property extends PropertyPage {
 	private static final boolean WARNING = false;
 	private static final boolean ERROR = false;
 	private static final boolean DEFAULT = true;
-	
 	private static final boolean USE_FILTER = true;
 	
 	
@@ -71,7 +70,10 @@ public class Property extends PropertyPage {
 
 
 	
-	
+	/**
+	 * GUI der Propertypage
+	 * @param parent
+	 */
 
 	private void addSection(Composite parent) {
 		Label headerLabel = new Label(parent, SWT.NONE);
@@ -111,7 +113,7 @@ public class Property extends PropertyPage {
 		buttonR.setText("Remove/");
 		
 		Button button = new Button(f, SWT.PUSH);
-		button.setText("Add class path");
+		button.setText("Add classpath");
 
 		final Text path = new Text(f, SWT.SINGLE | SWT.BORDER);
 		GridData gdz = new GridData(GridData.FILL_HORIZONTAL);
@@ -142,7 +144,7 @@ public class Property extends PropertyPage {
 		
 		
 		useFilter = new Button(check, SWT.CHECK);
-		useFilter.setText("Use Class Path Filter");
+		useFilter.setText("Use Classpath Filter");
 		
 		incBuild = new Button(check, SWT.CHECK);
 		incBuild.setText("Run on Incremental Build");
@@ -227,7 +229,9 @@ public class Property extends PropertyPage {
 		return composite;
 	}
 
-
+	/**
+	 * Default Werte setzen
+	 */
 	protected void performDefaults() {
 		super.performDefaults();
 		
@@ -245,6 +249,9 @@ public class Property extends PropertyPage {
 		useFilter.setSelection(USE_FILTER);
 	}
 	
+	/**
+	 * Projekt Einstellungen dauerhaft speichern.
+	 */
 	public boolean performOk() {
 		// store the values
 		try {
@@ -293,14 +300,20 @@ public class Property extends PropertyPage {
 	}
 	
 	
-	
+	/**
+	 * Setzt die Werte des Classpath Filters
+	 * @param content
+	 */
 	private void setListContent(String content) {
 		StringTokenizer st = new StringTokenizer(content, "\t");
 	     while (st.hasMoreTokens()) { 
 	       list.add(st.nextToken());
 	     }
 	}
-	
+	/**
+	 * Gibt die aktuellen Werte des Classpath filters zurueck.
+	 * @return
+	 */
 	private String getListContent() {
 		String content = "";
 		for (int i = 0; i < list.getItems().length; i++) {
@@ -311,7 +324,12 @@ public class Property extends PropertyPage {
 		return content;
 	}
 	
-	//Defaultwerte setzen
+	/**
+	 * Setzt beim ersten Start eines Projektes mit dem Plugin
+	 * die Defaultwerte.
+	 * @param resource
+	 * @return
+	 */
 	public boolean init(IResource resource) {
 		
 		try {
@@ -319,8 +337,7 @@ public class Property extends PropertyPage {
 			resource.setPersistentProperty(
 					new QualifiedName("", PreferenceConstants.USE_FILTER),
 					new Boolean(USE_FILTER).toString());
-			
-			
+
 			resource.setPersistentProperty(
 					new QualifiedName("", PreferenceConstants.FILTER), FILTER);
 			

@@ -212,7 +212,9 @@ private int count = 0;
 			            	try {
 			            		monitor.subTask("Setze Marker: " + javaFile.getName());
 			            		//marker setzen
-			    				importCheck(cm);
+			            		monitor.worked(1);
+			            		importCheck(cm);
+			    				
 			    				//TEST abbruch.
 			    				if (monitor.isCanceled()) {
 			    					return;
@@ -225,11 +227,12 @@ private int count = 0;
 			    			} catch (CoreException e) {
 			    				e.printStackTrace();
 			    			} finally {
+			    				
 			    				monitor.done();
 			    			}
 			    			
 		            	}
-		            	monitor.worked(1);
+		            
 		            	
 		           }
 				

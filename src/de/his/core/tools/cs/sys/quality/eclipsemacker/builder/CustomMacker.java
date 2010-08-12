@@ -147,9 +147,6 @@ public class CustomMacker extends Macker{
 	public boolean checkClass() {
 		boolean erfolg = true;
 		
-		System.out.println("Class datei gefunden: " + getJavaClass().exists());
-		System.out.println("Rule Files gefunden: " + getRuleFiles().size());
-		
 		if (getJavaClass().exists() && getRuleFiles().size() > 0) {
 			
 			try {
