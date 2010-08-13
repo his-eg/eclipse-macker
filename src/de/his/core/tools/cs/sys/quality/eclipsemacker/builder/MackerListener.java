@@ -1,6 +1,10 @@
+/**
+ * 
+ */
 package de.his.core.tools.cs.sys.quality.eclipsemacker.builder;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import net.innig.macker.event.AccessRuleViolation;
 import net.innig.macker.event.ListenerException;
@@ -18,59 +22,63 @@ import net.innig.macker.rule.RuleSet;
 public class MackerListener implements  MackerEventListener {
 
 	
-	private ArrayList<AccessRuleViolation> violation;
+	private HashMap<String, ArrayList<AccessRuleViolation>> violation;
 	
 
 	public MackerListener() {
-		this.violation = new ArrayList<AccessRuleViolation>();
+		this.violation = new HashMap<String, ArrayList<AccessRuleViolation>>();
+		
 	}
 	
 	/**
 	 * Handler speichert die relevanten Events in einer Liste.
 	 */
 	 public void handleMackerEvent(RuleSet ruleSet, MackerEvent event) {
-		 
+
 		 if (event instanceof AccessRuleViolation) {
 			 AccessRuleViolation e = (AccessRuleViolation) event;
-			
-			 this.getViolationList().add(e);
 			 
+			 
+			 if (violation.get(e.getFrom().getClassName()) == null) {
+				 violation.put(e.getFrom().getClassName(), new ArrayList<AccessRuleViolation>()); 
+			 } 
+			
+			 violation.get(e.getFrom().getClassName()).add(e);
+			 
+			
 			 
 		 }
 	 }
 
-	 
-	 
+
+
 	/**
-	 * @return the ViolationList
+	 * @return the violation
 	 */
-	public ArrayList<AccessRuleViolation> getViolationList() {
+	public HashMap<String, ArrayList<AccessRuleViolation>> getViolation() {
 		return violation;
 	}
 
 	/**
-	 * @param ViolationList the ViolationList to set
+	 * @param violation the violation to set
 	 */
-	public void setV(ArrayList<AccessRuleViolation> v) {
-		this.violation = v;
+	public void setViolation(HashMap<String, ArrayList<AccessRuleViolation>> violation) {
+		this.violation = violation;
 	}
 
 	@Override
 	public void mackerAborted(RuleSet arg0) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void mackerFinished(RuleSet arg0) throws MackerIsMadException,
 			ListenerException {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void mackerStarted(RuleSet arg0) throws ListenerException {
-		// TODO Auto-generated method stub
 		
 	}
 

@@ -80,9 +80,9 @@ public class MackerView  extends ViewPart {
 			
 			switch (index) {
 			case 0:
-				return new String(instr.getJavaClass().getAbsolutePath());
+				return new String("");
 			case 1:
-				return new Integer(instr.getListener().getViolationList().size()).toString();
+				return new Integer(1).toString();
 			
 			}
 			}

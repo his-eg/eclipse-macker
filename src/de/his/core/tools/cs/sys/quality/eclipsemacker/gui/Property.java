@@ -88,7 +88,7 @@ public class Property extends PropertyPage {
 		ruleLabel.setText("Macker Rules Directory:");
 		rulesDir = new Text(first, SWT.SINGLE | SWT.BORDER);
 		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
-		gd.widthHint = convertWidthInCharsToPixels(60);
+		gd.widthHint = convertWidthInCharsToPixels(55);
 		rulesDir.setLayoutData(gd);
 		
 

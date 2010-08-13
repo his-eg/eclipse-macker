@@ -3,6 +3,8 @@ package de.his.core.tools.cs.sys.quality.eclipsemacker.builder;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+
 import org.eclipse.core.resources.IFile;
 import net.innig.macker.Macker;
 import net.innig.macker.event.ListenerException;
@@ -38,6 +40,7 @@ public class CustomMacker extends Macker{
 	
 	private IFile javaIFile;
 	
+	private HashMap<String, IFile> javaMap;
 	
 	private ArrayList<File> ruleFiles; 
 	/**
@@ -47,45 +50,49 @@ public class CustomMacker extends Macker{
 	 * @param fJava src file.
 	 * @param rules Macker Rules.
 	 */
-	public CustomMacker(File fClass, IFile fJava, String rulePath) {
+	public CustomMacker(File fClass, IFile fJava, ArrayList<File> rules) {
 		
 		this.javaClass = fClass;
 		this.javaIFile = fJava;
-		this.ruleFiles = getRulesFromDirectory(rulePath);
+		this.ruleFiles = rules;
+		
 		/*
 		 * Listener speichert von Macker identifzierte
 		 * Regelverstoesse vom Typ AccessRuleViolation.
 		 */
+		this.javaMap = new HashMap<String, IFile>();
 		listener = new MackerListener();
 		this.addListener(listener);
 		
-		all.add(this);
+		//all.add(this);
 	}
 	
 	
 	public CustomMacker() {
-		
+		this.javaMap = new HashMap<String, IFile>();
+		listener = new MackerListener();
+		this.addListener(listener);
 	}
 
 	
-	public ArrayList<File> getRulesFromDirectory(String path) {
-		
-		File dir = new File(path);
-		ArrayList<File> ruleFiles = new ArrayList<File>();
-		
-		if (dir.exists() && dir.isDirectory()) {
-			File[] fileList = dir.listFiles();
-		
-			for(File f : fileList) {
-				if (f.getName().endsWith(".xml")) {
-					ruleFiles.add(f);
-				}
-			}
-		}
-		return ruleFiles;
-		
-	}
+
 	
+
+	/**
+	 * @return the javaMap
+	 */
+	public HashMap<String, IFile> getJavaMap() {
+		return javaMap;
+	}
+
+
+	/**
+	 * @param javaMap the javaMap to set
+	 */
+	public void setJavaMap(HashMap<String, IFile> javaMap) {
+		this.javaMap = javaMap;
+	}
+
 
 	/**
 	 * @return the javaClass
@@ -147,24 +154,15 @@ public class CustomMacker extends Macker{
 	public boolean checkClass() {
 		boolean erfolg = true;
 		
-		if (getJavaClass().exists() && getRuleFiles().size() > 0) {
+		if (this.hasRules()) {
 			
 			try {
-				this.addClass(getJavaClass());
-				
-				for (File f: getRuleFiles()) {
-					this.addRulesFile(f);
-				}
-
+				//TODO class extern adden
+				//this.addClass(getJavaClass());
+				//this.setClassLoader();
 				this.check();
-				
+
 			} catch (RulesException e) {
-				erfolg = false;
-				e.printStackTrace();
-			} catch (IOException e) {
-				erfolg = false;
-				e.printStackTrace();
-			} catch (ClassParseException e) {
 				erfolg = false;
 				e.printStackTrace();
 			} catch (ListenerException e) {
