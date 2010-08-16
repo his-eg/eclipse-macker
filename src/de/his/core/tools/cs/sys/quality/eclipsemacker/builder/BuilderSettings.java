@@ -6,6 +6,7 @@ package de.his.core.tools.cs.sys.quality.eclipsemacker.builder;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 import net.innig.macker.rule.RulesException;
 import net.innig.macker.structure.ClassParseException;
@@ -28,8 +29,10 @@ public class BuilderSettings {
     private boolean warnung = false;
     private boolean error = false;
     private boolean defaultM = false;
-    private String filterContent = "";
-    private boolean useFilter = false;
+    private String filterClassContent = "";
+    private String filterSourceContent = "";
+    private boolean useClassFilter = false;
+    private boolean useSourceFilter = false;
     private boolean checkContent = false;
     private boolean runOnFullBuild = false;
     private boolean runOnIncBuild = false;
@@ -41,7 +44,7 @@ public class BuilderSettings {
     /** */
     private ArrayList<File> rulesFull = new ArrayList<File>();
     private ArrayList<String> classpaths = new ArrayList<String>();
-
+    private ArrayList<String> sources = new ArrayList<String>();
     
     public BuilderSettings () {
     	
@@ -92,15 +95,22 @@ public class BuilderSettings {
     	this.setError(new Boolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.ERROR))));
     	this.setRunOnFullBuild(new Boolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.RUN_ON_FULL_BUILD))));
     	this.setRunOnIncBuild(new Boolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.RUN_ON_INCREMENTAL_BUILD))));
-    	this.setFilterContent(getPersistentProperty (new QualifiedName("", PreferenceConstants.FILTER)));	
-    	this.setUseFilter(new Boolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_FILTER))));
+    	this.setFilterContent(getPersistentProperty (new QualifiedName("", PreferenceConstants.CLASSPATH_FILTER)));	
+    	this.setUseFilter(new Boolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_CLASSPATH_FILTER))));
+    	
+    	this.setFilterSourceContent(getPersistentProperty (new QualifiedName("", PreferenceConstants.SOURCE_FILTER)));	
+    	System.out.println("sources?" + getFilterSourceContent());
+    	this.setUseSourceFilter(new Boolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_SOURCE_FILTER))));
+    	
+    	
+    	
     	this.setCheckContent(new Boolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.CHECK_CONTENT))));
     	this.setRulesDir(getPersistentProperty (new QualifiedName("", PreferenceConstants.RULES_PATH)));	
     	this.setjProject(JavaCore.create(project));
     	//rule files instanziieren
     	setRulesFromDirectory();
     	System.out.println("??" + getFilterContent() + " rules " + getRulesFull().size());
-    	
+    	this.getSources();
     }
     
 	private String getPersistentProperty (QualifiedName qn) {
@@ -120,6 +130,88 @@ public class BuilderSettings {
 	public IProject getProject() {
 		return project;
 	}
+
+
+	/**
+	 * @return the filterSourceContent
+	 */
+	public String getFilterSourceContent() {
+		return filterSourceContent;
+	}
+
+
+
+	/**
+	 * @param filterSourceContent the filterSourceContent to set
+	 */
+	public void setFilterSourceContent(String filterSourceContent) {
+		this.filterSourceContent = filterSourceContent;
+	}
+
+
+
+	/**
+	 * @return the useSourceFilter
+	 */
+	public boolean isUseSourceFilter() {
+		return useSourceFilter;
+	}
+
+
+
+	/**
+	 * @param useSourceFilter the useSourceFilter to set
+	 */
+	public void setUseSourceFilter(boolean useSourceFilter) {
+		this.useSourceFilter = useSourceFilter;
+	}
+
+//	public ArrayList<String> getClasspaths() {
+//		if (this.classpaths.size() == 0) {
+//			IJavaProject jp = getjProject();
+//			try {
+//				for (int i = 0; i < jp.getRawClasspath().length; i++) {
+//					
+//					if (!jp.getRawClasspath()[i].getPath().toOSString().startsWith("org.eclipse")) {
+//						System.out.println(jp.getRawClasspath()[i].getPath().toOSString());
+//						classpaths.add(jp.getRawClasspath()[i].getPath().toOSString());
+//					}
+//					
+//				}
+//			} catch (JavaModelException e) {
+//				e.printStackTrace();
+//			}
+//		} 
+//		
+//		return classpaths;
+//	}
+
+	/**
+	 * @return the sources
+	 */
+	public ArrayList<String> getSources() {
+		if (this.sources.size() == 0) {
+			//setFilterSourceContent
+			String list = this.getFilterSourceContent();
+			StringTokenizer st = new StringTokenizer(list, "\t");
+			
+			while (st.hasMoreTokens()) {
+				sources.add(st.nextToken());
+			}
+		}
+
+		return sources;
+	}
+
+
+
+	/**
+	 * @param sources the sources to set
+	 */
+	public void setSources(ArrayList<String> sources) {
+		this.sources = sources;
+	}
+
 
 
 	/**
@@ -211,28 +303,28 @@ public class BuilderSettings {
 	 * @return the filterContent
 	 */
 	public String getFilterContent() {
-		return filterContent;
+		return filterClassContent;
 	}
 
 	/**
 	 * @param filterContent the filterContent to set
 	 */
 	public void setFilterContent(String filterContent) {
-		this.filterContent = filterContent;
+		this.filterClassContent = filterContent;
 	}
 
 	/**
 	 * @return the useFilter
 	 */
 	public boolean isUseFilter() {
-		return useFilter;
+		return useClassFilter;
 	}
 
 	/**
 	 * @param useFilter the useFilter to set
 	 */
 	public void setUseFilter(boolean useFilter) {
-		this.useFilter = useFilter;
+		this.useClassFilter = useFilter;
 	}
 
 	/**
@@ -309,7 +401,8 @@ public class BuilderSettings {
 			} catch (JavaModelException e) {
 				e.printStackTrace();
 			}
-		}
+		} 
+		
 		return classpaths;
 	}
 

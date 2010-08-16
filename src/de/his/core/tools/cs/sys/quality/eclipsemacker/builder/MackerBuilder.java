@@ -8,10 +8,8 @@ import java.io.LineNumberReader;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.StringTokenizer;
-
 import net.innig.macker.event.AccessRuleViolation;
 import net.innig.macker.structure.ClassParseException;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
@@ -24,11 +22,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.QualifiedName;
-
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
-
-
 import de.his.core.tools.cs.sys.quality.eclipsemacker.gui.PreferenceConstants;
 import de.his.core.tools.cs.sys.quality.eclipsemacker.gui.Property;
 
@@ -157,9 +151,10 @@ private CustomMacker cMa;
 
 		cMa = new CustomMacker();
 		
-		if (getProject().getPersistentProperty(new QualifiedName("", PreferenceConstants.RULES_PATH)) == null) {
+		if (getProject().getPersistentProperty(new QualifiedName("", PreferenceConstants.SOURCE_FILTER)) == null) {
 			new Property().init(getProject());
 		}
+		
 		
 		this.getBuilderSettings().setProject(getProject());
 		this.getBuilderSettings().setProjectSettings();
@@ -187,7 +182,7 @@ private CustomMacker cMa;
 	private void checkResources (IProgressMonitor monitor) {
 		
 		if (cMa.hasRules() && cMa.hasClasses()) {
-			monitor.subTask("Macker: Check Classes: ");
+			monitor.subTask("Macker, pruefe Klassen: ");
 			monitor.worked(1);
 			//Macker Classfile check
             if (cMa.checkClass()) {
@@ -195,7 +190,6 @@ private CustomMacker cMa;
             		try {
 						importCheck(cMa, monitor);
 					} catch (CoreException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 
@@ -220,14 +214,28 @@ private CustomMacker cMa;
 		boolean toCheck = false;
 
 		StringTokenizer st = new StringTokenizer(getBuilderSettings().getFilterContent(), "\t");
-	     //TODO property in gui um aussnahmen zu definieren
-		if (path.toString().replace("\\", "/").indexOf("src/test/") > -1) {
-			return false;
-		}
+//	     //TODO property in gui um aussnahmen zu definieren
+//		if (path.toString().replace("\\", "/").indexOf("src/test/") > -1) {
+//			return false;
+//		}
+		
 		
 		while (st.hasMoreTokens()) { 
 			if (path.toString().indexOf(st.nextToken()) > -1 ) {
-				return true;
+				
+				if (getBuilderSettings().isUseSourceFilter()) {
+					for (String s : getBuilderSettings().getSources()) {
+						
+						if (path.toString().indexOf(s) > -1) {
+							System.out.println("?!" + s + " " + path.toString());
+							return true;
+						}
+					}
+				} else {
+					return true;
+				}
+				
+				
 			}
 	     }
 		return toCheck;
@@ -242,9 +250,6 @@ private CustomMacker cMa;
 	 * @param resource veraenderte Ressource.
 	 */
 	void checkMacker(IResource resource, IProgressMonitor monitor)  {
-		
-
-
 		/*
 		 * Nur java Dateien sind fuer diesen Builder relevant.
 		 */
@@ -271,10 +276,8 @@ private CustomMacker cMa;
 				
 				deleteMarkers(javaFile);
 				File classFile = null;
-				
-				/*
-				 *Bin file (*.Class) instanziieren.
-				 */
+
+				//Bin file (*.Class) instanziieren.
 				String src = getSourceFolder(javaFile, getBuilderSettings().getjProject());
 				try {
 				
@@ -290,9 +293,7 @@ private CustomMacker cMa;
 					
 					String classLoc = javaFile.getFullPath().toString().replace(src, "")
 						.replace("/"+projectName+"/","").replace("/", ".").replace(".java", "");
-					
-					
-					//cMa.getJavaMap().put(classFile.getName().replace(".class", ""), javaFile);
+
 					cMa.getJavaMap().put(classLoc, javaFile);
 					try {
 						cMa.addClass(classFile);
@@ -301,7 +302,7 @@ private CustomMacker cMa;
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
-					monitor.subTask("Pruefen: " +count+" "+ javaFile.getName());
+					monitor.subTask("Macker, Lade Klassen: " +count+" "+ javaFile.getName());
 				
 
 				}
@@ -332,7 +333,7 @@ private CustomMacker cMa;
 			}
 			
 		}
-
+		System.out.println("src" + src);
 		return src;
 	}
 
@@ -352,14 +353,17 @@ private CustomMacker cMa;
 		boolean erfolg = false;
 		int c = 1;
 		int s = cMa.getListener().getViolation().size();
+		InputStream in = null;
+		LineNumberReader reader = null;
+		
 		for (Map.Entry entry : cMa.getListener().getViolation().entrySet()) {
-	    	monitor.subTask("Macker: Setze Marker: " + c+"/"+s);
+	    	monitor.subTask("Macker, Setze Warnungen: " + c+"/"+s);
 			//marker setzen
 			monitor.worked(1);
-			InputStream in = null;
+			
 	
 			in = ((IFile)cm.getJavaMap().get(entry.getKey())).getContents();
-			LineNumberReader reader = new LineNumberReader(new InputStreamReader(in));
+			reader = new LineNumberReader(new InputStreamReader(in));
 			
 			try {
 				
