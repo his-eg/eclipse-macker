@@ -203,7 +203,7 @@ private CustomMacker cMa;
     					return;
     				}
     				if (getBuilderSettings().isCheckContent()) {
-    					checkClassContent(cMa);
+    					//checkClassContent(cMa);
     				}
            }
 		
@@ -367,6 +367,8 @@ private CustomMacker cMa;
 				@SuppressWarnings("unchecked")
 				ArrayList<AccessRuleViolation> tmp = (ArrayList<AccessRuleViolation>) cm.getListener().getViolation().get(entry.getKey());
 				
+			if (!getBuilderSettings().isCheckContent()) {
+				
 			
 				while (reader.ready() && !line.startsWith("publicclass") && !line.startsWith("abstractclass") && cm.getListener().getViolation().get(entry.getKey()).size() > 0) {
 					line = reader.readLine().replaceAll("\t", "").replaceAll(" ", "");
@@ -389,6 +391,23 @@ private CustomMacker cMa;
 						}
 					}
 				}
+			} else {
+				while (reader.ready()) {
+					line = reader.readLine().replaceAll("\t", "").replaceAll(" ", "");
+					if (!line.startsWith("package") && !line.startsWith("//") && !line.startsWith("/*")&& !line.startsWith("*") && !line.startsWith("/**")) {
+						
+						for (int i = 0; i < cm.getListener().getViolation().get(entry.getKey()).size(); i++) {
+							String to = cm.getListener().getViolation().get(entry.getKey()).get(i).getTo().toString();
+							int start = to.lastIndexOf(".") + 1;
+							
+							if (line.indexOf(to.substring(start)) > -1) {
+								setMarker(cm, reader.getLineNumber(), i, entry.getKey().toString());
+							}
+						}
+
+					}
+				}
+			}
 				in.close();
 				reader.close();
 				//cm.getListener().getViolation().get(entry.getKey()).setViolation(tmp);
@@ -439,41 +458,6 @@ private CustomMacker cMa;
 		}
 	}
 	
-	
-	private void checkClassContent(CustomMacker cm) {
-	
-//		InputStream in = null;
-//		try {
-//			in = cm.getJavaIFile().getContents();
-//			LineNumberReader reader = new LineNumberReader(new InputStreamReader(in));
-//			String line = "";
-//			
-//			while (reader.ready()) {
-//				line = reader.readLine();
-//				line = line.replaceAll("\t", "").replaceAll(" ", "");
-//				if (!line.startsWith("import") && !line.startsWith("package") && !line.startsWith("//") && !line.startsWith("/*")&& !line.startsWith("*")) {
-//					
-//					for (int i = 0; i < cm.getListener().getViolationList().size(); i++) {
-//						String to = cm.getListener().getViolationList().get(i).getTo().toString();
-//						int start = to.lastIndexOf(".") + 1;
-//						
-//						if (line.indexOf(to.substring(start)) > -1) {
-//							setMarker(cm, reader.getLineNumber(), i);
-//						}
-//					}
-//
-//				}
-//			}
-//				
-//
-//		} catch (CoreException e) {
-//			e.printStackTrace();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-		
-
-	}
 	
 
 	/**
