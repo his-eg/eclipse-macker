@@ -187,16 +187,13 @@ private CustomMacker cMa;
 	private void checkResources (IProgressMonitor monitor) {
 		
 		if (cMa.hasRules() && cMa.hasClasses()) {
-			monitor.subTask("Check Classes: " + "test");
+			monitor.subTask("Macker: Check Classes: ");
 			monitor.worked(1);
 			//Macker Classfile check
             if (cMa.checkClass()) {
 
-                	monitor.subTask("Setze Marker: " + "test");
-            		//marker setzen
-            		monitor.worked(1);
             		try {
-						importCheck(cMa);
+						importCheck(cMa, monitor);
 					} catch (CoreException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -278,10 +275,10 @@ private CustomMacker cMa;
 				/*
 				 *Bin file (*.Class) instanziieren.
 				 */
-				
+				String src = getSourceFolder(javaFile, getBuilderSettings().getjProject());
 				try {
-
-					classFile = new File(javaFile.getLocation().toString().replace(getSourceFolder(javaFile, getBuilderSettings().getjProject()),
+				
+					classFile = new File(javaFile.getLocation().toString().replace(src,
 							getBuilderSettings().getjProject().getOutputLocation().toOSString().replace(projectName, ""))
 							.replace("java", "class").replace("\\", "/"));
 
@@ -290,8 +287,13 @@ private CustomMacker cMa;
 				}
 
 				if (classFile != null) {	
-			
-					cMa.getJavaMap().put(classFile.getName().replace(".class", ""), javaFile);
+					
+					String classLoc = javaFile.getFullPath().toString().replace(src, "")
+						.replace("/"+projectName+"/","").replace("/", ".").replace(".java", "");
+					
+					
+					//cMa.getJavaMap().put(classFile.getName().replace(".class", ""), javaFile);
+					cMa.getJavaMap().put(classLoc, javaFile);
 					try {
 						cMa.addClass(classFile);
 					} catch (ClassParseException e) {
@@ -346,54 +348,55 @@ private CustomMacker cMa;
 	 * 
 	 * @throws CoreException
 	 */
-	private boolean importCheck(CustomMacker cm) throws CoreException {
+	private boolean importCheck(CustomMacker cm, IProgressMonitor monitor) throws CoreException {
 		boolean erfolg = false;
-		
+		int c = 1;
+		int s = cMa.getListener().getViolation().size();
 		for (Map.Entry entry : cMa.getListener().getViolation().entrySet()) {
+	    	monitor.subTask("Macker: Setze Marker: " + c+"/"+s);
+			//marker setzen
+			monitor.worked(1);
+			InputStream in = null;
+	
+			in = ((IFile)cm.getJavaMap().get(entry.getKey())).getContents();
+			LineNumberReader reader = new LineNumberReader(new InputStreamReader(in));
 			
-            
-		
-		
-		InputStream in = null;
-
-		in = ((IFile)cm.getJavaMap().get(entry.getKey())).getContents();
-		LineNumberReader reader = new LineNumberReader(new InputStreamReader(in));
-		
-		try {
+			try {
+				
+				String line = "";
+				@SuppressWarnings("unchecked")
+				ArrayList<AccessRuleViolation> tmp = (ArrayList<AccessRuleViolation>) cm.getListener().getViolation().get(entry.getKey());
+				
 			
-			String line = "";
-			@SuppressWarnings("unchecked")
-			ArrayList<AccessRuleViolation> tmp = (ArrayList<AccessRuleViolation>) cm.getListener().getViolation().get(entry.getKey());
-			
-		
-			while (reader.ready() && !line.startsWith("publicclass") && !line.startsWith("abstractclass") && cm.getListener().getViolation().get(entry.getKey()).size() > 0) {
-				line = reader.readLine().replaceAll("\t", "").replaceAll(" ", "");
-				if (line.startsWith("import")) {
-					/*
-					 * Ein Import-Tag wird auf Uebereinstimmung mit den gefundenen Macker-Events geprueft.
-					 */
-
-					//eine line kann mehrere marker besitzen
-					for (int i = 0; i < cm.getListener().getViolation().get(entry.getKey()).size(); i++) {
-
-						if (checkImportViolation(line, cm.getListener().getViolation().get(entry.getKey()).get(i).getTo().toString())) {
-							
-							setMarker(cm, reader.getLineNumber(), i, entry.getKey().toString());
-							/*
-							 * bei Uebereinstimmung betreffenden Event aus Liste entfernen.
-							 */
-							cm.getListener().getViolation().get(entry.getKey()).remove(i);
+				while (reader.ready() && !line.startsWith("publicclass") && !line.startsWith("abstractclass") && cm.getListener().getViolation().get(entry.getKey()).size() > 0) {
+					line = reader.readLine().replaceAll("\t", "").replaceAll(" ", "");
+					if (line.startsWith("import")) {
+						/*
+						 * Ein Import-Tag wird auf Uebereinstimmung mit den gefundenen Macker-Events geprueft.
+						 */
+	
+						//eine line kann mehrere marker besitzen
+						for (int i = 0; i < cm.getListener().getViolation().get(entry.getKey()).size(); i++) {
+	
+							if (checkImportViolation(line, cm.getListener().getViolation().get(entry.getKey()).get(i).getTo().toString())) {
+								
+								setMarker(cm, reader.getLineNumber(), i, entry.getKey().toString());
+								/*
+								 * bei Uebereinstimmung betreffenden Event aus Liste entfernen.
+								 */
+								cm.getListener().getViolation().get(entry.getKey()).remove(i);
+							}
 						}
 					}
 				}
+				in.close();
+				reader.close();
+				//cm.getListener().getViolation().get(entry.getKey()).setViolation(tmp);
+			} catch (IOException e) {
+				erfolg = false;
+				e.printStackTrace();
 			}
-			in.close();
-			reader.close();
-			//cm.getListener().getViolation().get(entry.getKey()).setViolation(tmp);
-		} catch (IOException e) {
-			erfolg = false;
-			e.printStackTrace();
-		}
+			c++;
 		}
 		return erfolg;
 		

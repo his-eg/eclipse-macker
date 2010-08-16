@@ -39,12 +39,13 @@ public class MackerListener implements  MackerEventListener {
 			 AccessRuleViolation e = (AccessRuleViolation) event;
 			 
 			 
-			 if (violation.get(e.getFrom().getClassName()) == null) {
-				 violation.put(e.getFrom().getClassName(), new ArrayList<AccessRuleViolation>()); 
+			 if (violation.get(e.getFrom().toString()) == null) {
+				 violation.put(e.getFrom().toString(), new ArrayList<AccessRuleViolation>()); 
+			 
 			 } 
 			
-			 violation.get(e.getFrom().getClassName()).add(e);
-			 
+			 violation.get(e.getFrom().toString()).add(e);
+			
 			
 			 
 		 }
