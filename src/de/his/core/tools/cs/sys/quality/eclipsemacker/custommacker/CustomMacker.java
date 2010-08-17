@@ -1,4 +1,4 @@
-package de.his.core.tools.cs.sys.quality.eclipsemacker.builder;
+package de.his.core.tools.cs.sys.quality.eclipsemacker.custommacker;
 
 import java.io.File;
 import java.io.IOException;
@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.eclipse.core.resources.IFile;
+
 import net.innig.macker.Macker;
 import net.innig.macker.event.ListenerException;
 import net.innig.macker.event.MackerIsMadException;

@@ -23,6 +23,9 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.jdt.core.IJavaProject;
+
+import de.his.core.tools.cs.sys.quality.eclipsemacker.custommacker.CustomMacker;
+import de.his.core.tools.cs.sys.quality.eclipsemacker.custommacker.ShowAs;
 import de.his.core.tools.cs.sys.quality.eclipsemacker.gui.PreferenceConstants;
 import de.his.core.tools.cs.sys.quality.eclipsemacker.gui.Property;
 

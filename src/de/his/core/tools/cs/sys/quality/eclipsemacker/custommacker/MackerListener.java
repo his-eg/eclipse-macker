@@ -1,7 +1,7 @@
 /**
  * 
  */
-package de.his.core.tools.cs.sys.quality.eclipsemacker.builder;
+package de.his.core.tools.cs.sys.quality.eclipsemacker.custommacker;
 
 import java.util.ArrayList;
 import java.util.HashMap;

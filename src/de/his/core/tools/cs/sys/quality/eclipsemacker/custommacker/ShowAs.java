@@ -1,4 +1,4 @@
-package de.his.core.tools.cs.sys.quality.eclipsemacker.builder;
+package de.his.core.tools.cs.sys.quality.eclipsemacker.custommacker;
 
 /**
  * @author Bender

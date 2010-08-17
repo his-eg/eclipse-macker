@@ -11,6 +11,7 @@ Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: de.his.core.tools.cs.sys.quality.eclipsemacker,
  de.his.core.tools.cs.sys.quality.eclipsemacker.builder,
+ de.his.core.tools.cs.sys.quality.eclipsemacker.custommacker,
  de.his.core.tools.cs.sys.quality.eclipsemacker.gui,
  de.his.core.tools.cs.sys.quality.eclipsemacker.view
 Bundle-ClassPath: bin/de/,

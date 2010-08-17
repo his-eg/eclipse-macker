@@ -18,7 +18,7 @@ import org.eclipse.ui.*;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.SWT;
 
-import de.his.core.tools.cs.sys.quality.eclipsemacker.builder.CustomMacker;
+import de.his.core.tools.cs.sys.quality.eclipsemacker.custommacker.CustomMacker;
 
 /**
  * @author Bender

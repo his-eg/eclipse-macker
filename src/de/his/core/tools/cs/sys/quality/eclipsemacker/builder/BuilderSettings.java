@@ -18,6 +18,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
+import de.his.core.tools.cs.sys.quality.eclipsemacker.custommacker.CustomMacker;
 import de.his.core.tools.cs.sys.quality.eclipsemacker.gui.PreferenceConstants;
 
 /**
