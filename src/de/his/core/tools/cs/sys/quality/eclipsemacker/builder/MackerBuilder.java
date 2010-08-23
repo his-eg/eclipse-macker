@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Map;
 import java.util.StringTokenizer;
 import net.innig.macker.event.AccessRuleViolation;
@@ -22,7 +23,14 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IRegion;
+import org.eclipse.jdt.core.ISourceRange;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 
 import de.his.core.tools.cs.sys.quality.eclipsemacker.custommacker.CustomMacker;
 import de.his.core.tools.cs.sys.quality.eclipsemacker.custommacker.ShowAs;
@@ -36,9 +44,10 @@ public class MackerBuilder extends IncrementalProjectBuilder {
     
     
 private int count = 0;
+private int count2 = 0;
 private BuilderSettings builderSettings;
 private CustomMacker cMa;
-
+public static ArrayList<String> errorsB = new ArrayList<String>();
 
 	public MackerBuilder() {
 		this.builderSettings = new BuilderSettings();
@@ -151,8 +160,9 @@ private CustomMacker cMa;
 	 */
 	protected IProject[] build(int kind, Map args, IProgressMonitor monitor)
 			throws CoreException {
-
+		Date start = new Date();
 		cMa = new CustomMacker();
+		count = 0;
 		
 		if (getProject().getPersistentProperty(new QualifiedName("", PreferenceConstants.SOURCE_FILTER)) == null) {
 			new Property().init(getProject());
@@ -177,7 +187,9 @@ private CustomMacker cMa;
 		}
 		//gesammelten resourcen vom builder pruefen
 		checkResources(monitor);
-		
+		Date end = new Date();
+		errorsB.add("#7 : " + ((end.getTime() - start.getTime())/1000));
+
 		return null;
 	}
 
@@ -191,7 +203,7 @@ private CustomMacker cMa;
             if (cMa.checkClass()) {
 
             		try {
-						importCheck(cMa, monitor);
+						importCheck(monitor);
 					} catch (CoreException e) {
 						e.printStackTrace();
 					}
@@ -199,9 +211,7 @@ private CustomMacker cMa;
     				if (monitor.isCanceled()) {
     					return;
     				}
-    				if (getBuilderSettings().isCheckContent()) {
-    					//checkClassContent(cMa);
-    				}
+    				
            }
 		
 		}
@@ -213,24 +223,18 @@ private CustomMacker cMa;
 	
 	
 	
-	private boolean toCheck(IPath path) {
+	private boolean toCheck(String path) {
 		boolean toCheck = false;
 
 		StringTokenizer st = new StringTokenizer(getBuilderSettings().getFilterContent(), "\t");
-//	     //TODO property in gui um aussnahmen zu definieren
-//		if (path.toString().replace("\\", "/").indexOf("src/test/") > -1) {
-//			return false;
-//		}
-		
 		
 		while (st.hasMoreTokens()) { 
-			if (path.toString().indexOf(st.nextToken()) > -1 ) {
+			if (path.indexOf(st.nextToken()) > -1 ) {
 				
 				if (getBuilderSettings().isUseSourceFilter()) {
 					for (String s : getBuilderSettings().getSources()) {
 						
-						if (path.toString().indexOf(s) > -1) {
-							System.out.println("?!" + s + " " + path.toString());
+						if (path.indexOf(s) > -1) {
 							return true;
 						}
 					}
@@ -257,20 +261,53 @@ private CustomMacker cMa;
 		 * Nur java Dateien sind fuer diesen Builder relevant.
 		 */
 		if (resource instanceof IFile && resource.getName().endsWith(".java")) {
-			count++;
+			
 			/*
 			 * Die veranderte Ressource instanziieren.
 			 */
 			IFile javaFile = (IFile) resource;
+			String fullP = javaFile.getFullPath().toString();
+			
 			boolean run = getBuilderSettings().isUseFilter();
 			
 			boolean checkFilter = true;
-			
+			//TEST1 
 			if (run) {
-				checkFilter = toCheck(javaFile.getFullPath());
+				checkFilter = toCheck(fullP);
 			} 
 			
 			if (checkFilter) {
+				
+				//test direkter zugriff auf class files, er findet jedoch nicht alle.
+				
+//				IRegion region = JavaCore.newRegion();
+//				IJavaElement je = JavaCore.create(javaFile);
+//				region.add(je);
+//				File classFile = null;
+//				IResource[] resources = null;
+//				try {
+//					resources = JavaCore.getGeneratedResources(region, false);
+//
+//					classFile = new File(resources[0].getLocation().toString());
+//					count++;
+//				} catch(Exception e) {
+//					errorsB.add("#8 " + fullP);
+//					count = count-1;
+//				}
+				//test ende
+				
+				
+				//test2 imports direkt holen, jedoch keine zeilenenummer
+//				ICompilationUnit javaCompU = JavaCore.createCompilationUnitFrom(javaFile);
+//				try {
+//					ISourceRange sr = javaCompU.getImports()[0].getSourceRange();
+//					System.out.println(sr.toString());
+//					System.out.println(javaCompU.getImports()[0].));
+//				} catch (JavaModelException e1) {
+//					// TODO Auto-generated catch block
+//					e1.printStackTrace();
+//				}
+				//test2 ende
 				
 				//IJavaProject javaProject = JavaCore.create(project);
 				String projectName = resource.getProject().getName();
@@ -278,36 +315,46 @@ private CustomMacker cMa;
 				monitor.beginTask(javaFile.getName(), 8000);
 				
 				deleteMarkers(javaFile);
-				File classFile = null;
+				//File classFile = null;
 
 				//Bin file (*.Class) instanziieren.
-				String src = getSourceFolder(javaFile, getBuilderSettings().getjProject());
+				File classFile = null;
+				String src = getSourceFolder(fullP, projectName);
 				try {
 				
 					classFile = new File(javaFile.getLocation().toString().replace(src,
 							getBuilderSettings().getjProject().getOutputLocation().toOSString().replace(projectName, ""))
 							.replace("java", "class").replace("\\", "/"));
-
+					
 				} catch (CoreException e2) {
 					e2.printStackTrace();
 				}
 
 				if (classFile != null) {	
+					//String i = resources[0].getFullPath().toString();
 					
-					String classLoc = javaFile.getFullPath().toString().replace(src, "")
+					String classLoc = fullP.replace(src, "")
 						.replace("/"+projectName+"/","").replace("/", ".").replace(".java", "");
-
+//					String classLoc = i.substring(i.replace("/", ".")
+//							.indexOf("de."), i.length()).replace("/"+projectName+"/","")
+//							.replace(".class", "").replace("/", ".");
+					count++;
 					cMa.getJavaMap().put(classLoc, javaFile);
 					try {
 						cMa.addClass(classFile);
+						count2++;
 					} catch (ClassParseException e) {
-						e.printStackTrace();
+						errorsB.add("#12 " + fullP + " e");
 					} catch (IOException e) {
-						e.printStackTrace();
-					}
+						errorsB.add("#11 " + fullP + " e");
+						}
 					monitor.subTask("Macker, Lade Klassen: " +count+" "+ javaFile.getName());
 				
 
+				} else {
+						errorsB.add("#9 " + fullP + " ressource null");
+					
+					
 				}
 			}
 		}
@@ -324,19 +371,18 @@ private CustomMacker cMa;
 	 * @return aktuellen classpath
 	 */
 	
-	private String getSourceFolder(IFile javaFile, IJavaProject javaProject) {
+	private String getSourceFolder(String path, String pName) {
 		String src = "";
-		String projectName = javaProject.getProject().getName();
 
 		for (int i = 0; i < getBuilderSettings().getClasspaths().size(); i++) {
-			String vgl = getBuilderSettings().getClasspaths().get(i).replace("/"+projectName, "");
+			String vgl = getBuilderSettings().getClasspaths().get(i).replace("\\", "/");
 			//den aktuellen classpath ermitteln, durch vergleich mit java file path.
-			if (javaFile.getFullPath().toOSString().indexOf(vgl) > -1) {
-				src = getBuilderSettings().getClasspaths().get(i).replace("\\", "/").replace("/"+projectName, "");
+			if (path.indexOf(vgl) > -1) {
+				src = getBuilderSettings().getClasspaths().get(i).replace("\\", "/").replace("/"+getProject().getName(), "");
 			}
 			
 		}
-		System.out.println("src" + src);
+		
 		return src;
 	}
 
@@ -352,7 +398,7 @@ private CustomMacker cMa;
 	 * 
 	 * @throws CoreException
 	 */
-	private boolean importCheck(CustomMacker cm, IProgressMonitor monitor) throws CoreException {
+	private boolean importCheck(IProgressMonitor monitor) throws CoreException {
 		boolean erfolg = false;
 		int c = 1;
 		int s = cMa.getListener().getViolation().size();
@@ -365,55 +411,19 @@ private CustomMacker cMa;
 			monitor.worked(1);
 			
 	
-			in = ((IFile)cm.getJavaMap().get(entry.getKey())).getContents();
+			in = ((IFile)cMa.getJavaMap().get(entry.getKey())).getContents();
 			reader = new LineNumberReader(new InputStreamReader(in));
 			
 			try {
 				
 				String line = "";
 				@SuppressWarnings("unchecked")
-				ArrayList<AccessRuleViolation> tmp = (ArrayList<AccessRuleViolation>) cm.getListener().getViolation().get(entry.getKey());
+				ArrayList<AccessRuleViolation> tmp = (ArrayList<AccessRuleViolation>) cMa.getListener().getViolation().get(entry.getKey());
 				
 			if (!getBuilderSettings().isCheckContent()) {
-				
-			
-				while (reader.ready() && !line.startsWith("publicclass") && !line.startsWith("abstractclass") && cm.getListener().getViolation().get(entry.getKey()).size() > 0) {
-					line = reader.readLine().replaceAll("\t", "").replaceAll(" ", "");
-					if (line.startsWith("import")) {
-						/*
-						 * Ein Import-Tag wird auf Uebereinstimmung mit den gefundenen Macker-Events geprueft.
-						 */
-	
-						//eine line kann mehrere marker besitzen
-						for (int i = 0; i < cm.getListener().getViolation().get(entry.getKey()).size(); i++) {
-	
-							if (checkImportViolation(line, cm.getListener().getViolation().get(entry.getKey()).get(i).getTo().toString())) {
-								
-								setMarker(cm, reader.getLineNumber(), i, entry.getKey().toString());
-								/*
-								 * bei Uebereinstimmung betreffenden Event aus Liste entfernen.
-								 */
-								cm.getListener().getViolation().get(entry.getKey()).remove(i);
-							}
-						}
-					}
-				}
+				erfolg = checkImports(reader, entry);
 			} else {
-				while (reader.ready()) {
-					line = reader.readLine().replaceAll("\t", "").replaceAll(" ", "");
-					if (!line.startsWith("package") && !line.startsWith("//") && !line.startsWith("/*")&& !line.startsWith("*") && !line.startsWith("/**")) {
-						
-						for (int i = 0; i < cm.getListener().getViolation().get(entry.getKey()).size(); i++) {
-							String to = cm.getListener().getViolation().get(entry.getKey()).get(i).getTo().toString();
-							int start = to.lastIndexOf(".") + 1;
-							
-							if (line.indexOf(to.substring(start)) > -1) {
-								setMarker(cm, reader.getLineNumber(), i, entry.getKey().toString());
-							}
-						}
-
-					}
-				}
+				erfolg = checkFullContent(reader, entry);
 			}
 				in.close();
 				reader.close();
@@ -429,6 +439,92 @@ private CustomMacker cMa;
 		
 		} 
 	
+	
+	private boolean checkImports(LineNumberReader reader, Map.Entry entry) throws IOException {
+		String line = "";
+		while (reader.ready() && !line.startsWith("public class") && !line.startsWith("abstract class") && cMa.getListener().getViolation().get(entry.getKey()).size() > 0) {
+			line = reader.readLine().trim();
+			if (line.startsWith("import")) {
+				// Ein Import-Tag wird auf Uebereinstimmung mit den gefundenen Macker-Events geprueft.
+				//eine line kann mehrere marker besitzen
+				for (int i = 0; i < cMa.getListener().getViolation().get(entry.getKey()).size(); i++) {
+
+					if (checkImportLineViolation(line, cMa.getListener().getViolation().get(entry.getKey()).get(i).getTo().toString())) {
+						
+						setMarker(cMa, reader.getLineNumber(), i, entry.getKey().toString());			
+						  //bei Uebereinstimmung betreffenden Event aus Liste entfernen.
+						cMa.getListener().getViolation().get(entry.getKey()).remove(i);
+					}
+				}
+			}
+		}
+		return true;
+	}
+	
+	
+	
+	
+	private boolean checkFullContent(LineNumberReader reader, Map.Entry entry) throws IOException {
+		String line = "";
+		
+		while (reader.ready()) {
+			line = reader.readLine().trim();
+			
+			if (!line.startsWith("package") && !line.startsWith("//") && !line.startsWith("/*")&& !line.startsWith("*") && !line.startsWith("/**")) {
+				
+				for (int i = 0; i < cMa.getListener().getViolation().get(entry.getKey()).size(); i++) {
+					String to = cMa.getListener().getViolation().get(entry.getKey()).get(i).getTo().toString();
+					int start = to.lastIndexOf(".") + 1;
+					
+					if (line.indexOf(to.substring(start)) > -1) {
+						if (line.startsWith("import")) {
+							setMarker(cMa, reader.getLineNumber(), i, entry.getKey().toString());
+
+						} else {
+							StringTokenizer st = new StringTokenizer(line, " ");
+							boolean gefunden = false;
+							
+							while (st.hasMoreTokens() && !gefunden) {
+								String t = st.nextToken();
+								 
+								//direkt zuzuordnen
+								if (t.equals(to.substring(start))) {
+									setMarker(cMa, reader.getLineNumber(), i, entry.getKey().toString());
+									gefunden = true;
+								//statischer zugriff auf die klasse	
+								} else if (t.indexOf(".") > -1 ) {
+									if ((t.substring(0, t.indexOf(".")).equals(to.substring(start)))) {
+										setMarker(cMa, reader.getLineNumber(), i, entry.getKey().toString());
+										gefunden = true;
+									}
+								//verwendung der klasse als exception (im ty/catch block)
+								} else if (t.startsWith("(")) {
+									if (((t.replace("(", ""))).equals(to.substring(start))) {
+										setMarker(cMa, reader.getLineNumber(), i, entry.getKey().toString());
+										gefunden = true;
+									}
+								//verwendung der klasse als parameter	
+								} else if (line.startsWith("public") || line.startsWith("private") || line.startsWith("protected")) {
+									setMarker(cMa, reader.getLineNumber(), i, entry.getKey().toString());
+									gefunden = true;
+								//instanziieren der klasse	
+								} else if ((line.indexOf("new " + to.substring(start) + "(")) > -1) {
+									setMarker(cMa, reader.getLineNumber(), i, entry.getKey().toString());
+									gefunden = true;
+								//verketteter aufruf der klasse	
+								} else if ((line.indexOf("(" + to.substring(start) + ".")) > -1) {
+									setMarker(cMa, reader.getLineNumber(), i, entry.getKey().toString());
+									gefunden = true;
+								}
+							}
+						}
+					}
+				}
+
+			}
+		}
+		return true;
+	}
 	
 	
 	private void setMarker(CustomMacker cm, int line, int index, String className) {
@@ -503,7 +599,7 @@ private CustomMacker cMa;
 	 * 
 	 * @return true falls Mackermeldung auf Import-tag zutrifft.
 	 */
-	private boolean checkImportViolation (String importline, String to) {
+	private boolean checkImportLineViolation (String importline, String to) {
 		boolean violation = false;
 		to = to.replace("$", ".");
 		if (importline.endsWith("*;")) {
@@ -568,11 +664,15 @@ private CustomMacker cMa;
 
 
 		if (getBuilderSettings().isRunOnFullBuild()) {
-			
+		
 			try {
 				getProject().accept(new MackerResourceVisitor(monitor));
 			} catch (CoreException e) {
 			} finally {
+			
+				
+				errorsB.add("#5 : " + count);
+				errorsB.add("#6 : " + count2);
 				
 				System.out.println("fertigF");
 			}

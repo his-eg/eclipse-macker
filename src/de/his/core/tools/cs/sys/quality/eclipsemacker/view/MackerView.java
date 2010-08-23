@@ -18,6 +18,7 @@ import org.eclipse.ui.*;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.SWT;
 
+import de.his.core.tools.cs.sys.quality.eclipsemacker.builder.MackerBuilder;
 import de.his.core.tools.cs.sys.quality.eclipsemacker.custommacker.CustomMacker;
 
 /**
@@ -33,7 +34,7 @@ public class MackerView  extends ViewPart {
 
 	private TableViewer viewer;
 	private Action action1;
-	private ArrayList<CustomMacker> all = CustomMacker.all;
+	private ArrayList<String> all = MackerBuilder.errorsB;
 
 	/*
 	 * The content provider class is responsible for
@@ -69,6 +70,25 @@ public class MackerView  extends ViewPart {
 	}
 	
 	
+	/**
+	 * @return the all
+	 */
+	public ArrayList<String> getAll() {
+		return all;
+	}
+
+	/**
+	 * @param all the all to set
+	 */
+	public void setAll(ArrayList<String> all) {
+		this.all = all;
+	}
+
+
+
+	
+	
+
 	class ViewLabelProvider extends LabelProvider implements ITableLabelProvider {
 
 
@@ -76,11 +96,11 @@ public class MackerView  extends ViewPart {
 			
 			if (all.size() > 0) {
 
-			CustomMacker instr = (CustomMacker) obj;
+			String instr = (String) obj;
 			
 			switch (index) {
 			case 0:
-				return new String("");
+				return  instr;
 			case 1:
 				return new Integer(1).toString();
 			
