@@ -435,8 +435,6 @@ public static ArrayList<String> errorsB = new ArrayList<String>();
 			c++;
 		}
 		return erfolg;
-		
-		
 		} 
 	
 	
@@ -461,9 +459,7 @@ public static ArrayList<String> errorsB = new ArrayList<String>();
 		return true;
 	}
 	
-	
-	
-	
+
 	private boolean checkFullContent(LineNumberReader reader, Map.Entry entry) throws IOException {
 		String line = "";
 		
@@ -476,45 +472,49 @@ public static ArrayList<String> errorsB = new ArrayList<String>();
 					String to = cMa.getListener().getViolation().get(entry.getKey()).get(i).getTo().toString();
 					int start = to.lastIndexOf(".") + 1;
 					
-					if (line.indexOf(to.substring(start)) > -1) {
-						if (line.startsWith("import")) {
-							setMarker(cMa, reader.getLineNumber(), i, entry.getKey().toString());
+					if (line.startsWith("import") && checkImportLineViolation(line, cMa.getListener().getViolation().get(entry.getKey()).get(i).getTo().toString())) {
+						setMarker(cMa, reader.getLineNumber(), i, entry.getKey().toString());
+					
+					} else if (line.indexOf(to.substring(start)) > -1) {
 
-						} else {
-							StringTokenizer st = new StringTokenizer(line, " ");
-							boolean gefunden = false;
+						StringTokenizer st = new StringTokenizer(line, " ");
+						boolean gefunden = false;
 							
-							while (st.hasMoreTokens() && !gefunden) {
-								String t = st.nextToken();
+						while (st.hasMoreTokens() && !gefunden) {
+							String t = st.nextToken();
 								 
-								//direkt zuzuordnen
-								if (t.equals(to.substring(start))) {
-									setMarker(cMa, reader.getLineNumber(), i, entry.getKey().toString());
-									gefunden = true;
+							//direkt zuzuordnen
+							if (t.equals(to.substring(start))) {
+								setMarker(cMa, reader.getLineNumber(), i, entry.getKey().toString());
+								gefunden = true;
 								//statischer zugriff auf die klasse	
-								} else if (t.indexOf(".") > -1 ) {
-									if ((t.substring(0, t.indexOf(".")).equals(to.substring(start)))) {
-										setMarker(cMa, reader.getLineNumber(), i, entry.getKey().toString());
-										gefunden = true;
-									}
-								//verwendung der klasse als exception (im ty/catch block)
-								} else if (t.startsWith("(")) {
-									if (((t.replace("(", ""))).equals(to.substring(start))) {
-										setMarker(cMa, reader.getLineNumber(), i, entry.getKey().toString());
-										gefunden = true;
-									}
-								//verwendung der klasse als parameter	
-								} else if (line.startsWith("public") || line.startsWith("private") || line.startsWith("protected")) {
+							} if (t.indexOf(".") > -1 ) {
+								if ((t.substring(0, t.indexOf(".")).equals(to.substring(start)))) {
 									setMarker(cMa, reader.getLineNumber(), i, entry.getKey().toString());
 									gefunden = true;
-								//instanziieren der klasse	
-								} else if ((line.indexOf("new " + to.substring(start) + "(")) > -1) {
+								}
+							//verwendung der klasse als exception (im ty/catch block)
+							}  if (t.startsWith("(")) {
+								if (((t.replace("(", ""))).equals(to.substring(start))) {
 									setMarker(cMa, reader.getLineNumber(), i, entry.getKey().toString());
 									gefunden = true;
+								}
+							//verwendung der klasse als parameter	
+							}  if (line.startsWith("public") || line.startsWith("private") || line.startsWith("protected")) {
+								setMarker(cMa, reader.getLineNumber(), i, entry.getKey().toString());
+								gefunden = true;
+							//instanziieren der klasse	
+							} if ((line.indexOf("new " + to.substring(start) + "(")) > -1) {
+								setMarker(cMa, reader.getLineNumber(), i, entry.getKey().toString());
+								gefunden = true;
 								//verketteter aufruf der klasse	
-								} else if ((line.indexOf("(" + to.substring(start) + ".")) > -1) {
-									setMarker(cMa, reader.getLineNumber(), i, entry.getKey().toString());
-									gefunden = true;
+							} if ((line.indexOf("(" + to.substring(start) + ".")) > -1) {
+								setMarker(cMa, reader.getLineNumber(), i, entry.getKey().toString());
+								gefunden = true;
+							//cast der klasse
+							} if ((line.indexOf("(" + to.substring(start) + ")") > -1 )) {
+								setMarker(cMa, reader.getLineNumber(), i, entry.getKey().toString());
+								gefunden = true;
 								}
 							}
 						}
@@ -522,7 +522,7 @@ public static ArrayList<String> errorsB = new ArrayList<String>();
 				}
 
 			}
-		}
+		
 		return true;
 	}
 	
