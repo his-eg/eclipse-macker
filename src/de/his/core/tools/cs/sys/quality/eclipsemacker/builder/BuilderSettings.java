@@ -76,14 +76,11 @@ public class BuilderSettings {
 			try {
 				cm.addRulesFile(f);
 			} catch (RulesException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
-		System.out.println("----------->" + getRulesFull().size());
 	}
     //JavaCore.create(project)
 	
@@ -100,7 +97,6 @@ public class BuilderSettings {
     	this.setUseFilter(new Boolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_CLASSPATH_FILTER))));
     	
     	this.setFilterSourceContent(getPersistentProperty (new QualifiedName("", PreferenceConstants.SOURCE_FILTER)));	
-    	System.out.println("sources?" + getFilterSourceContent());
     	this.setUseSourceFilter(new Boolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_SOURCE_FILTER))));
     	
     	
@@ -110,7 +106,6 @@ public class BuilderSettings {
     	this.setjProject(JavaCore.create(project));
     	//rule files instanziieren
     	setRulesFromDirectory();
-    	System.out.println("??" + getFilterContent() + " rules " + getRulesFull().size());
     	this.getSources();
     }
     
@@ -167,25 +162,6 @@ public class BuilderSettings {
 		this.useSourceFilter = useSourceFilter;
 	}
 
-//	public ArrayList<String> getClasspaths() {
-//		if (this.classpaths.size() == 0) {
-//			IJavaProject jp = getjProject();
-//			try {
-//				for (int i = 0; i < jp.getRawClasspath().length; i++) {
-//					
-//					if (!jp.getRawClasspath()[i].getPath().toOSString().startsWith("org.eclipse")) {
-//						System.out.println(jp.getRawClasspath()[i].getPath().toOSString());
-//						classpaths.add(jp.getRawClasspath()[i].getPath().toOSString());
-//					}
-//					
-//				}
-//			} catch (JavaModelException e) {
-//				e.printStackTrace();
-//			}
-//		} 
-//		
-//		return classpaths;
-//	}
 
 	/**
 	 * @return the sources
@@ -394,7 +370,6 @@ public class BuilderSettings {
 				for (int i = 0; i < jp.getRawClasspath().length; i++) {
 					
 					if (!jp.getRawClasspath()[i].getPath().toOSString().startsWith("org.eclipse")) {
-						System.out.println(jp.getRawClasspath()[i].getPath().toOSString());
 						classpaths.add(jp.getRawClasspath()[i].getPath().toOSString());
 					}
 					

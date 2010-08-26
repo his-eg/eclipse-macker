@@ -151,7 +151,6 @@ public class MackerView  extends ViewPart {
 
 		
 		viewer = new TableViewer(table);
-		System.out.println("neu");
 		viewer.setContentProvider(new ViewContentProvider());
 		viewer.setLabelProvider(new ViewLabelProvider());
 		viewer.setSorter(new NameSorter());

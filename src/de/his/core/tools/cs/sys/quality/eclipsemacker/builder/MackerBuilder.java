@@ -469,7 +469,7 @@ public static ArrayList<String> errorsB = new ArrayList<String>();
 			if (!line.startsWith("package") && !line.startsWith("//") && !line.startsWith("/*")&& !line.startsWith("*") && !line.startsWith("/**")) {
 				
 				for (int i = 0; i < cMa.getListener().getViolation().get(entry.getKey()).size(); i++) {
-					String to = cMa.getListener().getViolation().get(entry.getKey()).get(i).getTo().toString();
+					String to = cMa.getListener().getViolation().get(entry.getKey()).get(i).getTo().toString().replace("$", ".");
 					int start = to.lastIndexOf(".") + 1;
 					
 					if (line.startsWith("import") && checkImportLineViolation(line, cMa.getListener().getViolation().get(entry.getKey()).get(i).getTo().toString())) {
@@ -487,7 +487,7 @@ public static ArrayList<String> errorsB = new ArrayList<String>();
 							if (t.equals(to.substring(start))) {
 								setMarker(cMa, reader.getLineNumber(), i, entry.getKey().toString());
 								gefunden = true;
-								//statischer zugriff auf die klasse	
+							//statischer zugriff auf die klasse	
 							} if (t.indexOf(".") > -1 ) {
 								if ((t.substring(0, t.indexOf(".")).equals(to.substring(start)))) {
 									setMarker(cMa, reader.getLineNumber(), i, entry.getKey().toString());
@@ -501,13 +501,21 @@ public static ArrayList<String> errorsB = new ArrayList<String>();
 								}
 							//verwendung der klasse als parameter	
 							}  if (line.startsWith("public") || line.startsWith("private") || line.startsWith("protected")) {
-								setMarker(cMa, reader.getLineNumber(), i, entry.getKey().toString());
-								gefunden = true;
+								//erster parameter der methode
+								if (line.indexOf("("+to.substring(start)+" ") > -1) {
+									setMarker(cMa, reader.getLineNumber(), i, entry.getKey().toString());
+									gefunden = true;
+								//folgender parameter
+								} else if (line.indexOf(", "+to.substring(start)+" ") > -1) {
+									setMarker(cMa, reader.getLineNumber(), i, entry.getKey().toString());
+									gefunden = true;
+								}
+
 							//instanziieren der klasse	
 							} if ((line.indexOf("new " + to.substring(start) + "(")) > -1) {
 								setMarker(cMa, reader.getLineNumber(), i, entry.getKey().toString());
 								gefunden = true;
-								//verketteter aufruf der klasse	
+							//verketteter aufruf der klasse	
 							} if ((line.indexOf("(" + to.substring(start) + ".")) > -1) {
 								setMarker(cMa, reader.getLineNumber(), i, entry.getKey().toString());
 								gefunden = true;
@@ -674,7 +682,6 @@ public static ArrayList<String> errorsB = new ArrayList<String>();
 				errorsB.add("#5 : " + count);
 				errorsB.add("#6 : " + count2);
 				
-				System.out.println("fertigF");
 			}
 		}
 	}
