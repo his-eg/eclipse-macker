@@ -157,7 +157,8 @@ public class Property extends PropertyPage {
 		GridData gridData = new GridData();
 		gridData.horizontalAlignment = GridData.FILL;
 		gridData.horizontalSpan = 3;
-
+		listSource.setToolTipText("Legt fest welche Source-Verzeichnisse in einem Projekt ueberprueft werden sollen");
+		
 		listSource.setLayoutData(gridData);
 		Composite second = new Composite(f, SWT.None);
 		
@@ -208,16 +209,16 @@ public class Property extends PropertyPage {
 		Label ruleLabel = new Label(first, SWT.NONE);
 		ruleLabel.setText("Macker Rules Directory:");
 		rulesDir = new Text(first, SWT.SINGLE | SWT.BORDER);
+		rulesDir.setToolTipText("Ein zum Projekt relativer Pfad");
+		
 		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
 		gd.widthHint = convertWidthInCharsToPixels(55);
 		rulesDir.setLayoutData(gd);
 		
 		buttonCheck = new Button(first, SWT.CHECK);
 		buttonCheck.setEnabled(false);
-		buttonCheck.setToolTipText("");
 		buttonCheck.setSelection(false);
 
-		buttonCheck.setToolTipText("TEST");
 	}
 	
 	
@@ -230,19 +231,25 @@ public class Property extends PropertyPage {
 		
 		useFilter = new Button(check, SWT.CHECK);
 		useFilter.setText("Use Classpath Filter");
+		useFilter.setToolTipText("Legt fest welche Pakete in einem Projekt ueberprueft werden sollen");
 		
 		useSourceFilter = new Button(check, SWT.CHECK);
 		useSourceFilter.setText("Use Source Filter");
+		useSourceFilter.setToolTipText("Legt fest welche Source-Verzeichnisse in einem Projekt ueberprueft werden sollen");
 		
 		incBuild = new Button(check, SWT.CHECK);
 		incBuild.setText("Run on Incremental Build");
+		incBuild.setToolTipText("Nach jedem Speichervorgang Pruefen");
 		
 		fullBuild = new Button(check, SWT.CHECK);
 		fullBuild.setText("Run on Full Build");
-		
+		fullBuild.setToolTipText("Pruefen bei einem Neuaufbau des Projektes");
+
 		checkContent = new Button(check, SWT.CHECK);
 		checkContent.setText("Check Content");
+		checkContent.setToolTipText("Fehleranzeige innerhalb einer Klasse");
 
+		
 		Label events = new Label(parent, SWT.None);
 		events.setText("Show Macker Events as");
 		
@@ -253,8 +260,11 @@ public class Property extends PropertyPage {
 		radioGroup.setLayoutData(new GridData(GridData.FILL_BOTH));
 
 		warning = createRadioButton(radioGroup, "Warning");
+		warning.setToolTipText("Zeige alle Verstoesse als Warnungen an");
 		error = createRadioButton(radioGroup, "Error");
+		error.setToolTipText("Zeige alle Verstoesse als Kompilierungsfehler an");
 		defaultM = createRadioButton(radioGroup, "Default");
+		defaultM.setToolTipText("Vorgegebene Einstellung verwenden");
 	}
 	
 	private void addClasspathFilter(Composite parent) {
@@ -267,7 +277,7 @@ public class Property extends PropertyPage {
 		GridData gridData = new GridData();
 		gridData.horizontalAlignment = GridData.FILL;
 		gridData.horizontalSpan = 3;
-
+		list.setToolTipText("Legt fest welche Pakete in einem Projekt ueberprueft werden sollen.");
 		list.setLayoutData(gridData);
 		Composite second = new Composite(f, SWT.None);
 		
