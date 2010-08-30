@@ -41,11 +41,11 @@ public class BuilderSettings {
     private IProject project;
     private IJavaProject jProject;
     
-    private String rulesDir = "";
+    private String ruleDir = "";
     /** */
-    private ArrayList<File> rulesFull = new ArrayList<File>();
-    private ArrayList<String> classpaths = new ArrayList<String>();
-    private ArrayList<String> sources = new ArrayList<String>();
+    private ArrayList<File> ruleFiles = new ArrayList<File>();
+    private ArrayList<String> classpathFolders = new ArrayList<String>();
+    private ArrayList<String> sourceFolders = new ArrayList<String>();
     
     public BuilderSettings () {
     	
@@ -68,7 +68,6 @@ public class BuilderSettings {
 				}
 			}
 		setRulesFull(r);
-		
 	}
     
 	public void addRulesToMacker(CustomMacker cm) {
@@ -82,11 +81,9 @@ public class BuilderSettings {
 			}
 		}
 	}
-    //JavaCore.create(project)
 	
 	
-	
-	//Projekt settings--------------------------------------------------------------------------------------
+	//Setzen der BuilderSettings aus den ProjektSettings
     public void setProjectSettings() {
     	
     	this.setDefaultM(new Boolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.DEFAULT))));
@@ -95,15 +92,12 @@ public class BuilderSettings {
     	this.setRunOnIncBuild(new Boolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.RUN_ON_INCREMENTAL_BUILD))));
     	this.setFilterContent(getPersistentProperty (new QualifiedName("", PreferenceConstants.CLASSPATH_FILTER)));	
     	this.setUseFilter(new Boolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_CLASSPATH_FILTER))));
-    	
     	this.setFilterSourceContent(getPersistentProperty (new QualifiedName("", PreferenceConstants.SOURCE_FILTER)));	
     	this.setUseSourceFilter(new Boolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_SOURCE_FILTER))));
-    	
-    	
-    	
     	this.setCheckContent(new Boolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.CHECK_CONTENT))));
     	this.setRulesDir(getPersistentProperty (new QualifiedName("", PreferenceConstants.RULES_PATH)));	
     	this.setjProject(JavaCore.create(project));
+    	
     	//rule files instanziieren
     	setRulesFromDirectory();
     	this.getSources();
@@ -167,17 +161,17 @@ public class BuilderSettings {
 	 * @return the sources
 	 */
 	public ArrayList<String> getSources() {
-		if (this.sources.size() == 0) {
+		if (this.sourceFolders.size() == 0) {
 			//setFilterSourceContent
 			String list = this.getFilterSourceContent();
 			StringTokenizer st = new StringTokenizer(list, "\t");
 			
 			while (st.hasMoreTokens()) {
-				sources.add(st.nextToken());
+				sourceFolders.add(st.nextToken());
 			}
 		}
 
-		return sources;
+		return sourceFolders;
 	}
 
 
@@ -186,7 +180,7 @@ public class BuilderSettings {
 	 * @param sources the sources to set
 	 */
 	public void setSources(ArrayList<String> sources) {
-		this.sources = sources;
+		this.sourceFolders = sources;
 	}
 
 
@@ -213,7 +207,7 @@ public class BuilderSettings {
 	 * @return the rulesDir
 	 */
 	public String getRulesDir() {
-		return rulesDir;
+		return ruleDir;
 	}
 
 
@@ -222,7 +216,7 @@ public class BuilderSettings {
 	 * @param rulesDir the rulesDir to set
 	 */
 	public void setRulesDir(String rulesDir) {
-		this.rulesDir = rulesDir;
+		this.ruleDir = rulesDir;
 	}
 
 
@@ -350,27 +344,27 @@ public class BuilderSettings {
 	 * @return the rulesFull
 	 */
 	public ArrayList<File> getRulesFull() {
-		return rulesFull;
+		return ruleFiles;
 	}
 
 	/**
 	 * @param rulesFull the rulesFull to set
 	 */
 	public void setRulesFull(ArrayList<File> rulesFull) {
-		this.rulesFull = rulesFull;
+		this.ruleFiles = rulesFull;
 	}
 
 	/**
 	 * @return the classpaths
 	 */
 	public ArrayList<String> getClasspaths() {
-		if (this.classpaths.size() == 0) {
+		if (this.classpathFolders.size() == 0) {
 			IJavaProject jp = getjProject();
 			try {
 				for (int i = 0; i < jp.getRawClasspath().length; i++) {
 					
 					if (!jp.getRawClasspath()[i].getPath().toOSString().startsWith("org.eclipse")) {
-						classpaths.add(jp.getRawClasspath()[i].getPath().toOSString());
+						classpathFolders.add(jp.getRawClasspath()[i].getPath().toOSString());
 					}
 					
 				}
@@ -379,14 +373,14 @@ public class BuilderSettings {
 			}
 		} 
 		
-		return classpaths;
+		return classpathFolders;
 	}
 
 	/**
 	 * @param classpaths the classpaths to set
 	 */
 	public void setClasspaths(ArrayList<String> classpaths) {
-		this.classpaths = classpaths;
+		this.classpathFolders = classpaths;
 	}
 
 	

@@ -243,7 +243,7 @@ public class Property extends PropertyPage {
 		
 		fullBuild = new Button(check, SWT.CHECK);
 		fullBuild.setText("Run on Full Build");
-		fullBuild.setToolTipText("Pruefen bei einem Neuaufbau des Projektes");
+		fullBuild.setToolTipText("Pruefen bei einem Neuaufbau des Projektes5");
 
 		checkContent = new Button(check, SWT.CHECK);
 		checkContent.setText("Check Content");

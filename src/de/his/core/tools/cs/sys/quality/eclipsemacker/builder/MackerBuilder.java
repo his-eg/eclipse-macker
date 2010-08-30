@@ -47,7 +47,7 @@ private int count = 0;
 private int count2 = 0;
 private BuilderSettings builderSettings;
 private CustomMacker customMacker;
-public static ArrayList<String> errorsB = new ArrayList<String>();
+public static ArrayList<String> builderErrors = new ArrayList<String>();
 
 	public MackerBuilder() {
 		this.builderSettings = new BuilderSettings();
@@ -58,7 +58,7 @@ public static ArrayList<String> errorsB = new ArrayList<String>();
 	/**
 	 * @return the cMa
 	 */
-	public CustomMacker getcMa() {
+	public CustomMacker getCustomMacker() {
 		return customMacker;
 	}
 
@@ -66,7 +66,7 @@ public static ArrayList<String> errorsB = new ArrayList<String>();
 	/**
 	 * @param cMa the cMa to set
 	 */
-	public void setcMa(CustomMacker cMa) {
+	public void setCustomMacker(CustomMacker cMa) {
 		this.customMacker = cMa;
 	}
 
@@ -188,41 +188,96 @@ public static ArrayList<String> errorsB = new ArrayList<String>();
 		//gesammelten resourcen vom builder pruefen
 		checkResources(monitor);
 		Date end = new Date();
-		errorsB.add("#7 : " + ((end.getTime() - start.getTime())/1000));
+		builderErrors.add("#7 : " + ((end.getTime() - start.getTime())/1000));
 
 		return null;
 	}
 
 	
-	private void checkResources (IProgressMonitor monitor) {
-		
-		if (customMacker.hasRules() && customMacker.hasClasses()) {
-			monitor.subTask("Macker, pruefe Klassen: ");
-			monitor.worked(1);
-			//Macker Classfile check
-            if (customMacker.checkClass()) {
+	
+	
+	/**
+	 * Eine veraenderte/neue java-Datei wird zunaechst instanziiert, 
+	 * danach wird die entsprechende Class-Datei gesucht und ebenfalls
+	 * instanziiert.
+	 * 
+	 * Das Class-File wird der Macker-Instanz zum pruefen uebergeben, 
+	 * und die Class-Location samt JavaFile Instanz in einer Map gespeichert.
+	 * 
+	 * Monitor: "Macker, Lade Klassen: ... ".
+	 * 
+	 * @param resource veraenderte Ressource.
+	 */
+	void checkMacker(IResource resource, IProgressMonitor monitor)  {
 
-            		try {
-						importCheck(monitor);
-					} catch (CoreException e) {
-						e.printStackTrace();
-					}
+		//Nur java Dateien sind fuer diesen Builder relevant.
+		if (resource instanceof IFile && resource.getName().endsWith(".java")) {
 
-    				if (monitor.isCanceled()) {
-    					return;
-    				}
-    				
-           }
+			//Die veranderte Ressource instanziieren.
+
+			IFile javaFile = (IFile) resource;
+			String fullP = javaFile.getFullPath().toString();
+			
+			//Filteraufruf falls aktiviert
+			boolean run = getBuilderSettings().isUseFilter();
+			boolean checkFilter = true;
+			if (run) {
+				checkFilter = toCheck(fullP);
+			} 
 		
+			if (checkFilter) {
+
+				String projectName = resource.getProject().getName();
+				monitor.beginTask(javaFile.getName(), 8000);
+				deleteMarkers(javaFile);
+				File classFile = null;
+				//Src Folder aus dem Dateipfad ermitteln
+				String src = getSourceFolder(fullP, projectName);
+				//aus dem Javafile das Class-File ableiten
+				try {
+				
+					classFile = new File(javaFile.getLocation().toString().replace(src,
+							getBuilderSettings().getjProject().getOutputLocation().toOSString().replace(projectName, ""))
+							.replace(".java", ".class").replace("\\", "/"));
+					
+				} catch (CoreException e2) {
+					e2.printStackTrace();
+				}
+
+				if (classFile != null) {	
+
+					try {
+						//Class-Location und javaFile in einer Map speichern
+						String classLoc = fullP.replace(src, "")
+							.replace("/"+projectName+"/","").replace(".java", "").replace("/", ".");
+						customMacker.getJavaMap().put(classLoc, javaFile);
+						count++;
+						
+						//Macker die Class-Datei zum ueberpruefen uebergeben
+						customMacker.addClass(classFile);
+						
+					} catch (ClassParseException e) {
+						builderErrors.add("#12 " + fullP + " e");
+					} catch (IOException e) {
+						builderErrors.add("#11 " + classFile.exists() + " " + e.getMessage());
+						}
+					monitor.subTask("Macker, Lade Klassen: " +count+" "+ javaFile.getName());
+				
+
+				} 
+			}
 		}
+		
+	}
 
-		monitor.done();
-} 
 	
 	
-	
-	
-	
+	/**
+	 * Prueft anahnd eines uebergebenen Pfades die Filterbedingungen.
+	 * 
+	 * @param path File Speicherpfad.
+	 * @return true falls Filterbedingung erfuellt.
+	 */
 	private boolean toCheck(String path) {
 		boolean toCheck = false;
 
@@ -250,194 +305,119 @@ public static ArrayList<String> errorsB = new ArrayList<String>();
 	
 	
 	/**
-	 * Eine veraenderte/neue java-Datei wird anahnd vorgegebner Macker-Rules
-	 * auf Korrektheit geprueft.
+	 * Ermittelt den aktuell verwendeten Classpath.
 	 * 
-	 * 
-	 * @param resource veraenderte Ressource.
-	 */
-	void checkMacker(IResource resource, IProgressMonitor monitor)  {
-		/*
-		 * Nur java Dateien sind fuer diesen Builder relevant.
-		 */
-		if (resource instanceof IFile && resource.getName().endsWith(".java")) {
-			
-			/*
-			 * Die veranderte Ressource instanziieren.
-			 */
-			IFile javaFile = (IFile) resource;
-			String fullP = javaFile.getFullPath().toString();
-			
-			boolean run = getBuilderSettings().isUseFilter();
-			
-			boolean checkFilter = true;
-			//TEST1 
-			if (run) {
-				checkFilter = toCheck(fullP);
-			} 
-			
-			if (checkFilter) {
-				
-				//test direkter zugriff auf class files, er findet jedoch nicht alle.
-				
-//				IRegion region = JavaCore.newRegion();
-//				IJavaElement je = JavaCore.create(javaFile);
-//				region.add(je);
-//				File classFile = null;
-//				IResource[] resources = null;
-//				try {
-//					resources = JavaCore.getGeneratedResources(region, false);
-//
-//					classFile = new File(resources[0].getLocation().toString());
-//					count++;
-//				} catch(Exception e) {
-//					errorsB.add("#8 " + fullP);
-//					count = count-1;
-//				}
-				//test ende
-				
-				
-				//test2 imports direkt holen, jedoch keine zeilenenummer
-//				ICompilationUnit javaCompU = JavaCore.createCompilationUnitFrom(javaFile);
-//				try {
-//					ISourceRange sr = javaCompU.getImports()[0].getSourceRange();
-//					System.out.println(sr.toString());
-//					System.out.println(javaCompU.getImports()[0].));
-//				} catch (JavaModelException e1) {
-//					// TODO Auto-generated catch block
-//					e1.printStackTrace();
-//				}
-				//test2 ende
-				
-				//IJavaProject javaProject = JavaCore.create(project);
-				String projectName = resource.getProject().getName();
-				//TEST monitor
-				monitor.beginTask(javaFile.getName(), 8000);
-				
-				deleteMarkers(javaFile);
-				//File classFile = null;
-
-				//Bin file (*.Class) instanziieren.
-				File classFile = null;
-				String src = getSourceFolder(fullP, projectName);
-				try {
-				
-					classFile = new File(javaFile.getLocation().toString().replace(src,
-							getBuilderSettings().getjProject().getOutputLocation().toOSString().replace(projectName, ""))
-							.replace(".java", ".class").replace("\\", "/"));
-					
-				} catch (CoreException e2) {
-					e2.printStackTrace();
-				}
-
-				if (classFile != null) {	
-					//String i = resources[0].getFullPath().toString();
-					
-					String classLoc = fullP.replace(src, "")
-						.replace("/"+projectName+"/","").replace(".java", "").replace("/", ".");
-//					String classLoc = i.substring(i.replace("/", ".")
-//							.indexOf("de."), i.length()).replace("/"+projectName+"/","")
-//							.replace(".class", "").replace("/", ".");
-					count++;
-					customMacker.getJavaMap().put(classLoc, javaFile);
-					try {
-						customMacker.addClass(classFile);
-						count2++;
-					} catch (ClassParseException e) {
-						errorsB.add("#12 " + fullP + " e");
-					} catch (IOException e) {
-						errorsB.add("#11 " + classLoc + " " + classFile.exists() + " " + e.getMessage());
-						}
-					monitor.subTask("Macker, Lade Klassen: " +count+" "+ javaFile.getName());
-				
-
-				} else {
-						errorsB.add("#9 " + fullP + " resource null");
-					
-					
-				}
-			}
-		}
-		
-	}
-
-
-	
-	/**
-	 * Ermittelt den aktuellen verwendeten classpath.
-	 * @param javaFile zu pruefende java datei.
-	 * @param javaProject aktuelles java projekt.
-	 * 
-	 * @return aktuellen classpath
+	 * @param path File Speicherpfad.
+	 * @param pName Projektname.
+	 * @return den aktuell verwendeten source ordner.
 	 */
 	
 	private String getSourceFolder(String path, String pName) {
 		String src = "";
-
+		
 		for (int i = 0; i < getBuilderSettings().getClasspaths().size(); i++) {
 			String vgl = getBuilderSettings().getClasspaths().get(i).replace("\\", "/");
 			//den aktuellen classpath ermitteln, durch vergleich mit java file path.
 			if (path.indexOf(vgl) > -1) {
 				src = getBuilderSettings().getClasspaths().get(i).replace("\\", "/").replace("/"+getProject().getName(), "");
 			}
-			
 		}
-		
 		return src;
 	}
+	
 
+	/**
+	 * Nachdem die Klassen geladen sind, wird die Macker "checkClass" Methode
+	 * aufgerufen.
+	 * Dabei werden geworfene MackerEvents vom Typ AccessRuleViolation geworfen und im
+	 * MackerListener in einer Map gespeichert.
+	 * 
+	 * Monitor: "Macker, pruefe Klassen"
+	 * 
+	 * Nachdem alle Klassen von Macker geprueft wurden, werden die Marker gesetzt(importCheck).
+	 * 
+	 * 
+	 * @param monitor Monitor.
+	 */
+	
+	private void checkResources (IProgressMonitor monitor) {
+		
+		if (customMacker.hasRules() && customMacker.hasClasses()) {
+			monitor.subTask("Macker, pruefe Klassen: ");
+			monitor.worked(1);
+			//Macker Classfile check
+            if (customMacker.checkClass()) {
+            		try {
+						importCheck(monitor);
+					} catch (CoreException e) {
+						e.printStackTrace();
+					}
+
+    				if (monitor.isCanceled()) {
+    					return;
+    				}
+           }
+		
+		}
+
+		monitor.done();
+	} 
 	
 	
 	/**
-	 * Liesst die import-Tags einer Java Datei und prueft dabei ob ein gefundener
-	 * Macker-Event zutrifft.
+	 * Der MackerListener hat alle Klassen samt Verstoessen in einer
+	 * Map gespeichert, welche nun als Basis zum Marker setzen dient.
 	 * 
-	 * @param cm Macker-Instanz mit den src/bin files und den Macker-Events 
-	 * der betreffenden Ressource.
+	 * Unterscheiden wird zunächste ob der ganze Inhalt einer Klasse oder
+	 * nur dei Import tags markiert werden sollen.
 	 * 
+	 * Monitor: "Macker, Setze Warnungen: ..."
 	 * 
 	 * @throws CoreException
 	 */
 	private boolean importCheck(IProgressMonitor monitor) throws CoreException {
+		
 		boolean erfolg = false;
-		int c = 1;
-		int s = customMacker.getListener().getViolation().size();
+		int count = 1;
+		int size = customMacker.getListener().getViolation().size();
+		
 		InputStream in = null;
 		LineNumberReader reader = null;
 		
 		for (Map.Entry entry : customMacker.getListener().getViolation().entrySet()) {
-	    	monitor.subTask("Macker, Setze Warnungen: " + c+"/"+s);
-			//marker setzen
+	    	monitor.subTask("Macker, Setze Warnungen: " + count+"/"+size);
 			monitor.worked(1);
-			
-	
+
 			in = ((IFile)customMacker.getJavaMap().get(entry.getKey())).getContents();
 			reader = new LineNumberReader(new InputStreamReader(in));
 			
 			try {
-				
-				String line = "";
-				@SuppressWarnings("unchecked")
-				ArrayList<AccessRuleViolation> tmp = (ArrayList<AccessRuleViolation>) customMacker.getListener().getViolation().get(entry.getKey());
-				
-			if (!getBuilderSettings().isCheckContent()) {
-				erfolg = checkImports(reader, entry);
-			} else {
-				erfolg = checkFullContent(reader, entry);
-			}
-				in.close();
-				reader.close();
-				//cm.getListener().getViolation().get(entry.getKey()).setViolation(tmp);
+					
+				if (!getBuilderSettings().isCheckContent()) {
+					erfolg = checkImports(reader, entry);
+				} else {
+					erfolg = checkFullContent(reader, entry);
+				}
+					in.close();
+					reader.close();
+
 			} catch (IOException e) {
 				erfolg = false;
 				e.printStackTrace();
 			}
-			c++;
+			count++;
 		}
 		return erfolg;
 		} 
 	
-	
+	/**
+	 * Die Importanweisungen werden mit Markern vershen.
+	 * 
+	 * @param reader vom Typ LineNumberReader
+	 * @param entry Map entry mit Classlocation und AccessRuleViolations.
+	 * @return true
+	 * @throws IOException
+	 */
 	private boolean checkImports(LineNumberReader reader, Map.Entry entry) throws IOException {
 		String line = "";
 		while (reader.ready() && !line.startsWith("public class") && !line.startsWith("abstract class") && customMacker.getListener().getViolation().get(entry.getKey()).size() > 0) {
@@ -460,6 +440,14 @@ public static ArrayList<String> errorsB = new ArrayList<String>();
 	}
 	
 
+	/**
+	 * Setzt innerhlab der gesamten Klasse Eclipse-marker.
+	 * 
+	 * @param reader vom typ LineNumberReader
+	 * @param entry Map Entry mit Classlocation und AccessRuleViolation Objekten.
+	 * @return true.
+	 * @throws IOException
+	 */
 	private boolean checkFullContent(LineNumberReader reader, Map.Entry entry) throws IOException {
 		String line = "";
 		
@@ -481,8 +469,7 @@ public static ArrayList<String> errorsB = new ArrayList<String>();
 						boolean gefunden = false;
 							
 						while (st.hasMoreTokens() && !gefunden) {
-							String t = st.nextToken();
-								 
+							String t = st.nextToken(); 
 							//direkt zuzuordnen
 							if (t.equals(to.substring(start))) {
 								setMarker(customMacker, reader.getLineNumber(), i, entry.getKey().toString());
@@ -499,7 +486,6 @@ public static ArrayList<String> errorsB = new ArrayList<String>();
 									setMarker(customMacker, reader.getLineNumber(), i, entry.getKey().toString());
 									gefunden = true;
 								}
-								
 							}  
 							//verwendung der klasse als parameter
 							if (line.startsWith("public") || line.startsWith("private") || line.startsWith("protected")) {
@@ -512,7 +498,6 @@ public static ArrayList<String> errorsB = new ArrayList<String>();
 									setMarker(customMacker, reader.getLineNumber(), i, entry.getKey().toString());
 									gefunden = true;
 								}
-
 							//instanziieren der klasse	
 							} else if ((line.indexOf("new " + to.substring(start) + "(")) > -1) {
 								setMarker(customMacker, reader.getLineNumber(), i, entry.getKey().toString());
@@ -535,18 +520,22 @@ public static ArrayList<String> errorsB = new ArrayList<String>();
 						}
 					}
 				}
-
 			}
-		
 		return true;
 	}
-	
-	
-	private void setMarker(CustomMacker cm, int line, int index, String className) {
-		
-		
-		String severity = "";
 
+	/**
+	 * SetMarker Methode setzt ein Eclipse-Marker, wobei geprueft wird welche Art
+	 * von Marker gesetzt werden soll.
+	 * 
+	 * @param cm CustomMacker Instanz.
+	 * @param line Zeilennummer.
+	 * @param index der Liste mit AccessRuleViolations der Klasse.
+	 * @param className Paketpfad der aktuellen Klasse.
+	 */
+	private void setMarker(CustomMacker cm, int line, int index, String className) {
+
+		String severity = "";
 		if (getBuilderSettings().isDefaultM()) {
 			severity = "DEFAULT";
 		} else if (getBuilderSettings().isError()) {
@@ -555,22 +544,17 @@ public static ArrayList<String> errorsB = new ArrayList<String>();
 			severity = "WARNING";
 		}
 		
-		/*
-		 * Warnungen setzen, anhand der default Einstellungen oder angepasst. 
-		 */
-		String message = cm.getListener().getViolation().get(className).get(index)
-			.getTo().toString();
+		 //Warnungen setzen, anhand der default Einstellungen oder angepasst. 
+		String message = cm.getListener().getViolation().get(className).get(index).getTo().toString();
 		String source = message.substring(message.lastIndexOf(".")+1);
 		
+		//Severity direkt vom Event holen
 		if (ShowAs.valueOf(severity) == ShowAs.DEFAULT) {
-			//Severity direkt vom Event holen
 			severity = cm.getListener().getViolation().get(className).get(index).getRule().getSeverity().getName().toUpperCase();
 			addMarker(cm.getJavaMap().get(className), "(" + source + ") " + cm.getListener().getViolation().get(className).get(index)
 					.getMessages().get(0).toString(), line, setSeverity(ShowAs.valueOf(severity)));
-
-		
+		//Severity anhand der angepassten Einstellung
 		} else {
-			//Severity anhand der angepassten Einstellung
 			addMarker(cm.getJavaMap().get(className), "(" + source + ") " + cm.getListener().getViolation().get(className).get(index)
 					.getMessages().get(0).toString(), line, setSeverity(ShowAs.valueOf(severity)));
 		}
@@ -578,7 +562,7 @@ public static ArrayList<String> errorsB = new ArrayList<String>();
 	
 	
 
-	/**
+	/**MarkerTyp setzen.
 	 * @param choice ShowAs Enum
 	 * @return Severity Typ.
 	 */
@@ -600,7 +584,7 @@ public static ArrayList<String> errorsB = new ArrayList<String>();
 			break;
 
 		}
-	return i;
+		return i;
 	}
 	
 	
@@ -683,13 +667,7 @@ public static ArrayList<String> errorsB = new ArrayList<String>();
 			try {
 				getProject().accept(new MackerResourceVisitor(monitor));
 			} catch (CoreException e) {
-			} finally {
-			
-				
-				errorsB.add("#5 : " + count);
-				errorsB.add("#6 : " + count2);
-				
-			}
+			} 
 		}
 	}
 
@@ -702,24 +680,16 @@ public static ArrayList<String> errorsB = new ArrayList<String>();
 	 */
 	protected void incrementalBuild(IResourceDelta delta, IProgressMonitor monitor) throws CoreException {
 		// the visitor does the work.
-		
 		if (getBuilderSettings().isRunOnIncBuild()) {
 			delta.accept(new MackerDeltaVisitor(monitor));
 		}
 
 	}
-	
-	
 
-
-	
-	
 	
 	public static void main(String[] args) {
 
-        
-//new MackerBuilder().getImportClassName("import de.his.ap.se.Name;");
-	
+        	
 	}
 	
 }

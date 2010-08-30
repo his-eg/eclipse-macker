@@ -34,7 +34,7 @@ public class MackerView  extends ViewPart {
 
 	private TableViewer viewer;
 	private Action action1;
-	private ArrayList<String> all = MackerBuilder.errorsB;
+	private ArrayList<String> all = MackerBuilder.builderErrors;
 
 	/*
 	 * The content provider class is responsible for
@@ -91,9 +91,8 @@ public class MackerView  extends ViewPart {
 
 	class ViewLabelProvider extends LabelProvider implements ITableLabelProvider {
 
-
 		public String getColumnText(Object obj, int index) {
-			
+
 			if (all.size() > 0) {
 
 			String instr = (String) obj;
