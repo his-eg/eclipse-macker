@@ -176,7 +176,7 @@ public class Property extends PropertyPage {
 		final Text path = new Text(f, SWT.SINGLE | SWT.BORDER);
 		GridData gdz = new GridData(GridData.FILL_HORIZONTAL);
 		
-		gdz.widthHint = convertWidthInCharsToPixels(50);
+		gdz.widthHint = convertWidthInCharsToPixels(46);
 		path.setLayoutData(gdz);
 		
 	    button.addSelectionListener(new SelectionAdapter() {
