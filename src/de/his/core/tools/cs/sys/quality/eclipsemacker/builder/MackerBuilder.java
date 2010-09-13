@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
 import java.util.StringTokenizer;
-import net.innig.macker.event.AccessRuleViolation;
 import net.innig.macker.structure.ClassParseException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
@@ -20,72 +19,62 @@ import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.QualifiedName;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.IRegion;
-import org.eclipse.jdt.core.ISourceRange;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
-
 import de.his.core.tools.cs.sys.quality.eclipsemacker.custommacker.CustomMacker;
 import de.his.core.tools.cs.sys.quality.eclipsemacker.custommacker.ShowAs;
 import de.his.core.tools.cs.sys.quality.eclipsemacker.gui.PreferenceConstants;
 import de.his.core.tools.cs.sys.quality.eclipsemacker.gui.Property;
 
-
+/**
+ * Der MackerBuilder ruft bei jedem Speichervorgang oder bei einem Neuaufbau des
+ * Projektes die "build" Methode auf. 
+ * 
+ * Bei einem Incremental/Full Build Aufruf werden die Ressourcen anahnd von
+ * definierten Architekturreglen mit einem CustomMacker Objekt ueberprueft.
+ * 
+ * Gefundene Regelverstosse werden als Eclipse-Marker angezeigt.
+ * 
+ * @author Bender
+ */
 public class MackerBuilder extends IncrementalProjectBuilder {
+
+	/**
+	 * Zaehlvariable der bereits geprueften Klassen.
+	 */
+	private int count = 0;
 	
+	/**
+	 * Enthaelt alle in der Property Page definierten Einstellungen.
+	 */
+	private BuilderSettings builderSettings;
+	
+	/**
+	 * CustomMacker Objekt, erhealt alle zu pruefenden Klassen, sowie
+	 * Instanzen der definierten Architekturregeln.
+	 */
+	private CustomMacker customMacker;
+	/**
+	 * Speichert geworfene Exceptions und zeigt sie in der MackerView an.
+	 */
+	public static ArrayList<String> builderErrors = new ArrayList<String>();
 
-    
-    
-private int count = 0;
-private int count2 = 0;
-private BuilderSettings builderSettings;
-private CustomMacker customMacker;
-public static ArrayList<String> builderErrors = new ArrayList<String>();
-
+	
 	public MackerBuilder() {
-		this.builderSettings = new BuilderSettings();
-		this.customMacker = new CustomMacker();
-	}
-
-	
-	/**
-	 * @return the cMa
-	 */
-	public CustomMacker getCustomMacker() {
-		return customMacker;
-	}
-
+			this.builderSettings = new BuilderSettings();
+			this.customMacker = new CustomMacker();
+		}
 
 	/**
-	 * @param cMa the cMa to set
+	 * Der Delta Visitor wird bei einem Incremetal Build aufgerufen.
+	 * Die Ressource Delta beeinhaltet die Veraenderungen zum letzten Speicherzeitpunkt
+	 * einer Ressource.
+	 * 
+	 * Beinhaltet die Ressource Delta Aenderungen oder Neuerungen wird die checkMacker
+	 * Methoe aufgerufen.
+	 * 
+	 * @author Bender
 	 */
-	public void setCustomMacker(CustomMacker cMa) {
-		this.customMacker = cMa;
-	}
-
-
-	/**
-	 * @return the builderSettings
-	 */
-	public BuilderSettings getBuilderSettings() {
-		return builderSettings;
-	}
-	
-	
-	/**
-	 * @param builderSettings the builderSettings to set
-	 */
-	public void setBuilderSettings(BuilderSettings builderSettings) {
-		this.builderSettings = builderSettings;
-	}
-	
 	class MackerDeltaVisitor implements IResourceDeltaVisitor {
         
 		private final IProgressMonitor monitor;
@@ -107,25 +96,29 @@ public static ArrayList<String> builderErrors = new ArrayList<String>();
 			IResource resource = delta.getResource();
 		
 			switch (delta.getKind()) {
-			
 
-			case IResourceDelta.ADDED:
-				// handle added resource
-				checkMacker(resource, monitor);
-				break;
-			case IResourceDelta.REMOVED:
-				// handle removed resource
-				break;
-			case IResourceDelta.CHANGED:
-				// handle changed resource
-				checkMacker(resource, monitor);
-				break;
+				case IResourceDelta.ADDED:
+					// handle added resource
+					checkMacker(resource, monitor);
+					break;
+				case IResourceDelta.REMOVED:
+					// handle removed resource
+					break;
+				case IResourceDelta.CHANGED:
+					// handle changed resource
+					checkMacker(resource, monitor);
+					break;
 			}
 			//return true to continue visiting children.
 			return true;
 		}
 	}
 
+	/**
+	 * Der MackerResourceVisitor wird bei einem FullBuild aufgerufen.
+	 * Es werden somit alle Dateien im Workspace zunaechst instanziiert.
+	 * @author Bender
+	 */
 	class MackerResourceVisitor implements IResourceVisitor {
 		IProgressMonitor monitor;
 
@@ -138,28 +131,35 @@ public static ArrayList<String> builderErrors = new ArrayList<String>();
         
 		public boolean visit(IResource resource) {
 			checkMacker(resource, monitor);
-		
 			//return true to continue visiting children.
 			return true;
 		}
 	}
 
 
-
+	/**
+	 * Feste Builder-ID.
+	 */
 	public static final String BUILDER_ID = "de.his.core.tools.cs.sys.quality.eclipsemacker.mackerBuilder";
 
+	/**
+	 * Feste Marker-ID.
+	 */
 	private static final String MARKER_TYPE = "de.his.core.tools.cs.sys.quality.eclipsemacker.mackerEvent";
 
 	
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * Bei jedem Buildvorgang wird zunaechst geprueft ob die Einstellungen aus
+	 * der PropertyPage bereits geladen wurden.
+	 * Danach wird das BuilderSettings Objekt aktualisert.
 	 * 
-	 * @see org.eclipse.core.internal.events.InternalBuilder#build(int,
-	 *      java.util.Map, org.eclipse.core.runtime.IProgressMonitor)
+	 * Nachdem ein Buildvorgang abgeschlossen ist, wird die
+	 * Methode checkRessources aufgerufen, um u.a. die Eclipse-Marker zu setzen.
 	 */
 	protected IProject[] build(int kind, Map args, IProgressMonitor monitor)
 			throws CoreException {
+		
 		Date start = new Date();
 		customMacker = new CustomMacker();
 		count = 0;
@@ -167,11 +167,10 @@ public static ArrayList<String> builderErrors = new ArrayList<String>();
 		if (getProject().getPersistentProperty(new QualifiedName("", PreferenceConstants.SOURCE_FILTER)) == null) {
 			new Property().init(getProject());
 		}
-		
-		
+
 		this.getBuilderSettings().setProject(getProject());
 		this.getBuilderSettings().setProjectSettings();
-		getBuilderSettings().addRulesToMacker(customMacker);
+		this.getBuilderSettings().addRulesToMacker(customMacker);
 
 		if (kind == FULL_BUILD) {
 			fullBuild(monitor);
@@ -185,10 +184,13 @@ public static ArrayList<String> builderErrors = new ArrayList<String>();
 			}
 			
 		}
-		//gesammelten resourcen vom builder pruefen
+		
+		//Die gesammelten Resourcen pruefen.
 		checkResources(monitor);
+		
+		//Zeit des Pruefens messen.
 		Date end = new Date();
-		builderErrors.add("#7 : " + ((end.getTime() - start.getTime())/1000));
+		builderErrors.add("Duration : " + ((end.getTime() - start.getTime())/1000));
 
 		return null;
 	}
@@ -336,7 +338,6 @@ public static ArrayList<String> builderErrors = new ArrayList<String>();
 	 * 
 	 * Nachdem alle Klassen von Macker geprueft wurden, werden die Marker gesetzt(importCheck).
 	 * 
-	 * 
 	 * @param monitor Monitor.
 	 */
 	
@@ -368,8 +369,8 @@ public static ArrayList<String> builderErrors = new ArrayList<String>();
 	 * Der MackerListener hat alle Klassen samt Verstoessen in einer
 	 * Map gespeichert, welche nun als Basis zum Marker setzen dient.
 	 * 
-	 * Unterscheiden wird zunächste ob der ganze Inhalt einer Klasse oder
-	 * nur dei Import tags markiert werden sollen.
+	 * Unterschieden wird zunächste ob der ganze Inhalt einer Klasse oder
+	 * nur die Import-Tags markiert werden sollen.
 	 * 
 	 * Monitor: "Macker, Setze Warnungen: ..."
 	 * 
@@ -411,7 +412,7 @@ public static ArrayList<String> builderErrors = new ArrayList<String>();
 		} 
 	
 	/**
-	 * Die Importanweisungen werden mit Markern vershen.
+	 * Die Importanweisungen werden mit Markern versehen.
 	 * 
 	 * @param reader vom Typ LineNumberReader
 	 * @param entry Map entry mit Classlocation und AccessRuleViolations.
@@ -441,7 +442,7 @@ public static ArrayList<String> builderErrors = new ArrayList<String>();
 	
 
 	/**
-	 * Setzt innerhlab der gesamten Klasse Eclipse-marker.
+	 * Setzt innerhlab der gesamten Klasse Eclipse-Marker.
 	 * 
 	 * @param reader vom typ LineNumberReader
 	 * @param entry Map Entry mit Classlocation und AccessRuleViolation Objekten.
@@ -594,7 +595,7 @@ public static ArrayList<String> builderErrors = new ArrayList<String>();
 	 * der Import und die Meldung des Events (getTo()) verglichen werden.
 	 * 
 	 * @param importline import Anweisung in einer Java-Datei.
-	 * @param to getTo() Meldung des Macker-Evtns
+	 * @param to getTo() Meldung des Macker-Events.
 	 * 
 	 * @return true falls Mackermeldung auf Import-tag zutrifft.
 	 */
@@ -655,7 +656,7 @@ public static ArrayList<String> builderErrors = new ArrayList<String>();
 	
 	
 	/**
-	 * Speichert das gesamte Projekt.
+	 * Prueft das gesamte Projekt.
 	 * @param monitor
 	 * @throws CoreException
 	 */
@@ -672,7 +673,7 @@ public static ArrayList<String> builderErrors = new ArrayList<String>();
 	}
 
 	/**
-	 * Speichert nur die neuen/veraenderten Resourcen des Projekts.
+	 * Prueft nur die neuen/veraenderten Resourcen des Projekts.
 	 * 
 	 * @param delta
 	 * @param monitor
@@ -687,9 +688,38 @@ public static ArrayList<String> builderErrors = new ArrayList<String>();
 	}
 
 	
-	public static void main(String[] args) {
-
-        	
+	//Getter und Setter
+	
+	/** CustomMacker Objekt wird zurueck gegeben.
+	 * @return the customMacker.
+	 */
+	public CustomMacker getCustomMacker() {
+		return customMacker;
 	}
+
+
+	/**CustomMacker objekt setzen.
+	 * @param customMacker the cutomMacker to set.
+	 */
+	public void setCustomMacker(CustomMacker cMa) {
+		this.customMacker = cMa;
+	}
+
+
+	/**
+	 * @return the builderSettings
+	 */
+	public BuilderSettings getBuilderSettings() {
+		return builderSettings;
+	}
+	
+	
+	/**
+	 * @param builderSettings the builderSettings to set
+	 */
+	public void setBuilderSettings(BuilderSettings builderSettings) {
+		this.builderSettings = builderSettings;
+	}
+	
 	
 }

@@ -14,14 +14,17 @@ import net.innig.macker.event.MackerIsMadException;
 import net.innig.macker.rule.RuleSet;
 
 /**
- * Erweiterter MackerEventListener speichert Macker RegleverstoeÃŸe in einer
- * Liste.
+ * Erweiterter MackerEventListener, speichert Macker Regleverstoesse in einer
+ * Map.
  * 
  * @author Bender
  */
 public class MackerListener implements  MackerEventListener {
 
-	
+	/**
+	 * Die violation Map speichert als Key den Urpsrung des Fehlers d.h. den PaketPfad einer
+	 * Class Datei. Als Value wird eine Liste mit allen gefundene Regelverstoessen gespeichert.
+	 */
 	private HashMap<String, ArrayList<AccessRuleViolation>> violation;
 	
 
@@ -31,27 +34,21 @@ public class MackerListener implements  MackerEventListener {
 	}
 	
 	/**
-	 * Handler speichert die relevanten Events in einer Liste.
+	 * Handler speichert die geworfenen und relevanten Events in einer Map.
 	 */
 	 public void handleMackerEvent(RuleSet ruleSet, MackerEvent event) {
 
 		 if (event instanceof AccessRuleViolation) {
 			 AccessRuleViolation e = (AccessRuleViolation) event;
 			 
-			 
 			 if (violation.get(e.getFrom().toString()) == null) {
 				 violation.put(e.getFrom().toString(), new ArrayList<AccessRuleViolation>()); 
-			 
 			 } 
 			
 			 violation.get(e.getFrom().toString()).add(e);
-			
-			
-			 
+
 		 }
 	 }
-
-
 
 	/**
 	 * @return the violation

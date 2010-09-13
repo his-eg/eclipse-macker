@@ -4,6 +4,11 @@ import org.eclipse.jface.preference.IPreferenceStore;
 
 import de.his.core.tools.cs.sys.quality.eclipsemacker.Activator;
 
+/**
+ * Diese Klasse laedt globale Einstellungen beim Pluginstart.
+ * @author Bender
+ * @SuppressWarnings("unused")
+ */
 public class AbstractPreferenceInitializer extends
 		org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer {
 

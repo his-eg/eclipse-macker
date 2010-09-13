@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 import net.innig.macker.rule.RulesException;
-import net.innig.macker.structure.ClassParseException;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
@@ -22,11 +21,16 @@ import de.his.core.tools.cs.sys.quality.eclipsemacker.custommacker.CustomMacker;
 import de.his.core.tools.cs.sys.quality.eclipsemacker.gui.PreferenceConstants;
 
 /**
+ * 
+ * Diese Klasse enthaelt alle definierten Projekteinstellungen
+ * die in der Property Page vorgenommen wurden.
+ * Zudem
  * @author Bender
- *
  */
 public class BuilderSettings {
+	
 	/** projekt settings */
+	
     private boolean warnung = false;
     private boolean error = false;
     private boolean defaultM = false;
@@ -37,22 +41,27 @@ public class BuilderSettings {
     private boolean checkContent = false;
     private boolean runOnFullBuild = false;
     private boolean runOnIncBuild = false;
-    
-    private IProject project;
-    private IJavaProject jProject;
-    
     private String ruleDir = "";
-    /** */
     private ArrayList<File> ruleFiles = new ArrayList<File>();
     private ArrayList<String> classpathFolders = new ArrayList<String>();
     private ArrayList<String> sourceFolders = new ArrayList<String>();
     
+    
+    /** Das Aktuelle Java Projekt*/
+    
+    private IProject project;
+    private IJavaProject jProject;
+
+    
     public BuilderSettings () {
     	
     }
-    
-    
-    
+
+    /**
+     * Die im angegebenen "Macker Rules Dir." befindlichen Dateien (*.xml)
+     * werden instanziiert und in einer Liste gespeichert.
+     * 
+     */
 	public void setRulesFromDirectory() {
 		ArrayList<File> r = new ArrayList<File>();
 		
@@ -70,6 +79,11 @@ public class BuilderSettings {
 		setRulesFull(r);
 	}
     
+	/**
+	 * Die instanziierten Macker Regelen werden einem CustomMacker
+	 * Objekt uebergeben.
+	 * @param cm CustomMacker Objekt.
+	 */
 	public void addRulesToMacker(CustomMacker cm) {
 		for (File f : getRulesFull()) {
 			try {
@@ -83,7 +97,10 @@ public class BuilderSettings {
 	}
 	
 	
-	//Setzen der BuilderSettings aus den ProjektSettings
+	/**
+	 * Aus einem Projekt werden die Einstellungen (Property Page) geladen
+	 * und gespeichert.
+	 */
     public void setProjectSettings() {
     	
     	this.setDefaultM(new Boolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.DEFAULT))));
@@ -97,12 +114,16 @@ public class BuilderSettings {
     	this.setCheckContent(new Boolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.CHECK_CONTENT))));
     	this.setRulesDir(getPersistentProperty (new QualifiedName("", PreferenceConstants.RULES_PATH)));	
     	this.setjProject(JavaCore.create(project));
-    	
     	//rule files instanziieren
     	setRulesFromDirectory();
     	this.getSources();
     }
     
+    /**
+     * Getter um Projekt Einstellungen aus der Property Page zu laden.
+     * @param qn QualifiedName Objekt.
+     * @return String Value.
+     */
 	private String getPersistentProperty (QualifiedName qn) {
 		try {
 			return (String) getProject().getPersistentProperty(qn);
@@ -158,7 +179,9 @@ public class BuilderSettings {
 
 
 	/**
-	 * @return the sources
+	 * Laden der Sourcefilter Vorgaben.
+	 * @return the sources, Liste mit definierten Source Verzeichnissen
+	 * welche spaeter ueberprueft werden sollen.
 	 */
 	public ArrayList<String> getSources() {
 		if (this.sourceFolders.size() == 0) {
@@ -355,6 +378,7 @@ public class BuilderSettings {
 	}
 
 	/**
+	 * Ermitteln der vom Projekt verwendeten ClassPath Verzeichnisse.
 	 * @return the classpaths
 	 */
 	public ArrayList<String> getClasspaths() {
@@ -384,12 +408,5 @@ public class BuilderSettings {
 	}
 
 	
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
-	}
 
 }

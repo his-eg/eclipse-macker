@@ -27,8 +27,11 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.PropertyPage;
 
 /**
+ * Diese Klasse erstellt eine "Property Page" fuer jedes
+ * Java Projekt im Workspace um Plugin bezogene Einstellungen
+ * vorzunehmen.
+ * 
  * @author Bender
- *
  */
 public class Property extends PropertyPage {
 	/*
@@ -76,14 +79,12 @@ public class Property extends PropertyPage {
 
 	
 	/**
-	 * GUI der Propertypage
+	 * GUI der Propertypage.
 	 * @param parent
 	 */
 
 	private void addSection(Composite parent) {
 
-		
-		//TODO
 		addRulesDir(parent);
 		
 		Label labelCf = new Label(parent, SWT.NONE);
@@ -350,7 +351,7 @@ public class Property extends PropertyPage {
 		checkContent.setSelection(CHECK_CONTENT);
 		fullBuild.setSelection(FULL_BUILD);
 		incBuild.setSelection(INC_BUILD);
-		//TODO 
+
 		list.setItems(new String[]{"de/his/appclient/", 
 				"de/his/appserver/", "de/his/core/"});
 		
@@ -415,7 +416,7 @@ public class Property extends PropertyPage {
 					new QualifiedName("", PreferenceConstants.CHECK_CONTENT),
 					new Boolean(checkContent.getSelection()).toString());
 			
-			
+			//pruefen ob das angegeben (Macker-Rules)Verzeichnis gefunden wurde.
 			buttonCheck.setSelection(checkRulesDir(resource));
 			
 		} catch (CoreException e) {
@@ -424,7 +425,11 @@ public class Property extends PropertyPage {
 		return true;
 	}
 	
-	
+	/**
+	 * Prueft ob ein angegebener Pfad im Projekt vorhanden ist.
+	 * @param project das aktuell verwendete JavaProjekt.
+	 * @return true falls Verzeichnis im Projekt vorhanden.
+	 */
 	private boolean checkRulesDir (IResource project) {
 		boolean found = false;
 		File dir = new File(project.getLocation().toString() + rulesDir.getText());

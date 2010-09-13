@@ -9,17 +9,16 @@ import org.eclipse.jface.preference.StringFieldEditor;
 
 import de.his.core.tools.cs.sys.quality.eclipsemacker.Activator;
 
-/**
- * @author Bender
- *
- */
-
 
 	/**
 	 * GUI um Einstellungen an dem Builder vorzunehmen, ueber
-	 * window->preferences->Macker Settings
+	 * window->preferences->Macker Settings.
+	 * 
+	 * Wurde durch eine Property Page ersetzt um fuer jedes Projekt
+	 * im Workspace individuelle Einstellungen vornehmen zu koennen.
 	 * 
 	 * @author Bender
+	 * @SuppressWarnings("unused")
 	 */
 
 	public class Preferences extends FieldEditorPreferencePage implements

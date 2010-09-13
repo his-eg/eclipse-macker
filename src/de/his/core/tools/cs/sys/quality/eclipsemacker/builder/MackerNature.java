@@ -6,6 +6,13 @@ import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.runtime.CoreException;
 
+
+/**
+ * Eine Nature hat den Zweck einen weiteren Builder zu einem 
+ * JavaProjekt hinzuzufuegen.
+ * 
+ * @author Bender
+ */
 public class MackerNature implements IProjectNature {
 
 	/**
