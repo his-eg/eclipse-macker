@@ -22,8 +22,8 @@ import de.his.core.tools.cs.sys.quality.eclipsemacker.builder.MackerBuilder;
 import de.his.core.tools.cs.sys.quality.eclipsemacker.custommacker.CustomMacker;
 
 /**
+ * Dient zur Debug-Ausgabe
  * @author Bender
- *
  */
 public class MackerView  extends ViewPart {
 

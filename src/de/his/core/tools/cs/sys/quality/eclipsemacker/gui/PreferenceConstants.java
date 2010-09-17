@@ -16,6 +16,7 @@ public class PreferenceConstants {
     public static final String ERROR = "ERROR";
     public static final String DEFAULT = "DEFAULT";
     public static final String CLASSPATH_FILTER = "FILTER";
+    public static final String USE_HIS_SETTINGS = "USE_HIS_SETTINGS";
     public static final String USE_CLASSPATH_FILTER = "USE_FILTER";
     public static final String SOURCE_FILTER = "S_FILTER";
     public static final String USE_SOURCE_FILTER = "USE_S_FILTER";

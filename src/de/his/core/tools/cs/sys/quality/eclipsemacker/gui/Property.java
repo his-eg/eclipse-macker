@@ -48,9 +48,8 @@ public class Property extends PropertyPage {
 	private static final boolean DEFAULT = true;
 	private static final boolean USE_CLASSPTAH_FILTER = true;
 	private static final boolean USE_SOURCE_FILTER = true;
+	private static final boolean USE_HIS_SETTINGS = true;
 	
-	private static final int TEXT_FIELD_WIDTH = 50;
-
 	/*
 	 * Gui Komponenten
 	 */
@@ -65,8 +64,15 @@ public class Property extends PropertyPage {
 	private Button useFilter;
 	private Button useSourceFilter;
 	private Button buttonCheck;
+	private Button hisSettings;
 	private List list; 
 	private List listSource; 
+	private Button buttonRemoveSource;
+	private Button buttonAddSource;
+	private Text sourcePath;
+	private Button buttonRemoveClass;
+	private Button buttonAddClass;
+	private Text classPath;
 	
 	/**
 	 * Constructor.
@@ -84,9 +90,10 @@ public class Property extends PropertyPage {
 	 */
 
 	private void addSection(Composite parent) {
-
-		addRulesDir(parent);
+		//HIS Settings Checkbox
+		addHisSettings(parent);
 		
+		addRulesDir(parent);
 		Label labelCf = new Label(parent, SWT.NONE);
 		labelCf.setText("Classpath Filter");
 		addClasspathFilter(parent);
@@ -100,8 +107,7 @@ public class Property extends PropertyPage {
 		// Lade aktuelle Einstellungen
 		try {
 			IResource resource = ((IJavaProject) getElement()).getResource();
-			
-			String owner = resource.getPersistentProperty(new QualifiedName("", PreferenceConstants.RULES_PATH));
+			String rPath = resource.getPersistentProperty(new QualifiedName("", PreferenceConstants.RULES_PATH));
 			String incB = resource.getPersistentProperty(new QualifiedName("", PreferenceConstants.RUN_ON_INCREMENTAL_BUILD));
 			String fullB = resource.getPersistentProperty(new QualifiedName("", PreferenceConstants.RUN_ON_FULL_BUILD));
 			String checkC = resource.getPersistentProperty(new QualifiedName("", PreferenceConstants.CHECK_CONTENT));
@@ -115,7 +121,10 @@ public class Property extends PropertyPage {
 			String rE = resource.getPersistentProperty(new QualifiedName("", PreferenceConstants.ERROR));
 			String rD = resource.getPersistentProperty(new QualifiedName("", PreferenceConstants.DEFAULT));
 			
-			
+			//HIS Settings
+			String useHISSettings = resource.getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_HIS_SETTINGS));
+			hisSettings.setSelection((useHISSettings != null) ? new Boolean(useHISSettings) : USE_HIS_SETTINGS);
+
 			
 			if(filter != null) {
 				setListContent(filter, list);
@@ -128,6 +137,7 @@ public class Property extends PropertyPage {
 			} else {
 				setListContent(FILTER_SOURCE, listSource);
 			}
+
 			useSourceFilter.setSelection((useFS != null) ? new Boolean(useFS) : USE_SOURCE_FILTER);
 			useFilter.setSelection((useF != null) ? new Boolean(useF) : USE_CLASSPTAH_FILTER);
 			warning.setSelection((rW != null) ? new Boolean(rW) : WARNING);
@@ -137,13 +147,16 @@ public class Property extends PropertyPage {
 			checkContent.setSelection((checkC != null) ? new Boolean(checkC) : CHECK_CONTENT);
 			fullBuild.setSelection((fullB != null) ? new Boolean(fullB) : FULL_BUILD);
 			incBuild.setSelection((incB != null) ? new Boolean(incB) : INC_BUILD);
-			rulesDir.setText((owner != null) ? owner : RULES_DIR);
+			rulesDir.setText((rPath != null) ? rPath : RULES_DIR);
 
 			buttonCheck.setSelection(checkRulesDir(resource));
 			
 		} catch (CoreException e) {
 			rulesDir.setText(RULES_DIR);
 		}
+		
+		
+		enablePropertys(!hisSettings.getSelection());
 	}
 
 	
@@ -167,26 +180,26 @@ public class Property extends PropertyPage {
 		rz.numColumns = 3;
 		second.setLayout(rz);
 		
-		Button buttonR = new Button(f, SWT.PUSH);
-		buttonR.setText("Remove/");
+		buttonRemoveSource = new Button(f, SWT.PUSH);
+		buttonRemoveSource.setText("Remove/");
 		
-		Button button = new Button(f, SWT.PUSH);
-		button.setText("Add source folder");
+		buttonAddSource = new Button(f, SWT.PUSH);
+		buttonAddSource.setText("Add source folder");
 
-		final Text path = new Text(f, SWT.SINGLE | SWT.BORDER);
+		sourcePath = new Text(f, SWT.SINGLE | SWT.BORDER);
 		GridData gdz = new GridData(GridData.FILL_HORIZONTAL);
 		
 		gdz.widthHint = convertWidthInCharsToPixels(46);
-		path.setLayoutData(gdz);
+		sourcePath.setLayoutData(gdz);
 		
-	    button.addSelectionListener(new SelectionAdapter() {
+	    buttonAddSource.addSelectionListener(new SelectionAdapter() {
 	    	public void widgetSelected(SelectionEvent event) {
-	    		listSource.add(path.getText());
+	    		listSource.add(sourcePath.getText());
 	    		getListContent(list);
 	          }
 	    });
 		
-	    buttonR.addSelectionListener(new SelectionAdapter() {
+	    buttonRemoveSource.addSelectionListener(new SelectionAdapter() {
 	    	public void widgetSelected(SelectionEvent event) {
 	    		if (listSource.getSelectionIndex() > -1) {
 	    			listSource.remove(listSource.getSelectionIndex());
@@ -197,9 +210,33 @@ public class Property extends PropertyPage {
 	
 	
 	
+	private void addHisSettings(Composite parent) {
+		Composite title = new Composite(parent, SWT.None);
+
+//		Label headerLabel = new Label(parent, SWT.NONE);
+//		headerLabel.setText("Macker Propertys");
+		GridLayout tz = new GridLayout();
+		tz.numColumns = 2;
+		
+		title.setLayout(tz);
+		title.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		
+
+		hisSettings = new Button(title, SWT.CHECK);
+		hisSettings.setText("Use HISinOne Default Settings");
+		hisSettings.setToolTipText("Laedt die empfohlenen (HIS Internen) Einstellungen");
+		
+		
+	    hisSettings.addSelectionListener(new SelectionAdapter() {
+	    	public void widgetSelected(SelectionEvent event) {
+	    		enablePropertys(!hisSettings.getSelection());
+	          }
+	    });
+	}
+	
+	
 	private void addRulesDir(Composite parent) {
-		Label headerLabel = new Label(parent, SWT.NONE);
-		headerLabel.setText("Macker Propertys");
+
 		
 		Composite first = new Composite(parent, SWT.None);
 		
@@ -222,6 +259,28 @@ public class Property extends PropertyPage {
 
 	}
 	
+	
+	private void enablePropertys (boolean enabled) {
+		rulesDir.setEnabled(enabled);
+		incBuild.setEnabled(enabled);
+		fullBuild.setEnabled(enabled);
+		checkContent.setEnabled(enabled);
+		radioGroup.setEnabled(enabled);
+		useFilter.setEnabled(enabled);
+		useSourceFilter.setEnabled(enabled);
+		list.setEnabled(enabled);
+		listSource.setEnabled(enabled);
+		buttonRemoveSource.setEnabled(enabled);
+		buttonAddSource.setEnabled(enabled);
+		sourcePath.setEnabled(enabled);
+		buttonRemoveClass.setEnabled(enabled);
+		buttonAddClass.setEnabled(enabled);
+		classPath.setEnabled(enabled);
+		error.setEnabled(enabled);
+		warning.setEnabled(enabled);
+		defaultM.setEnabled(enabled);
+		
+	}
 	
 	
 	private void addCheckboxes(Composite parent) {
@@ -286,26 +345,26 @@ public class Property extends PropertyPage {
 		rz.numColumns = 3;
 		second.setLayout(rz);
 		
-		Button buttonR = new Button(f, SWT.PUSH);
-		buttonR.setText("Remove/");
+		buttonRemoveClass = new Button(f, SWT.PUSH);
+		buttonRemoveClass.setText("Remove/");
 		
-		Button button = new Button(f, SWT.PUSH);
-		button.setText("Add classpath");
+		buttonAddClass = new Button(f, SWT.PUSH);
+		buttonAddClass.setText("Add classpath");
 
-		final Text path = new Text(f, SWT.SINGLE | SWT.BORDER);
+		classPath = new Text(f, SWT.SINGLE | SWT.BORDER);
 		GridData gdz = new GridData(GridData.FILL_HORIZONTAL);
 		
 		gdz.widthHint = convertWidthInCharsToPixels(50);
-		path.setLayoutData(gdz);
+		classPath.setLayoutData(gdz);
 		
-	    button.addSelectionListener(new SelectionAdapter() {
+	    buttonAddClass.addSelectionListener(new SelectionAdapter() {
 	    	public void widgetSelected(SelectionEvent event) {
-	    		list.add(path.getText());
+	    		list.add(classPath.getText());
 	    		getListContent(list);
 	          }
 	    });
 		
-	    buttonR.addSelectionListener(new SelectionAdapter() {
+	    buttonRemoveClass.addSelectionListener(new SelectionAdapter() {
 	    	public void widgetSelected(SelectionEvent event) {
 	    		if (list.getSelectionIndex() > -1) {
 	    			list.remove(list.getSelectionIndex());
@@ -314,11 +373,7 @@ public class Property extends PropertyPage {
 	    });
 	}
 	
-	
-	
-	
-	
-	
+
 	private Button createRadioButton(Composite parent, String label) {
 		  final Button button = new Button(parent, SWT.RADIO);
 		  button.setText(label);
@@ -336,6 +391,7 @@ public class Property extends PropertyPage {
 		data.grabExcessHorizontalSpace = true;
 		composite.setLayoutData(data);
 
+		
 		addSection(composite);
 		
 		return composite;
@@ -346,12 +402,14 @@ public class Property extends PropertyPage {
 	 */
 	protected void performDefaults() {
 		super.performDefaults();
+		//HIS Settings
+		hisSettings.setSelection(USE_HIS_SETTINGS);
+
 		
 		rulesDir.setText(RULES_DIR);
 		checkContent.setSelection(CHECK_CONTENT);
 		fullBuild.setSelection(FULL_BUILD);
-		incBuild.setSelection(INC_BUILD);
-
+		incBuild.setSelection(INC_BUILD);		
 		list.setItems(new String[]{"de/his/appclient/", 
 				"de/his/appserver/", "de/his/core/"});
 		
@@ -370,6 +428,10 @@ public class Property extends PropertyPage {
 		try {
 			IResource resource = ((IJavaProject) getElement()).getResource();
 			
+			//HIS Settings
+			resource.setPersistentProperty(
+					new QualifiedName("", PreferenceConstants.USE_HIS_SETTINGS),
+					new Boolean(hisSettings.getSelection()).toString());
 			
 			resource.setPersistentProperty(
 					new QualifiedName("", PreferenceConstants.USE_SOURCE_FILTER),
@@ -472,6 +534,11 @@ public class Property extends PropertyPage {
 	public boolean init(IResource resource) {
 		
 		try {
+			
+			//HIS Settings
+			resource.setPersistentProperty(
+					new QualifiedName("", PreferenceConstants.USE_HIS_SETTINGS),
+					new Boolean(USE_HIS_SETTINGS).toString());
 			
 			resource.setPersistentProperty(
 					new QualifiedName("", PreferenceConstants.USE_CLASSPATH_FILTER),

@@ -3,9 +3,16 @@
  */
 package de.his.core.tools.cs.sys.quality.eclipsemacker.builder;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
 import net.innig.macker.rule.RulesException;
@@ -29,7 +36,9 @@ import de.his.core.tools.cs.sys.quality.eclipsemacker.gui.PreferenceConstants;
  */
 public class BuilderSettings {
 	
-	/** projekt settings */
+	/** projekt settings (HIS1)*/
+	private static final String PROPERTIES_FILE = "/qisserver/WEB-INF/internal/macker/rules/macker_properties.txt";
+	
 	
     private boolean warnung = false;
     private boolean error = false;
@@ -57,6 +66,75 @@ public class BuilderSettings {
     	
     }
 
+    
+    /**
+     * HIS Spezifische settings laden 
+     */
+    
+	private LinkedHashMap<String, String> loadDispatcherProp() {
+		String s = "";
+		LinkedHashMap<String, String> map = new LinkedHashMap<String, String>();
+		String separatorDispProp = "=";
+
+		try {
+
+			BufferedReader in = new BufferedReader(
+			        new InputStreamReader(
+			        new FileInputStream(project.getLocation().toString() + PROPERTIES_FILE)));
+
+			while((s = in.readLine()) != null) {
+				 
+				if (!s.startsWith("#")) {
+					StringTokenizer st = new StringTokenizer(s, separatorDispProp);
+					map.put(st.nextToken(), st.nextToken());
+				}
+		      }
+			 in.close();
+ 
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();	
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (NoSuchElementException e) {
+				e.printStackTrace();
+			}
+		
+		return map;
+	}
+	
+	
+	/**
+	 * HIS Spezifische settings setzen.
+	 * @return builderSettings Objekt.
+	 */
+    public BuilderSettings setHISSettings() {
+    	LinkedHashMap<String, String> map = loadDispatcherProp();
+    	try {
+    		this.setDefaultM(new Boolean(map.get(PreferenceConstants.DEFAULT)));
+        	this.setError(new Boolean(map.get(PreferenceConstants.ERROR)));
+        	this.setRunOnFullBuild(new Boolean(map.get(PreferenceConstants.RUN_ON_FULL_BUILD)));
+        	this.setRunOnIncBuild(new Boolean(map.get(PreferenceConstants.RUN_ON_INCREMENTAL_BUILD)));
+        	this.setFilterContent(map.get(PreferenceConstants.CLASSPATH_FILTER).replace(", ", "\t"));	
+        	this.setUseFilter(new Boolean(map.get(PreferenceConstants.USE_CLASSPATH_FILTER)));
+        	this.setFilterSourceContent(map.get(PreferenceConstants.SOURCE_FILTER).replace(", ", "\t"));	
+        	this.setUseSourceFilter(new Boolean(map.get(PreferenceConstants.USE_SOURCE_FILTER)));
+        	this.setCheckContent(new Boolean(map.get(PreferenceConstants.CHECK_CONTENT)));
+        	this.setRulesDir(map.get(PreferenceConstants.RULES_PATH));	
+        	this.setjProject(JavaCore.create(project));
+        	//rule files instanziieren
+        	setRulesFromDirectory();
+        	this.getSources();
+    	} catch (NullPointerException e) {
+    		e.printStackTrace();
+    	}
+
+    	return this;
+    }
+
+    
+    
+    
+    
     /**
      * Die im angegebenen "Macker Rules Dir." befindlichen Dateien (*.xml)
      * werden instanziiert und in einer Liste gespeichert.
@@ -407,6 +485,9 @@ public class BuilderSettings {
 		this.classpathFolders = classpaths;
 	}
 
+	public static void main(String[] args) {
+		new BuilderSettings().setHISSettings();
+	}
 	
 
 }

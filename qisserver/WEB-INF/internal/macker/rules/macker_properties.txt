@@ -1,0 +1,18 @@
+###Eclipse-Macker-Plugin default Einstellungen###
+##Anzeige der MackerEvents (Default = Entsprechend der Vorgaben in den definierten Regeln.)
+DEFAULT=true
+WARNING=false
+ERROR=false
+##Build Prozess
+RUN_ON_FULL_BUILD=true
+RUN_ON_INCREMENTAL_BUILD=true
+##Definierter Classfilter
+USE_FILTER=true
+FILTER=de/his/appclient/, de/his/appserver/, de/his/core/
+##Definierter Sourcefilter
+USE_S_FILTER=true
+S_FILTER=src/java/, src/generated, src/patches, src/
+##Inhalt einer Klasse untersuchen
+CHECK_CONTENT=true
+##Verzeichnis der definierten Macker-Regeln
+RULES_PATH=/qisserver/WEB-INF/internal/macker/rules/

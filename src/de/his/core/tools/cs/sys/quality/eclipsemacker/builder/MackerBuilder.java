@@ -17,10 +17,22 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.resources.IResourceVisitor;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
+
 import de.his.core.tools.cs.sys.quality.eclipsemacker.custommacker.CustomMacker;
 import de.his.core.tools.cs.sys.quality.eclipsemacker.custommacker.ShowAs;
 import de.his.core.tools.cs.sys.quality.eclipsemacker.gui.PreferenceConstants;
@@ -164,12 +176,20 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 		customMacker = new CustomMacker();
 		count = 0;
 		
-		if (getProject().getPersistentProperty(new QualifiedName("", PreferenceConstants.SOURCE_FILTER)) == null) {
+		//einmaliges laden der projekt settings
+		if (getProject().getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_HIS_SETTINGS)) == null) {
 			new Property().init(getProject());
 		}
-
+		//dem builder eine referenz auf das aktuelel projekt uebergeben
 		this.getBuilderSettings().setProject(getProject());
-		this.getBuilderSettings().setProjectSettings();
+		
+		//Unterscheidung ob HIS-Settings geladen werden sollen oder die Vorgaben aus der Property Page.
+		if (new Boolean(getProject().getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_HIS_SETTINGS)))) {
+			this.getBuilderSettings().setHISSettings();
+		} else {
+			this.getBuilderSettings().setProjectSettings();
+		}
+		//einmaliges hinzufuegen der definierten Regeln
 		this.getBuilderSettings().addRulesToMacker(customMacker);
 
 		if (kind == FULL_BUILD) {
@@ -226,7 +246,7 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 			if (run) {
 				checkFilter = toCheck(fullP);
 			} 
-		
+
 			if (checkFilter) {
 
 				String projectName = resource.getProject().getName();
@@ -241,7 +261,6 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 					classFile = new File(javaFile.getLocation().toString().replace(src,
 							getBuilderSettings().getjProject().getOutputLocation().toOSString().replace(projectName, ""))
 							.replace(".java", ".class").replace("\\", "/"));
-					
 				} catch (CoreException e2) {
 					e2.printStackTrace();
 				}
@@ -268,12 +287,11 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 
 				} 
 			}
-		}
+		} 
 		
 	}
 
-	
-	
+
 	/**
 	 * Prueft anahnd eines uebergebenen Pfades die Filterbedingungen.
 	 * 
@@ -282,15 +300,13 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 	 */
 	private boolean toCheck(String path) {
 		boolean toCheck = false;
-
-		StringTokenizer st = new StringTokenizer(getBuilderSettings().getFilterContent(), "\t");
 		
+		StringTokenizer st = new StringTokenizer(getBuilderSettings().getFilterContent(), "\t");
 		while (st.hasMoreTokens()) { 
-			if (path.indexOf(st.nextToken()) > -1 ) {
-				
+			String check = st.nextToken();
+			if (path.indexOf(check) > -1 ) {
 				if (getBuilderSettings().isUseSourceFilter()) {
 					for (String s : getBuilderSettings().getSources()) {
-						
 						if (path.indexOf(s) > -1) {
 							return true;
 						}
@@ -342,7 +358,6 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 	 */
 	
 	private void checkResources (IProgressMonitor monitor) {
-		
 		if (customMacker.hasRules() && customMacker.hasClasses()) {
 			monitor.subTask("Macker, pruefe Klassen: ");
 			monitor.worked(1);
