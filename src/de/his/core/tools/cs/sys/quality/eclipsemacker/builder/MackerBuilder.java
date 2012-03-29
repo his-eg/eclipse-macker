@@ -560,6 +560,10 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 			severity = "WARNING";
 		}
 		
+		// ignore messages with severity 'debug'
+		if (cm.getListener().getViolation().get(className).get(index).getRule().getSeverity().getName().toUpperCase().equals("DEBUG"))
+			return;
+		
 		 //Warnungen setzen, anhand der default Einstellungen oder angepasst. 
 		String message = cm.getListener().getViolation().get(className).get(index).getTo().toString();
 		String source = message.substring(message.lastIndexOf(".")+1);
