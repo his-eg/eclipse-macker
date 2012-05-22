@@ -9,16 +9,21 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import net.innig.macker.rule.RulesException;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
@@ -462,10 +467,10 @@ public class BuilderSettings {
 		if (this.classpathFolders.size() == 0) {
 			IJavaProject jp = getjProject();
 			try {
-				for (int i = 0; i < jp.getRawClasspath().length; i++) {
-
-					if (!jp.getRawClasspath()[i].getPath().toOSString().startsWith("org.eclipse")) {
-						classpathFolders.add(jp.getRawClasspath()[i].getPath().toOSString());
+				IClasspathEntry[] rawClasspath = jp.getRawClasspath();
+				for (int i = 0; i < rawClasspath.length; i++) {
+					if (!rawClasspath[i].getPath().toOSString().startsWith("org.eclipse")) {
+						classpathFolders.add(rawClasspath[i].getPath().toOSString());
 					}
 
 				}
@@ -475,6 +480,29 @@ public class BuilderSettings {
 		}
 
 		return classpathFolders;
+	}
+	
+	public ArrayList<File> getClasspathElements() {
+		ArrayList<File> jars = new ArrayList<File>();
+		IJavaProject jp = getjProject();
+		IClasspathEntry[] rawClasspath;
+		IPath location = jp.getProject().getLocation();
+		try {
+			rawClasspath = jp.getRawClasspath();
+			for (int i = 0; i < rawClasspath.length; i++) {
+				IPath iPath = rawClasspath[i].getPath();
+				iPath = iPath.removeFirstSegments(1); //this removes the webapps prefix
+				IPath fullPathToJar = location.append(iPath);
+				File file = fullPathToJar.toFile();
+				jars.add(file);
+			}
+			IPath outputLocation = jp.getOutputLocation().removeFirstSegments(1);
+			File outputFolder = location.append(outputLocation).toFile();
+			jars.add(outputFolder);
+		} catch (JavaModelException e) {
+			e.printStackTrace();
+		}
+		return jars;
 	}
 
 	/**

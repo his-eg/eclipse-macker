@@ -5,6 +5,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
@@ -66,7 +70,7 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 	public MackerBuilder() {
 			this.builderSettings = new BuilderSettings();
 			this.customMacker = new CustomMacker();
-		}
+	}
 
 	/**
 	 * Der Delta Visitor wird bei einem Incremetal Build aufgerufen.
@@ -183,9 +187,12 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 		} else {
 			this.getBuilderSettings().setProjectSettings();
 		}
+		
 		//einmaliges hinzufuegen der definierten Regeln
 		this.getBuilderSettings().addRulesToMacker(customMacker);
 
+		addJarsToClasspath();
+		
 		if (kind == FULL_BUILD) {
 			fullBuild(monitor);
 
@@ -209,8 +216,19 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 		return null;
 	}
 
-
-
+	private void addJarsToClasspath() {
+		ArrayList<File> jarsInClasspath = builderSettings.getClasspathElements();
+		ArrayList<URL> jarUrls = new ArrayList<URL>();
+		for (File jar : jarsInClasspath) {
+			try {
+				jarUrls.add(jar.toURI().toURL());
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+			}
+		}
+		URLClassLoader urlClassLoader = new URLClassLoader(jarUrls.toArray(new URL[0]), getClass().getClassLoader());
+		customMacker.setClassLoader(urlClassLoader);
+	}
 
 	/**
 	 * Eine veraenderte/neue java-Datei wird zunaechst instanziiert,
