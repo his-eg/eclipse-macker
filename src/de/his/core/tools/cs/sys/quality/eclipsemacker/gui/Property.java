@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package de.his.core.tools.cs.sys.quality.eclipsemacker.gui;
 
@@ -13,6 +13,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -30,7 +31,7 @@ import org.eclipse.ui.dialogs.PropertyPage;
  * Diese Klasse erstellt eine "Property Page" fuer jedes
  * Java Projekt im Workspace um Plugin bezogene Einstellungen
  * vorzunehmen.
- * 
+ *
  * @author Bender
  */
 public class Property extends PropertyPage {
@@ -49,7 +50,7 @@ public class Property extends PropertyPage {
 	private static final boolean USE_CLASSPTAH_FILTER = true;
 	private static final boolean USE_SOURCE_FILTER = true;
 	private static final boolean USE_HIS_SETTINGS = true;
-	
+
 	/*
 	 * Gui Komponenten
 	 */
@@ -65,15 +66,15 @@ public class Property extends PropertyPage {
 	private Button useSourceFilter;
 	private Button buttonCheck;
 	private Button hisSettings;
-	private List list; 
-	private List listSource; 
+	private List list;
+	private List listSource;
 	private Button buttonRemoveSource;
 	private Button buttonAddSource;
 	private Text sourcePath;
 	private Button buttonRemoveClass;
 	private Button buttonAddClass;
 	private Text classPath;
-	
+
 	/**
 	 * Constructor.
 	 */
@@ -83,7 +84,7 @@ public class Property extends PropertyPage {
 
 
 
-	
+
 	/**
 	 * GUI der Propertypage.
 	 * @param parent
@@ -92,16 +93,16 @@ public class Property extends PropertyPage {
 	private void addSection(Composite parent) {
 		//HIS Settings Checkbox
 		addHisSettings(parent);
-		
+
 		addRulesDir(parent);
 		Label labelCf = new Label(parent, SWT.NONE);
 		labelCf.setText("Classpath Filter");
 		addClasspathFilter(parent);
-		
+
 		Label label = new Label(parent, SWT.NONE);
 		label.setText("Source Filter");
 		addSourceFilter(parent);
-		
+
 		addCheckboxes(parent);
 
 		// Lade aktuelle Einstellungen
@@ -113,57 +114,57 @@ public class Property extends PropertyPage {
 			String checkC = resource.getPersistentProperty(new QualifiedName("", PreferenceConstants.CHECK_CONTENT));
 			String filter = resource.getPersistentProperty(new QualifiedName("", PreferenceConstants.CLASSPATH_FILTER));
 			String useF = resource.getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_CLASSPATH_FILTER));
-			
+
 			String filterS = resource.getPersistentProperty(new QualifiedName("", PreferenceConstants.SOURCE_FILTER));
 			String useFS = resource.getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_SOURCE_FILTER));
-			
+
 			String rW = resource.getPersistentProperty(new QualifiedName("", PreferenceConstants.WARNING));
 			String rE = resource.getPersistentProperty(new QualifiedName("", PreferenceConstants.ERROR));
 			String rD = resource.getPersistentProperty(new QualifiedName("", PreferenceConstants.DEFAULT));
-			
+
 			//HIS Settings
 			String useHISSettings = resource.getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_HIS_SETTINGS));
-			hisSettings.setSelection((useHISSettings != null) ? new Boolean(useHISSettings) : USE_HIS_SETTINGS);
+			hisSettings.setSelection((useHISSettings != null) ? Boolean.parseBoolean(useHISSettings) : USE_HIS_SETTINGS);
 
-			
+
 			if(filter != null) {
 				setListContent(filter, list);
 			} else {
 				setListContent(FILTER_CLASSPATH, list);
 			}
-			
+
 			if(filterS != null) {
 				setListContent(filterS, listSource);
 			} else {
 				setListContent(FILTER_SOURCE, listSource);
 			}
 
-			useSourceFilter.setSelection((useFS != null) ? new Boolean(useFS) : USE_SOURCE_FILTER);
-			useFilter.setSelection((useF != null) ? new Boolean(useF) : USE_CLASSPTAH_FILTER);
-			warning.setSelection((rW != null) ? new Boolean(rW) : WARNING);
-			error.setSelection((rE != null) ? new Boolean(rE) : ERROR);
-			defaultM.setSelection((rD != null) ? new Boolean(rD) : DEFAULT);
-			
-			checkContent.setSelection((checkC != null) ? new Boolean(checkC) : CHECK_CONTENT);
-			fullBuild.setSelection((fullB != null) ? new Boolean(fullB) : FULL_BUILD);
-			incBuild.setSelection((incB != null) ? new Boolean(incB) : INC_BUILD);
+			useSourceFilter.setSelection((useFS != null) ? Boolean.parseBoolean(useFS) : USE_SOURCE_FILTER);
+			useFilter.setSelection((useF != null) ? Boolean.parseBoolean(useF) : USE_CLASSPTAH_FILTER);
+			warning.setSelection((rW != null) ? Boolean.parseBoolean(rW) : WARNING);
+			error.setSelection((rE != null) ? Boolean.parseBoolean(rE) : ERROR);
+			defaultM.setSelection((rD != null) ? Boolean.parseBoolean(rD) : DEFAULT);
+
+			checkContent.setSelection((checkC != null) ? Boolean.parseBoolean(checkC) : CHECK_CONTENT);
+			fullBuild.setSelection((fullB != null) ? Boolean.parseBoolean(fullB) : FULL_BUILD);
+			incBuild.setSelection((incB != null) ? Boolean.parseBoolean(incB) : INC_BUILD);
 			rulesDir.setText((rPath != null) ? rPath : RULES_DIR);
 
 			buttonCheck.setSelection(checkRulesDir(resource));
-			
+
 		} catch (CoreException e) {
 			rulesDir.setText(RULES_DIR);
 		}
-		
-		
+
+
 		enablePropertys(!hisSettings.getSelection());
 	}
 
-	
+
 
 	private void addSourceFilter(Composite parent) {
 		Composite f = new Composite(parent, SWT.None);
-		
+
 		GridLayout rf = new GridLayout();
 		rf.numColumns = 4;
 		f.setLayout(rf);
@@ -172,44 +173,46 @@ public class Property extends PropertyPage {
 		gridData.horizontalAlignment = GridData.FILL;
 		gridData.horizontalSpan = 3;
 		listSource.setToolTipText("Legt fest welche Source-Verzeichnisse in einem Projekt ueberprueft werden sollen");
-		
+
 		listSource.setLayoutData(gridData);
 		Composite second = new Composite(f, SWT.None);
-		
+
 		GridLayout rz = new GridLayout();
 		rz.numColumns = 3;
 		second.setLayout(rz);
-		
+
 		buttonRemoveSource = new Button(f, SWT.PUSH);
 		buttonRemoveSource.setText("Remove/");
-		
+
 		buttonAddSource = new Button(f, SWT.PUSH);
 		buttonAddSource.setText("Add source folder");
 
 		sourcePath = new Text(f, SWT.SINGLE | SWT.BORDER);
 		GridData gdz = new GridData(GridData.FILL_HORIZONTAL);
-		
+
 		gdz.widthHint = convertWidthInCharsToPixels(46);
 		sourcePath.setLayoutData(gdz);
-		
+
 	    buttonAddSource.addSelectionListener(new SelectionAdapter() {
-	    	public void widgetSelected(SelectionEvent event) {
+	    	@Override
+            public void widgetSelected(SelectionEvent event) {
 	    		listSource.add(sourcePath.getText());
 	    		getListContent(list);
 	          }
 	    });
-		
+
 	    buttonRemoveSource.addSelectionListener(new SelectionAdapter() {
-	    	public void widgetSelected(SelectionEvent event) {
+	    	@Override
+            public void widgetSelected(SelectionEvent event) {
 	    		if (listSource.getSelectionIndex() > -1) {
 	    			listSource.remove(listSource.getSelectionIndex());
 	    		}
 	          }
 	    });
 	}
-	
-	
-	
+
+
+
 	private void addHisSettings(Composite parent) {
 		Composite title = new Composite(parent, SWT.None);
 
@@ -217,49 +220,50 @@ public class Property extends PropertyPage {
 //		headerLabel.setText("Macker Propertys");
 		GridLayout tz = new GridLayout();
 		tz.numColumns = 2;
-		
+
 		title.setLayout(tz);
 		title.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		
+
 
 		hisSettings = new Button(title, SWT.CHECK);
 		hisSettings.setText("Use HISinOne Default Settings");
 		hisSettings.setToolTipText("Laedt die empfohlenen (HIS Internen) Einstellungen");
-		
-		
+
+
 	    hisSettings.addSelectionListener(new SelectionAdapter() {
-	    	public void widgetSelected(SelectionEvent event) {
+	    	@Override
+            public void widgetSelected(SelectionEvent event) {
 	    		enablePropertys(!hisSettings.getSelection());
 	          }
 	    });
 	}
-	
-	
+
+
 	private void addRulesDir(Composite parent) {
 
-		
+
 		Composite first = new Composite(parent, SWT.None);
-		
+
 		GridLayout r = new GridLayout();
 		r.numColumns = 3;
 		first.setLayout(r);
-		
+
 		Label ruleLabel = new Label(first, SWT.NONE);
 		ruleLabel.setText("Macker Rules Directory:");
 		rulesDir = new Text(first, SWT.SINGLE | SWT.BORDER);
 		rulesDir.setToolTipText("Ein zum Projekt relativer Pfad");
-		
+
 		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
 		gd.widthHint = convertWidthInCharsToPixels(55);
 		rulesDir.setLayoutData(gd);
-		
+
 		buttonCheck = new Button(first, SWT.CHECK);
 		buttonCheck.setEnabled(false);
 		buttonCheck.setSelection(false);
 
 	}
-	
-	
+
+
 	private void enablePropertys (boolean enabled) {
 		rulesDir.setEnabled(enabled);
 		incBuild.setEnabled(enabled);
@@ -279,28 +283,28 @@ public class Property extends PropertyPage {
 		error.setEnabled(enabled);
 		warning.setEnabled(enabled);
 		defaultM.setEnabled(enabled);
-		
+
 	}
-	
-	
+
+
 	private void addCheckboxes(Composite parent) {
 		Composite check = new Composite(parent, SWT.None);
 		check.setLayout(new GridLayout());
 		check.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		
-		
+
+
 		useFilter = new Button(check, SWT.CHECK);
 		useFilter.setText("Use Classpath Filter");
 		useFilter.setToolTipText("Legt fest welche Pakete in einem Projekt ueberprueft werden sollen");
-		
+
 		useSourceFilter = new Button(check, SWT.CHECK);
 		useSourceFilter.setText("Use Source Filter");
 		useSourceFilter.setToolTipText("Legt fest welche Source-Verzeichnisse in einem Projekt ueberprueft werden sollen");
-		
+
 		incBuild = new Button(check, SWT.CHECK);
 		incBuild.setText("Run on Incremental Build");
 		incBuild.setToolTipText("Nach jedem Speichervorgang Pruefen");
-		
+
 		fullBuild = new Button(check, SWT.CHECK);
 		fullBuild.setText("Run on Full Build");
 		fullBuild.setToolTipText("Pruefen bei einem Neuaufbau des Projektes5");
@@ -309,10 +313,10 @@ public class Property extends PropertyPage {
 		checkContent.setText("Check Content");
 		checkContent.setToolTipText("Fehleranzeige innerhalb einer Klasse");
 
-		
+
 		Label events = new Label(parent, SWT.None);
 		events.setText("Show Macker Events as");
-		
+
 		radioGroup = new Composite(parent, SWT.NONE);
 		GridLayout g = new GridLayout();
 		g.numColumns = 3;
@@ -326,10 +330,10 @@ public class Property extends PropertyPage {
 		defaultM = createRadioButton(radioGroup, "Default");
 		defaultM.setToolTipText("Vorgegebene Einstellung verwenden");
 	}
-	
+
 	private void addClasspathFilter(Composite parent) {
 		Composite f = new Composite(parent, SWT.None);
-		
+
 		GridLayout rf = new GridLayout();
 		rf.numColumns = 4;
 		f.setLayout(rf);
@@ -340,39 +344,41 @@ public class Property extends PropertyPage {
 		list.setToolTipText("Legt fest welche Pakete in einem Projekt ueberprueft werden sollen.");
 		list.setLayoutData(gridData);
 		Composite second = new Composite(f, SWT.None);
-		
+
 		GridLayout rz = new GridLayout();
 		rz.numColumns = 3;
 		second.setLayout(rz);
-		
+
 		buttonRemoveClass = new Button(f, SWT.PUSH);
 		buttonRemoveClass.setText("Remove/");
-		
+
 		buttonAddClass = new Button(f, SWT.PUSH);
 		buttonAddClass.setText("Add classpath");
 
 		classPath = new Text(f, SWT.SINGLE | SWT.BORDER);
 		GridData gdz = new GridData(GridData.FILL_HORIZONTAL);
-		
+
 		gdz.widthHint = convertWidthInCharsToPixels(50);
 		classPath.setLayoutData(gdz);
-		
+
 	    buttonAddClass.addSelectionListener(new SelectionAdapter() {
-	    	public void widgetSelected(SelectionEvent event) {
+	    	@Override
+            public void widgetSelected(SelectionEvent event) {
 	    		list.add(classPath.getText());
 	    		getListContent(list);
 	          }
 	    });
-		
+
 	    buttonRemoveClass.addSelectionListener(new SelectionAdapter() {
-	    	public void widgetSelected(SelectionEvent event) {
+	    	@Override
+            public void widgetSelected(SelectionEvent event) {
 	    		if (list.getSelectionIndex() > -1) {
 	    			list.remove(list.getSelectionIndex());
 	    		}
 	          }
 	    });
 	}
-	
+
 
 	private Button createRadioButton(Composite parent, String label) {
 		  final Button button = new Button(parent, SWT.RADIO);
@@ -383,7 +389,8 @@ public class Property extends PropertyPage {
 	/**
 	 * @see PreferencePage#createContents(Composite)
 	 */
-	protected Control createContents(Composite parent) {
+	@Override
+    protected Control createContents(Composite parent) {
 		Composite composite = new Composite(parent, SWT.NONE);
 		GridLayout layout = new GridLayout();
 		composite.setLayout(layout);
@@ -391,102 +398,104 @@ public class Property extends PropertyPage {
 		data.grabExcessHorizontalSpace = true;
 		composite.setLayoutData(data);
 
-		
+
 		addSection(composite);
-		
+
 		return composite;
 	}
 
 	/**
 	 * Default Werte setzen
 	 */
-	protected void performDefaults() {
+	@Override
+    protected void performDefaults() {
 		super.performDefaults();
 		//HIS Settings
 		hisSettings.setSelection(USE_HIS_SETTINGS);
 
-		
+
 		rulesDir.setText(RULES_DIR);
 		checkContent.setSelection(CHECK_CONTENT);
 		fullBuild.setSelection(FULL_BUILD);
-		incBuild.setSelection(INC_BUILD);		
-		list.setItems(new String[]{"de/his/appclient/", 
+		incBuild.setSelection(INC_BUILD);
+		list.setItems(new String[]{"de/his/appclient/",
 				"de/his/appserver/", "de/his/core/"});
-		
+
 		listSource.setItems(new String[]{"src/java/", "src/generated", "src/patches"});
 		warning.setSelection(WARNING);
 		defaultM.setSelection(DEFAULT);
 		error.setSelection(ERROR);
 		useFilter.setSelection(USE_CLASSPTAH_FILTER);
 	}
-	
+
 	/**
 	 * Projekt Einstellungen dauerhaft speichern.
 	 */
-	public boolean performOk() {
+	@Override
+    public boolean performOk() {
 		// store the values
 		try {
 			IResource resource = ((IJavaProject) getElement()).getResource();
-			
+
 			//HIS Settings
 			resource.setPersistentProperty(
 					new QualifiedName("", PreferenceConstants.USE_HIS_SETTINGS),
-					new Boolean(hisSettings.getSelection()).toString());
-			
+					Boolean.toString(hisSettings.getSelection()).toString());
+
 			resource.setPersistentProperty(
 					new QualifiedName("", PreferenceConstants.USE_SOURCE_FILTER),
-					new Boolean(useSourceFilter.getSelection()).toString());
-			
+					Boolean.toString(useSourceFilter.getSelection()).toString());
+
 			resource.setPersistentProperty(
 					new QualifiedName("", PreferenceConstants.USE_CLASSPATH_FILTER),
-					new Boolean(useFilter.getSelection()).toString());
-			
+					Boolean.toString(useFilter.getSelection()).toString());
+
 			resource.setPersistentProperty(
 					new QualifiedName("", PreferenceConstants.DEFAULT),
-					new Boolean(defaultM.getSelection()).toString());
-			
+					Boolean.toString(defaultM.getSelection()));
+
 			resource.setPersistentProperty(
 					new QualifiedName("", PreferenceConstants.ERROR),
-					new Boolean(error.getSelection()).toString());
-			
+					Boolean.toString(error.getSelection()));
+
 			resource.setPersistentProperty(
 					new QualifiedName("", PreferenceConstants.WARNING),
-					new Boolean(warning.getSelection()).toString());
-			
+					Boolean.toString(warning.getSelection()));
+
 			resource.setPersistentProperty(
 					new QualifiedName("", PreferenceConstants.CLASSPATH_FILTER),
 					getListContent(list));
-			
+
 			resource.setPersistentProperty(
 					new QualifiedName("", PreferenceConstants.SOURCE_FILTER),
 					getListContent(listSource));
-			
-			
+
+
 			resource.setPersistentProperty(
 					new QualifiedName("", PreferenceConstants.RULES_PATH),
 					rulesDir.getText());
-			
+
 			resource.setPersistentProperty(
 					new QualifiedName("", PreferenceConstants.RUN_ON_INCREMENTAL_BUILD),
-					new Boolean(incBuild.getSelection()).toString());
-			
+					Boolean.toString(incBuild.getSelection()));
+
 			resource.setPersistentProperty(
 					new QualifiedName("", PreferenceConstants.RUN_ON_FULL_BUILD),
-					new Boolean(fullBuild.getSelection()).toString());
-			
+					Boolean.toString(fullBuild.getSelection()));
+
 			resource.setPersistentProperty(
 					new QualifiedName("", PreferenceConstants.CHECK_CONTENT),
-					new Boolean(checkContent.getSelection()).toString());
-			
+					Boolean.toString(checkContent.getSelection()));
+
 			//pruefen ob das angegeben (Macker-Rules)Verzeichnis gefunden wurde.
 			buttonCheck.setSelection(checkRulesDir(resource));
-			
+
 		} catch (CoreException e) {
 			return false;
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Prueft ob ein angegebener Pfad im Projekt vorhanden ist.
 	 * @param project das aktuell verwendete JavaProjekt.
@@ -500,14 +509,14 @@ public class Property extends PropertyPage {
 		}
 		return found;
 	}
-	
+
 	/**
 	 * Setzt die Werte des Classpath Filters
 	 * @param content
 	 */
 	private void setListContent(String content, List list) {
 		StringTokenizer st = new StringTokenizer(content, "\t");
-	     while (st.hasMoreTokens()) { 
+	     while (st.hasMoreTokens()) {
 	       list.add(st.nextToken());
 	     }
 	}
@@ -524,7 +533,7 @@ public class Property extends PropertyPage {
 		}
 		return content;
 	}
-	
+
 	/**
 	 * Setzt beim ersten Start eines Projektes mit dem Plugin
 	 * die Defaultwerte.
@@ -532,62 +541,62 @@ public class Property extends PropertyPage {
 	 * @return
 	 */
 	public boolean init(IResource resource) {
-		
+
 		try {
-			
+
 			//HIS Settings
 			resource.setPersistentProperty(
 					new QualifiedName("", PreferenceConstants.USE_HIS_SETTINGS),
-					new Boolean(USE_HIS_SETTINGS).toString());
-			
+					Boolean.toString(USE_HIS_SETTINGS));
+
 			resource.setPersistentProperty(
 					new QualifiedName("", PreferenceConstants.USE_CLASSPATH_FILTER),
-					new Boolean(USE_CLASSPTAH_FILTER).toString());
+					Boolean.toString(USE_CLASSPTAH_FILTER));
 
 			resource.setPersistentProperty(
 					new QualifiedName("", PreferenceConstants.USE_SOURCE_FILTER),
-					new Boolean(USE_SOURCE_FILTER).toString());
-			
+					Boolean.toString(USE_SOURCE_FILTER));
+
 			resource.setPersistentProperty(
 					new QualifiedName("", PreferenceConstants.CLASSPATH_FILTER), FILTER_CLASSPATH);
-			
+
 			resource.setPersistentProperty(
 					new QualifiedName("", PreferenceConstants.SOURCE_FILTER), FILTER_SOURCE);
-			
+
 			resource.setPersistentProperty(
-					new QualifiedName("", PreferenceConstants.DEFAULT), new Boolean(DEFAULT).toString());
-			
+					new QualifiedName("", PreferenceConstants.DEFAULT), Boolean.toString(DEFAULT));
+
 			resource.setPersistentProperty(
 					new QualifiedName("", PreferenceConstants.ERROR),
-					new Boolean(ERROR).toString());
-			
+					Boolean.toString(ERROR).toString());
+
 			resource.setPersistentProperty(
 					new QualifiedName("", PreferenceConstants.WARNING),
-					new Boolean(WARNING).toString());
-			
+					Boolean.toString(WARNING));
+
 			resource.setPersistentProperty(
 				new QualifiedName("", PreferenceConstants.RULES_PATH),
 				RULES_DIR);
-			
+
 			resource.setPersistentProperty(
 					new QualifiedName("", PreferenceConstants.RUN_ON_INCREMENTAL_BUILD),
-					new Boolean(INC_BUILD).toString());
-			
+					Boolean.toString(INC_BUILD));
+
 			resource.setPersistentProperty(
 					new QualifiedName("", PreferenceConstants.RUN_ON_FULL_BUILD),
-					new Boolean(FULL_BUILD).toString());
-			
+					Boolean.toString(FULL_BUILD));
+
 			resource.setPersistentProperty(
 					new QualifiedName("", PreferenceConstants.CHECK_CONTENT),
-					new Boolean(CHECK_CONTENT).toString());
-			
+					Boolean.toString(CHECK_CONTENT));
+
 		} catch (CoreException e) {
 			return false;
 		}
 		return true;
 	}
-	
-	
-	
+
+
+
 
 }

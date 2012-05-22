@@ -9,7 +9,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
 import java.util.StringTokenizer;
+
 import net.innig.macker.structure.ClassParseException;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
@@ -17,21 +19,10 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.resources.IResourceVisitor;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.QualifiedName;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
 
 import de.his.core.tools.cs.sys.quality.eclipsemacker.custommacker.CustomMacker;
 import de.his.core.tools.cs.sys.quality.eclipsemacker.custommacker.ShowAs;
@@ -40,13 +31,13 @@ import de.his.core.tools.cs.sys.quality.eclipsemacker.gui.Property;
 
 /**
  * Der MackerBuilder ruft bei jedem Speichervorgang oder bei einem Neuaufbau des
- * Projektes die "build" Methode auf. 
- * 
+ * Projektes die "build" Methode auf.
+ *
  * Bei einem Incremental/Full Build Aufruf werden die Ressourcen anahnd von
  * definierten Architekturreglen mit einem CustomMacker Objekt ueberprueft.
- * 
+ *
  * Gefundene Regelverstosse werden als Eclipse-Marker angezeigt.
- * 
+ *
  * @author Bender
  */
 public class MackerBuilder extends IncrementalProjectBuilder {
@@ -55,12 +46,12 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 	 * Zaehlvariable der bereits geprueften Klassen.
 	 */
 	private int count = 0;
-	
+
 	/**
 	 * Enthaelt alle in der Property Page definierten Einstellungen.
 	 */
 	private BuilderSettings builderSettings;
-	
+
 	/**
 	 * CustomMacker Objekt, erhealt alle zu pruefenden Klassen, sowie
 	 * Instanzen der definierten Architekturregeln.
@@ -71,7 +62,7 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 	 */
 	public static ArrayList<String> builderErrors = new ArrayList<String>();
 
-	
+
 	public MackerBuilder() {
 			this.builderSettings = new BuilderSettings();
 			this.customMacker = new CustomMacker();
@@ -81,32 +72,33 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 	 * Der Delta Visitor wird bei einem Incremetal Build aufgerufen.
 	 * Die Ressource Delta beeinhaltet die Veraenderungen zum letzten Speicherzeitpunkt
 	 * einer Ressource.
-	 * 
+	 *
 	 * Beinhaltet die Ressource Delta Aenderungen oder Neuerungen wird die checkMacker
 	 * Methoe aufgerufen.
-	 * 
+	 *
 	 * @author Bender
 	 */
 	class MackerDeltaVisitor implements IResourceDeltaVisitor {
-        
+
 		private final IProgressMonitor monitor;
-		
+
 		/**
          * @param monitor
          */
         public MackerDeltaVisitor(final IProgressMonitor monitor) {
             this.monitor = monitor;
         }
-		
-        
+
+
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see org.eclipse.core.resources.IResourceDeltaVisitor#visit(org.eclipse.core.resources.IResourceDelta)
 		 */
-		public boolean visit(IResourceDelta delta) throws CoreException {
+		@Override
+        public boolean visit(IResourceDelta delta) throws CoreException {
 			IResource resource = delta.getResource();
-		
+
 			switch (delta.getKind()) {
 
 				case IResourceDelta.ADDED:
@@ -140,8 +132,9 @@ public class MackerBuilder extends IncrementalProjectBuilder {
         public MackerResourceVisitor(final IProgressMonitor monitor) {
             this.monitor = monitor;
         }
-        
-		public boolean visit(IResource resource) {
+
+		@Override
+        public boolean visit(IResource resource) {
 			checkMacker(resource, monitor);
 			//return true to continue visiting children.
 			return true;
@@ -159,32 +152,33 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 	 */
 	private static final String MARKER_TYPE = "de.his.core.tools.cs.sys.quality.eclipsemacker.mackerEvent";
 
-	
+
 
 	/**
 	 * Bei jedem Buildvorgang wird zunaechst geprueft ob die Einstellungen aus
 	 * der PropertyPage bereits geladen wurden.
 	 * Danach wird das BuilderSettings Objekt aktualisert.
-	 * 
+	 *
 	 * Nachdem ein Buildvorgang abgeschlossen ist, wird die
 	 * Methode checkRessources aufgerufen, um u.a. die Eclipse-Marker zu setzen.
 	 */
-	protected IProject[] build(int kind, Map args, IProgressMonitor monitor)
+	@Override
+    protected IProject[] build(int kind, Map args, IProgressMonitor monitor)
 			throws CoreException {
-		
+
 		Date start = new Date();
 		customMacker = new CustomMacker();
 		count = 0;
-		
+
 		//einmaliges laden der projekt settings
 		if (getProject().getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_HIS_SETTINGS)) == null) {
 			new Property().init(getProject());
 		}
 		//dem builder eine referenz auf das aktuelel projekt uebergeben
 		this.getBuilderSettings().setProject(getProject());
-		
+
 		//Unterscheidung ob HIS-Settings geladen werden sollen oder die Vorgaben aus der Property Page.
-		if (new Boolean(getProject().getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_HIS_SETTINGS)))) {
+		if (Boolean.parseBoolean(getProject().getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_HIS_SETTINGS)))) {
 			this.getBuilderSettings().setHISSettings();
 		} else {
 			this.getBuilderSettings().setProjectSettings();
@@ -194,7 +188,7 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 
 		if (kind == FULL_BUILD) {
 			fullBuild(monitor);
-		
+
 		} else {
 			IResourceDelta delta = getDelta(getProject());
 			if (delta == null) {
@@ -202,12 +196,12 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 			} else {
 				incrementalBuild(delta, monitor);
 			}
-			
+
 		}
-		
+
 		//Die gesammelten Resourcen pruefen.
 		checkResources(monitor);
-		
+
 		//Zeit des Pruefens messen.
 		Date end = new Date();
 		builderErrors.add("Duration : " + ((end.getTime() - start.getTime())/1000));
@@ -215,19 +209,19 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 		return null;
 	}
 
-	
-	
-	
+
+
+
 	/**
-	 * Eine veraenderte/neue java-Datei wird zunaechst instanziiert, 
+	 * Eine veraenderte/neue java-Datei wird zunaechst instanziiert,
 	 * danach wird die entsprechende Class-Datei gesucht und ebenfalls
 	 * instanziiert.
-	 * 
-	 * Das Class-File wird der Macker-Instanz zum pruefen uebergeben, 
+	 *
+	 * Das Class-File wird der Macker-Instanz zum pruefen uebergeben,
 	 * und die Class-Location samt JavaFile Instanz in einer Map gespeichert.
-	 * 
+	 *
 	 * Monitor: "Macker, Lade Klassen: ... ".
-	 * 
+	 *
 	 * @param resource veraenderte Ressource.
 	 */
 	void checkMacker(IResource resource, IProgressMonitor monitor)  {
@@ -239,13 +233,13 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 
 			IFile javaFile = (IFile) resource;
 			String fullP = javaFile.getFullPath().toString();
-			
+
 			//Filteraufruf falls aktiviert
 			boolean run = getBuilderSettings().isUseFilter();
 			boolean checkFilter = true;
 			if (run) {
 				checkFilter = toCheck(fullP);
-			} 
+			}
 
 			if (checkFilter) {
 
@@ -257,7 +251,7 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 				String src = getSourceFolder(fullP, projectName);
 				//aus dem Javafile das Class-File ableiten
 				try {
-				
+
 					classFile = new File(javaFile.getLocation().toString().replace(src,
 							getBuilderSettings().getjProject().getOutputLocation().toOSString().replace(projectName, ""))
 							.replace(".java", ".class").replace("\\", "/"));
@@ -265,7 +259,7 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 					e2.printStackTrace();
 				}
 
-				if (classFile != null) {	
+				if (classFile != null) {
 
 					try {
 						//Class-Location und javaFile in einer Map speichern
@@ -273,36 +267,36 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 							.replace("/"+projectName+"/","").replace(".java", "").replace("/", ".");
 						customMacker.getJavaMap().put(classLoc, javaFile);
 						count++;
-						
+
 						//Macker die Class-Datei zum ueberpruefen uebergeben
 						customMacker.addClass(classFile);
-						
+
 					} catch (ClassParseException e) {
 						builderErrors.add("#12 " + fullP + " e");
 					} catch (IOException e) {
 						builderErrors.add("#11 " + classFile.exists() + " " + e.getMessage());
 						}
 					monitor.subTask("Macker, Lade Klassen: " +count+" "+ javaFile.getName());
-				
 
-				} 
+
+				}
 			}
-		} 
-		
+		}
+
 	}
 
 
 	/**
 	 * Prueft anahnd eines uebergebenen Pfades die Filterbedingungen.
-	 * 
+	 *
 	 * @param path File Speicherpfad.
 	 * @return true falls Filterbedingung erfuellt.
 	 */
 	private boolean toCheck(String path) {
 		boolean toCheck = false;
-		
+
 		StringTokenizer st = new StringTokenizer(getBuilderSettings().getFilterContent(), "\t");
-		while (st.hasMoreTokens()) { 
+		while (st.hasMoreTokens()) {
 			String check = st.nextToken();
 			if (path.indexOf(check) > -1 ) {
 				if (getBuilderSettings().isUseSourceFilter()) {
@@ -314,25 +308,25 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 				} else {
 					return true;
 				}
-				
-				
+
+
 			}
 	     }
 		return toCheck;
 	}
-	
-	
+
+
 	/**
 	 * Ermittelt den aktuell verwendeten Classpath.
-	 * 
+	 *
 	 * @param path File Speicherpfad.
 	 * @param pName Projektname.
 	 * @return den aktuell verwendeten source ordner.
 	 */
-	
+
 	private String getSourceFolder(String path, String pName) {
 		String src = "";
-		
+
 		for (int i = 0; i < getBuilderSettings().getClasspaths().size(); i++) {
 			String vgl = getBuilderSettings().getClasspaths().get(i).replace("\\", "/");
 			//den aktuellen classpath ermitteln, durch vergleich mit java file path.
@@ -342,21 +336,21 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 		}
 		return src;
 	}
-	
+
 
 	/**
 	 * Nachdem die Klassen geladen sind, wird die Macker "checkClass" Methode
 	 * aufgerufen.
 	 * Dabei werden geworfene MackerEvents vom Typ AccessRuleViolation geworfen und im
 	 * MackerListener in einer Map gespeichert.
-	 * 
+	 *
 	 * Monitor: "Macker, pruefe Klassen"
-	 * 
+	 *
 	 * Nachdem alle Klassen von Macker geprueft wurden, werden die Marker gesetzt(importCheck).
-	 * 
+	 *
 	 * @param monitor Monitor.
 	 */
-	
+
 	private void checkResources (IProgressMonitor monitor) {
 		if (customMacker.hasRules() && customMacker.hasClasses()) {
 			monitor.subTask("Macker, pruefe Klassen: ");
@@ -373,42 +367,42 @@ public class MackerBuilder extends IncrementalProjectBuilder {
     					return;
     				}
            }
-		
+
 		}
 
 		monitor.done();
-	} 
-	
-	
+	}
+
+
 	/**
 	 * Der MackerListener hat alle Klassen samt Verstoessen in einer
 	 * Map gespeichert, welche nun als Basis zum Marker setzen dient.
-	 * 
+	 *
 	 * Unterschieden wird zunächste ob der ganze Inhalt einer Klasse oder
 	 * nur die Import-Tags markiert werden sollen.
-	 * 
+	 *
 	 * Monitor: "Macker, Setze Warnungen: ..."
-	 * 
+	 *
 	 * @throws CoreException
 	 */
 	private boolean importCheck(IProgressMonitor monitor) throws CoreException {
-		
+
 		boolean erfolg = false;
 		int count = 1;
 		int size = customMacker.getListener().getViolation().size();
-		
+
 		InputStream in = null;
 		LineNumberReader reader = null;
-		
+
 		for (Map.Entry entry : customMacker.getListener().getViolation().entrySet()) {
 	    	monitor.subTask("Macker, Setze Warnungen: " + count+"/"+size);
 			monitor.worked(1);
 
-			in = ((IFile)customMacker.getJavaMap().get(entry.getKey())).getContents();
+			in = customMacker.getJavaMap().get(entry.getKey()).getContents();
 			reader = new LineNumberReader(new InputStreamReader(in));
-			
+
 			try {
-					
+
 				if (!getBuilderSettings().isCheckContent()) {
 					erfolg = checkImports(reader, entry);
 				} else {
@@ -424,11 +418,11 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 			count++;
 		}
 		return erfolg;
-		} 
-	
+		}
+
 	/**
 	 * Die Importanweisungen werden mit Markern versehen.
-	 * 
+	 *
 	 * @param reader vom Typ LineNumberReader
 	 * @param entry Map entry mit Classlocation und AccessRuleViolations.
 	 * @return true
@@ -444,8 +438,8 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 				for (int i = 0; i < customMacker.getListener().getViolation().get(entry.getKey()).size(); i++) {
 
 					if (checkImportLineViolation(line, customMacker.getListener().getViolation().get(entry.getKey()).get(i).getTo().toString())) {
-						
-						setMarker(customMacker, reader.getLineNumber(), i, entry.getKey().toString());			
+
+						setMarker(customMacker, reader.getLineNumber(), i, entry.getKey().toString());
 						  //bei Uebereinstimmung betreffenden Event aus Liste entfernen.
 						customMacker.getListener().getViolation().get(entry.getKey()).remove(i);
 					}
@@ -454,11 +448,11 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 		}
 		return true;
 	}
-	
+
 
 	/**
 	 * Setzt innerhlab der gesamten Klasse Eclipse-Marker.
-	 * 
+	 *
 	 * @param reader vom typ LineNumberReader
 	 * @param entry Map Entry mit Classlocation und AccessRuleViolation Objekten.
 	 * @return true.
@@ -466,31 +460,31 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 	 */
 	private boolean checkFullContent(LineNumberReader reader, Map.Entry entry) throws IOException {
 		String line = "";
-		
+
 		while (reader.ready()) {
 			line = reader.readLine().trim();
-			
+
 			if (!line.startsWith("package") && !line.startsWith("//") && !line.startsWith("/*")&& !line.startsWith("*") && !line.startsWith("/**")) {
-				
+
 				for (int i = 0; i < customMacker.getListener().getViolation().get(entry.getKey()).size(); i++) {
 					String to = customMacker.getListener().getViolation().get(entry.getKey()).get(i).getTo().toString().replace("$", ".");
 					int start = to.lastIndexOf(".") + 1;
-					
+
 					if (line.startsWith("import") && checkImportLineViolation(line, customMacker.getListener().getViolation().get(entry.getKey()).get(i).getTo().toString())) {
 						setMarker(customMacker, reader.getLineNumber(), i, entry.getKey().toString());
-					
+
 					} else if (line.indexOf(to.substring(start)) > -1) {
 
 						StringTokenizer st = new StringTokenizer(line, " ");
 						boolean gefunden = false;
-							
+
 						while (st.hasMoreTokens() && !gefunden) {
-							String t = st.nextToken(); 
+							String t = st.nextToken();
 							//direkt zuzuordnen
 							if (t.equals(to.substring(start))) {
 								setMarker(customMacker, reader.getLineNumber(), i, entry.getKey().toString());
 								gefunden = true;
-							//statischer zugriff auf die klasse	
+							//statischer zugriff auf die klasse
 							} else if (t.indexOf(".") > -1 ) {
 								if ((t.substring(0, t.indexOf(".")).equals(to.substring(start)))) {
 									setMarker(customMacker, reader.getLineNumber(), i, entry.getKey().toString());
@@ -502,7 +496,7 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 									setMarker(customMacker, reader.getLineNumber(), i, entry.getKey().toString());
 									gefunden = true;
 								}
-							}  
+							}
 							//verwendung der klasse als parameter
 							if (line.startsWith("public") || line.startsWith("private") || line.startsWith("protected")) {
 								//erster parameter der methode
@@ -514,11 +508,11 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 									setMarker(customMacker, reader.getLineNumber(), i, entry.getKey().toString());
 									gefunden = true;
 								}
-							//instanziieren der klasse	
+							//instanziieren der klasse
 							} else if ((line.indexOf("new " + to.substring(start) + "(")) > -1) {
 								setMarker(customMacker, reader.getLineNumber(), i, entry.getKey().toString());
 								gefunden = true;
-							//verketteter aufruf der klasse	
+							//verketteter aufruf der klasse
 							} else if ((line.indexOf("(" + to.substring(start) + ".")) > -1) {
 								setMarker(customMacker, reader.getLineNumber(), i, entry.getKey().toString());
 								gefunden = true;
@@ -526,12 +520,12 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 							} else if ((line.indexOf("(" + to.substring(start) + ")") > -1 )) {
 								setMarker(customMacker, reader.getLineNumber(), i, entry.getKey().toString());
 								gefunden = true;
-							//verwenung der klasse in einer liste	
+							//verwenung der klasse in einer liste
 							} else if ((line.indexOf("<" + to.substring(start) + ">") > -1 )) {
 								setMarker(customMacker, reader.getLineNumber(), i, entry.getKey().toString());
 								gefunden = true;
 							}
-							
+
 							}
 						}
 					}
@@ -543,7 +537,7 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 	/**
 	 * SetMarker Methode setzt ein Eclipse-Marker, wobei geprueft wird welche Art
 	 * von Marker gesetzt werden soll.
-	 * 
+	 *
 	 * @param cm CustomMacker Instanz.
 	 * @param line Zeilennummer.
 	 * @param index der Liste mit AccessRuleViolations der Klasse.
@@ -559,15 +553,16 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 		} else {
 			severity = "WARNING";
 		}
-		
+
 		// ignore messages with severity 'debug'
-		if (cm.getListener().getViolation().get(className).get(index).getRule().getSeverity().getName().toUpperCase().equals("DEBUG"))
-			return;
-		
-		 //Warnungen setzen, anhand der default Einstellungen oder angepasst. 
+		if (cm.getListener().getViolation().get(className).get(index).getRule().getSeverity().getName().toUpperCase().equals("DEBUG")) {
+            return;
+        }
+
+		 //Warnungen setzen, anhand der default Einstellungen oder angepasst.
 		String message = cm.getListener().getViolation().get(className).get(index).getTo().toString();
 		String source = message.substring(message.lastIndexOf(".")+1);
-		
+
 		//Severity direkt vom Event holen
 		if (ShowAs.valueOf(severity) == ShowAs.DEFAULT) {
 			severity = cm.getListener().getViolation().get(className).get(index).getRule().getSeverity().getName().toUpperCase();
@@ -579,8 +574,8 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 					.getMessages().get(0).toString(), line, setSeverity(ShowAs.valueOf(severity)));
 		}
 	}
-	
-	
+
+
 
 	/**MarkerTyp setzen.
 	 * @param choice ShowAs Enum
@@ -598,7 +593,7 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 		case ERROR:
 			i =  IMarker.SEVERITY_ERROR;
 			break;
-			
+
 		default:
 			i =  IMarker.SEVERITY_ERROR;
 			break;
@@ -606,16 +601,16 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 		}
 		return i;
 	}
-	
-	
-	
+
+
+
 	/**
 	 * Prueft ein Import-Tag auf Uebereinstimmung mit einem Mackerevent, indem
 	 * der Import und die Meldung des Events (getTo()) verglichen werden.
-	 * 
+	 *
 	 * @param importline import Anweisung in einer Java-Datei.
 	 * @param to getTo() Meldung des Macker-Events.
-	 * 
+	 *
 	 * @return true falls Mackermeldung auf Import-tag zutrifft.
 	 */
 	private boolean checkImportLineViolation (String importline, String to) {
@@ -629,37 +624,37 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 			to = to + ";";
 		}
 			violation = importline.indexOf(to) >= 0;
-			
+
 		return violation;
 	}
-	
-	
+
+
 	/**
 	 * Setzt ein Marker.
-	 * 
+	 *
 	 * @param file java Resource
-	 * @param message 
-	 * @param lineNumber 
+	 * @param message
+	 * @param lineNumber
 	 * @param severity
 	 */
 	private void addMarker(IFile file, String message, int lineNumber, int severity) {
-		
+
 		try {
 			IMarker marker = file.createMarker(MARKER_TYPE);
 			marker.setAttribute(IMarker.MESSAGE, message);
 			marker.setAttribute(IMarker.SEVERITY, severity);
-			
+
 			if (lineNumber == -1) {
 				lineNumber = 1;
 			}
-			
+
 			marker.setAttribute(IMarker.LINE_NUMBER, lineNumber);
-			
+
 		} catch (CoreException e) {
 		}
 	}
-	
-	
+
+
 	/**
 	 * Entfernt Marker.
 	 * @param file
@@ -667,13 +662,13 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 	private void deleteMarkers(IFile file) {
 		try {
 			file.deleteMarkers(MARKER_TYPE, false, IResource.DEPTH_ZERO);
-			
+
 		} catch (CoreException ce) {
 		}
 	}
-	
-	
-	
+
+
+
 	/**
 	 * Prueft das gesamte Projekt.
 	 * @param monitor
@@ -683,17 +678,17 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 
 
 		if (getBuilderSettings().isRunOnFullBuild()) {
-		
+
 			try {
 				getProject().accept(new MackerResourceVisitor(monitor));
 			} catch (CoreException e) {
-			} 
+			}
 		}
 	}
 
 	/**
 	 * Prueft nur die neuen/veraenderten Resourcen des Projekts.
-	 * 
+	 *
 	 * @param delta
 	 * @param monitor
 	 * @throws CoreException
@@ -706,9 +701,9 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 
 	}
 
-	
+
 	//Getter und Setter
-	
+
 	/** CustomMacker Objekt wird zurueck gegeben.
 	 * @return the customMacker.
 	 */
@@ -731,14 +726,14 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 	public BuilderSettings getBuilderSettings() {
 		return builderSettings;
 	}
-	
-	
+
+
 	/**
 	 * @param builderSettings the builderSettings to set
 	 */
 	public void setBuilderSettings(BuilderSettings builderSettings) {
 		this.builderSettings = builderSettings;
 	}
-	
-	
+
+
 }

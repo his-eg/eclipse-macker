@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package de.his.core.tools.cs.sys.quality.eclipsemacker.builder;
 
@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
@@ -28,18 +27,18 @@ import de.his.core.tools.cs.sys.quality.eclipsemacker.custommacker.CustomMacker;
 import de.his.core.tools.cs.sys.quality.eclipsemacker.gui.PreferenceConstants;
 
 /**
- * 
+ *
  * Diese Klasse enthaelt alle definierten Projekteinstellungen
  * die in der Property Page vorgenommen wurden.
  * Zudem
  * @author Bender
  */
 public class BuilderSettings {
-	
+
 	/** projekt settings (HIS1)*/
 	private static final String PROPERTIES_FILE = "/qisserver/WEB-INF/internal/macker/rules/macker_properties.txt";
-	
-	
+
+
     private boolean warnung = false;
     private boolean error = false;
     private boolean defaultM = false;
@@ -54,23 +53,23 @@ public class BuilderSettings {
     private ArrayList<File> ruleFiles = new ArrayList<File>();
     private ArrayList<String> classpathFolders = new ArrayList<String>();
     private ArrayList<String> sourceFolders = new ArrayList<String>();
-    
-    
+
+
     /** Das Aktuelle Java Projekt*/
-    
+
     private IProject project;
     private IJavaProject jProject;
 
-    
+
     public BuilderSettings () {
-    	
+
     }
 
-    
+
     /**
-     * HIS Spezifische settings laden 
+     * HIS Spezifische settings laden
      */
-    
+
 	private LinkedHashMap<String, String> loadDispatcherProp() {
 		String s = "";
 		LinkedHashMap<String, String> map = new LinkedHashMap<String, String>();
@@ -83,26 +82,26 @@ public class BuilderSettings {
 			        new FileInputStream(project.getLocation().toString() + PROPERTIES_FILE)));
 
 			while((s = in.readLine()) != null) {
-				 
+
 				if (!s.startsWith("#")) {
 					StringTokenizer st = new StringTokenizer(s, separatorDispProp);
 					map.put(st.nextToken(), st.nextToken());
 				}
 		      }
 			 in.close();
- 
+
 			} catch (FileNotFoundException e) {
-				e.printStackTrace();	
+				e.printStackTrace();
 			} catch (IOException e) {
 				e.printStackTrace();
 			} catch (NoSuchElementException e) {
 				e.printStackTrace();
 			}
-		
+
 		return map;
 	}
-	
-	
+
+
 	/**
 	 * HIS Spezifische settings setzen.
 	 * @return builderSettings Objekt.
@@ -110,16 +109,16 @@ public class BuilderSettings {
     public BuilderSettings setHISSettings() {
     	LinkedHashMap<String, String> map = loadDispatcherProp();
     	try {
-    		this.setDefaultM(new Boolean(map.get(PreferenceConstants.DEFAULT)));
-        	this.setError(new Boolean(map.get(PreferenceConstants.ERROR)));
-        	this.setRunOnFullBuild(new Boolean(map.get(PreferenceConstants.RUN_ON_FULL_BUILD)));
-        	this.setRunOnIncBuild(new Boolean(map.get(PreferenceConstants.RUN_ON_INCREMENTAL_BUILD)));
-        	this.setFilterContent(map.get(PreferenceConstants.CLASSPATH_FILTER).replace(", ", "\t"));	
-        	this.setUseFilter(new Boolean(map.get(PreferenceConstants.USE_CLASSPATH_FILTER)));
-        	this.setFilterSourceContent(map.get(PreferenceConstants.SOURCE_FILTER).replace(", ", "\t"));	
-        	this.setUseSourceFilter(new Boolean(map.get(PreferenceConstants.USE_SOURCE_FILTER)));
-        	this.setCheckContent(new Boolean(map.get(PreferenceConstants.CHECK_CONTENT)));
-        	this.setRulesDir(map.get(PreferenceConstants.RULES_PATH));	
+    		this.setDefaultM(Boolean.parseBoolean(map.get(PreferenceConstants.DEFAULT)));
+        	this.setError(Boolean.parseBoolean(map.get(PreferenceConstants.ERROR)));
+        	this.setRunOnFullBuild(Boolean.parseBoolean(map.get(PreferenceConstants.RUN_ON_FULL_BUILD)));
+        	this.setRunOnIncBuild(Boolean.parseBoolean(map.get(PreferenceConstants.RUN_ON_INCREMENTAL_BUILD)));
+        	this.setFilterContent(map.get(PreferenceConstants.CLASSPATH_FILTER).replace(", ", "\t"));
+        	this.setUseFilter(Boolean.parseBoolean(map.get(PreferenceConstants.USE_CLASSPATH_FILTER)));
+        	this.setFilterSourceContent(map.get(PreferenceConstants.SOURCE_FILTER).replace(", ", "\t"));
+        	this.setUseSourceFilter(Boolean.parseBoolean(map.get(PreferenceConstants.USE_SOURCE_FILTER)));
+        	this.setCheckContent(Boolean.parseBoolean(map.get(PreferenceConstants.CHECK_CONTENT)));
+        	this.setRulesDir(map.get(PreferenceConstants.RULES_PATH));
         	this.setjProject(JavaCore.create(project));
         	//rule files instanziieren
         	setRulesFromDirectory();
@@ -131,23 +130,23 @@ public class BuilderSettings {
     	return this;
     }
 
-    
-    
-    
-    
+
+
+
+
     /**
      * Die im angegebenen "Macker Rules Dir." befindlichen Dateien (*.xml)
      * werden instanziiert und in einer Liste gespeichert.
-     * 
+     *
      */
 	public void setRulesFromDirectory() {
 		ArrayList<File> r = new ArrayList<File>();
-		
+
 			File dir = new File(project.getLocation().toString() + getRulesDir());
-			
+
 			if (dir.exists() && dir.isDirectory()) {
 				File[] fileList = dir.listFiles();
-			
+
 				for(File f : fileList) {
 					if (f.getName().endsWith(".xml")) {
 						r.add(f);
@@ -156,7 +155,7 @@ public class BuilderSettings {
 			}
 		setRulesFull(r);
 	}
-    
+
 	/**
 	 * Die instanziierten Macker Regelen werden einem CustomMacker
 	 * Objekt uebergeben.
@@ -173,30 +172,30 @@ public class BuilderSettings {
 			}
 		}
 	}
-	
-	
+
+
 	/**
 	 * Aus einem Projekt werden die Einstellungen (Property Page) geladen
 	 * und gespeichert.
 	 */
     public void setProjectSettings() {
-    	
-    	this.setDefaultM(new Boolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.DEFAULT))));
-    	this.setError(new Boolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.ERROR))));
-    	this.setRunOnFullBuild(new Boolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.RUN_ON_FULL_BUILD))));
-    	this.setRunOnIncBuild(new Boolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.RUN_ON_INCREMENTAL_BUILD))));
-    	this.setFilterContent(getPersistentProperty (new QualifiedName("", PreferenceConstants.CLASSPATH_FILTER)));	
-    	this.setUseFilter(new Boolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_CLASSPATH_FILTER))));
-    	this.setFilterSourceContent(getPersistentProperty (new QualifiedName("", PreferenceConstants.SOURCE_FILTER)));	
-    	this.setUseSourceFilter(new Boolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_SOURCE_FILTER))));
-    	this.setCheckContent(new Boolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.CHECK_CONTENT))));
-    	this.setRulesDir(getPersistentProperty (new QualifiedName("", PreferenceConstants.RULES_PATH)));	
+
+    	this.setDefaultM(Boolean.parseBoolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.DEFAULT))));
+    	this.setError(Boolean.parseBoolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.ERROR))));
+    	this.setRunOnFullBuild(Boolean.parseBoolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.RUN_ON_FULL_BUILD))));
+    	this.setRunOnIncBuild(Boolean.parseBoolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.RUN_ON_INCREMENTAL_BUILD))));
+    	this.setFilterContent(getPersistentProperty (new QualifiedName("", PreferenceConstants.CLASSPATH_FILTER)));
+    	this.setUseFilter(Boolean.parseBoolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_CLASSPATH_FILTER))));
+    	this.setFilterSourceContent(getPersistentProperty (new QualifiedName("", PreferenceConstants.SOURCE_FILTER)));
+    	this.setUseSourceFilter(Boolean.parseBoolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_SOURCE_FILTER))));
+    	this.setCheckContent(Boolean.parseBoolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.CHECK_CONTENT))));
+    	this.setRulesDir(getPersistentProperty (new QualifiedName("", PreferenceConstants.RULES_PATH)));
     	this.setjProject(JavaCore.create(project));
     	//rule files instanziieren
     	setRulesFromDirectory();
     	this.getSources();
     }
-    
+
     /**
      * Getter um Projekt Einstellungen aus der Property Page zu laden.
      * @param qn QualifiedName Objekt.
@@ -204,15 +203,15 @@ public class BuilderSettings {
      */
 	private String getPersistentProperty (QualifiedName qn) {
 		try {
-			return (String) getProject().getPersistentProperty(qn);
+			return getProject().getPersistentProperty(qn);
 		} catch (CoreException e) {
 			return "";
 		}
 	}
-    
+
    //Getter/Setter--------------------------------------------------------------------------------------
-	
-    
+
+
 	/**
 	 * @return the project
 	 */
@@ -266,7 +265,7 @@ public class BuilderSettings {
 			//setFilterSourceContent
 			String list = this.getFilterSourceContent();
 			StringTokenizer st = new StringTokenizer(list, "\t");
-			
+
 			while (st.hasMoreTokens()) {
 				sourceFolders.add(st.nextToken());
 			}
@@ -464,17 +463,17 @@ public class BuilderSettings {
 			IJavaProject jp = getjProject();
 			try {
 				for (int i = 0; i < jp.getRawClasspath().length; i++) {
-					
+
 					if (!jp.getRawClasspath()[i].getPath().toOSString().startsWith("org.eclipse")) {
 						classpathFolders.add(jp.getRawClasspath()[i].getPath().toOSString());
 					}
-					
+
 				}
 			} catch (JavaModelException e) {
 				e.printStackTrace();
 			}
-		} 
-		
+		}
+
 		return classpathFolders;
 	}
 
@@ -488,6 +487,6 @@ public class BuilderSettings {
 	public static void main(String[] args) {
 		new BuilderSettings().setHISSettings();
 	}
-	
+
 
 }
