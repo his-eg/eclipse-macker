@@ -9,13 +9,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import net.innig.macker.rule.RulesException;
 
@@ -146,18 +143,16 @@ public class BuilderSettings {
      */
 	public void setRulesFromDirectory() {
 		ArrayList<File> r = new ArrayList<File>();
+        File dir = new File(project.getLocation().toString() + getRulesDir());
+        if (dir.exists() && dir.isDirectory()) {
+            File[] fileList = dir.listFiles();
 
-			File dir = new File(project.getLocation().toString() + getRulesDir());
-
-			if (dir.exists() && dir.isDirectory()) {
-				File[] fileList = dir.listFiles();
-
-				for(File f : fileList) {
-					if (f.getName().endsWith(".xml")) {
-						r.add(f);
-					}
+            for (File f : fileList) {
+                if (f.getName().endsWith(".xml")) {
+                    r.add(f);
 				}
 			}
+        }
 		setRulesFull(r);
 	}
 
