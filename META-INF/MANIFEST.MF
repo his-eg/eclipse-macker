@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipsemacker
 Bundle-SymbolicName: de.his.core.tools.cs.sys.quality.eclipsemacker; singleton:=true
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.0.2.2012-09-13
 Bundle-Activator: de.his.core.tools.cs.sys.quality.eclipsemacker.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
@@ -27,3 +27,4 @@ Bundle-ClassPath: bin/de/,
  lib/xercesImpl.jar,
  lib/xmlParserAPIs.jar
 Import-Package: org.eclipse.jdt.core
+Bundle-Vendor: HIS GmbH
