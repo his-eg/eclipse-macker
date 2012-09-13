@@ -140,7 +140,8 @@ public class BuilderSettings {
      * Die im angegebenen "Macker Rules Dir." befindlichen Dateien (*.xml)
      * werden instanziiert und in einer Liste gespeichert.
      * 
-     * Die Macker Rules Dir ist als relativ zum Projekt zu verstehen, wobei sie mit einem Slash beginnen muss
+     * Die Macker Rules Dir ist als relativ zum Projekt zu verstehen, wobei sie mit einem Slash beginnen muss. Mit .. kann
+     * man aber auch auf andere Projekte verweisen.
      *
      */
 	public void setRulesFromDirectory() {
