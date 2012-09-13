@@ -22,16 +22,18 @@ import org.eclipse.ui.IWorkbenchPart;
 
 public class ToggleNatureAction implements IObjectActionDelegate {
 
-	private ISelection selection;
+	private ISelection selected;
 
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
 	 */
-	public void run(IAction action) {
-		if (selection instanceof IStructuredSelection) {
-			for (Iterator it = ((IStructuredSelection) selection).iterator(); it
+    @Override
+    public void run(IAction action) {
+		if (selected instanceof IStructuredSelection) {
+            for (@SuppressWarnings("rawtypes")
+            Iterator it = ((IStructuredSelection) selected).iterator(); it
 					.hasNext();) {
 				Object element = it.next();
 				IProject project = null;
@@ -54,8 +56,9 @@ public class ToggleNatureAction implements IObjectActionDelegate {
 	 * @see org.eclipse.ui.IActionDelegate#selectionChanged(org.eclipse.jface.action.IAction,
 	 *      org.eclipse.jface.viewers.ISelection)
 	 */
-	public void selectionChanged(IAction action, ISelection selection) {
-		this.selection = selection;
+    @Override
+    public void selectionChanged(IAction action, ISelection selection) {
+		this.selected = selection;
 	}
 
 	/*
@@ -64,7 +67,9 @@ public class ToggleNatureAction implements IObjectActionDelegate {
 	 * @see org.eclipse.ui.IObjectActionDelegate#setActivePart(org.eclipse.jface.action.IAction,
 	 *      org.eclipse.ui.IWorkbenchPart)
 	 */
-	public void setActivePart(IAction action, IWorkbenchPart targetPart) {
+    @Override
+    public void setActivePart(IAction action, IWorkbenchPart targetPart) {
+        // nothing to do
 	}
 
 	/**
@@ -98,6 +103,7 @@ public class ToggleNatureAction implements IObjectActionDelegate {
 			description.setNatureIds(newNatures);
 			project.setDescription(description, null);
 		} catch (CoreException e) {
+            e.printStackTrace();
 		}
 	}
 
