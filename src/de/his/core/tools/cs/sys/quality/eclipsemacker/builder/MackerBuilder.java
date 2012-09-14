@@ -180,11 +180,11 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 		//dem builder eine referenz auf das aktuelel projekt uebergeben
 		this.getBuilderSettings().setProject(getProject());
 
-		//Unterscheidung ob HIS-Settings geladen werden sollen oder die Vorgaben aus der Property Page.
+        //Unterscheidung ob globale Settings geladen werden sollen oder die Vorgaben aus der Property Page.
 		if (Boolean.parseBoolean(getProject().getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_HIS_SETTINGS)))) {
-			this.getBuilderSettings().setHISSettings();
+			this.getBuilderSettings().useGlobalSettings();
 		} else {
-			this.getBuilderSettings().setProjectSettings();
+			this.getBuilderSettings().useProjectSpecificSettings();
 		}
 		
 		//einmaliges hinzufuegen der definierten Regeln

@@ -110,7 +110,7 @@ public class BuilderSettings {
 	 * HIS Spezifische settings setzen.
 	 * @return builderSettings Objekt.
 	 */
-    public BuilderSettings setHISSettings() {
+    public BuilderSettings useGlobalSettings() {
     	LinkedHashMap<String, String> map = loadDispatcherProp();
     	try {
     		this.setDefaultM(Boolean.parseBoolean(map.get(PreferenceConstants.DEFAULT)));
@@ -187,7 +187,7 @@ public class BuilderSettings {
 	 * Aus einem Projekt werden die Einstellungen (Property Page) geladen
 	 * und gespeichert.
 	 */
-    public void setProjectSettings() {
+    public void useProjectSpecificSettings() {
 
     	this.setDefaultM(Boolean.parseBoolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.DEFAULT))));
     	this.setError(Boolean.parseBoolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.ERROR))));
@@ -517,7 +517,7 @@ public class BuilderSettings {
 	}
 
 	public static void main(String[] args) {
-		new BuilderSettings().setHISSettings();
+		new BuilderSettings().useGlobalSettings();
 	}
 
 
