@@ -1,11 +1,11 @@
 package de.his.core.tools.cs.sys.quality.eclipsemacker.gui;
 
-import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.RadioGroupFieldEditor;
 import org.eclipse.jface.preference.StringFieldEditor;
+import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkbenchPreferencePage;
 
 import de.his.core.tools.cs.sys.quality.eclipsemacker.Activator;
 
@@ -24,16 +24,17 @@ import de.his.core.tools.cs.sys.quality.eclipsemacker.Activator;
 	public class Preferences extends FieldEditorPreferencePage implements
 			IWorkbenchPreferencePage {
 
+    /**
+     * Create a new Preferences
+     */
 		public Preferences() {
 			super(GRID);
 			
 
 		}
 
-		public void createFieldEditors() {
-//			addField(new DirectoryFieldEditor(PreferenceConstants.RULES_PATH, "&Macker Rules Directory:",
-//					getFieldEditorParent()));
-			
+    @Override
+    public void createFieldEditors() {
 			
 			addField(new StringFieldEditor(PreferenceConstants.RULES_PATH, "&Macker Rules Directory:",
 					getFieldEditorParent()));

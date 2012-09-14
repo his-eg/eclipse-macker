@@ -79,7 +79,7 @@
       <page
             class="de.his.core.tools.cs.sys.quality.eclipsemacker.gui.Property"
             id="de.his.core.tools.cs.sys.quality.eclipsemacker.page2"
-            name="Macker Property Page"
+            name="Macker"
             objectClass="org.eclipse.jdt.core.IJavaProject">
       </page>
    </extension>
