@@ -31,7 +31,7 @@ public class MackerPreferencePage
 	public MackerPreferencePage() {
 		super(GRID);
 		setPreferenceStore(Activator.getDefault().getPreferenceStore());
-		setDescription("A demonstration of a preference page implementation");
+        setDescription("Preferences for the Macker integration");
 	}
 	
 	/**
@@ -43,6 +43,7 @@ public class MackerPreferencePage
     @Override
     public void createFieldEditors() {
         addField(new StringFieldEditor(MackerGlobalPreferenceConstants.P_PROJECT_WITH_RULES, "Project with Rules:", getFieldEditorParent()));
+        addField(new StringFieldEditor(MackerGlobalPreferenceConstants.P_FOLDER_IN_PROJECT_WITH_RULES, "Folder with Rules:", getFieldEditorParent()));
 	}
 
 	/* (non-Javadoc)

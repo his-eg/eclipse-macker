@@ -17,6 +17,7 @@ import java.util.StringTokenizer;
 import net.innig.macker.rule.RulesException;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.QualifiedName;
@@ -121,7 +122,8 @@ public class BuilderSettings {
         	this.setFilterSourceContent(map.get(PreferenceConstants.SOURCE_FILTER).replace(", ", "\t"));
         	this.setUseSourceFilter(Boolean.parseBoolean(map.get(PreferenceConstants.USE_SOURCE_FILTER)));
         	this.setCheckContent(Boolean.parseBoolean(map.get(PreferenceConstants.CHECK_CONTENT)));
-        	this.setRulesDir(map.get(PreferenceConstants.RULES_PATH));
+            IPreferenceStore store = Activator.getDefault().getPreferenceStore();
+            this.setRulesDir(store.getString(MackerGlobalPreferenceConstants.P_FOLDER_IN_PROJECT_WITH_RULES));
         	this.setjProject(JavaCore.create(project));
         	//rule files instanziieren
         	setRulesFromDirectory();
@@ -149,7 +151,8 @@ public class BuilderSettings {
 		ArrayList<File> r = new ArrayList<File>();
         IPreferenceStore store = Activator.getDefault().getPreferenceStore();
         String rulesProject = store.getString(MackerGlobalPreferenceConstants.P_PROJECT_WITH_RULES);
-        File dir = new File(project.getLocation().toString() + "/../" + rulesProject + "/" + getRulesDir());
+        String workspace = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString();
+        File dir = new File(workspace + "/" + rulesProject + "/" + getRulesDir());
         if (dir.exists() && dir.isDirectory()) {
             File[] fileList = dir.listFiles();
 
