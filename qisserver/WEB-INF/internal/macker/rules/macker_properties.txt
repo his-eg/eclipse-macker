@@ -15,4 +15,4 @@ S_FILTER=src/java/, src/generated, src/patches, src/
 ##Inhalt einer Klasse untersuchen
 CHECK_CONTENT=true
 ##Verzeichnis der definierten Macker-Regeln
-RULES_PATH=/qisserver/WEB-INF/internal/macker/rules/
+RULES_PATH=/../webapps/qisserver/WEB-INF/internal/macker/rules/
