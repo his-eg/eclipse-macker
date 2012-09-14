@@ -226,8 +226,8 @@ public class Property extends PropertyPage {
 
 
 		hisSettings = new Button(title, SWT.CHECK);
-		hisSettings.setText("Use HISinOne Default Settings");
-		hisSettings.setToolTipText("Laedt die empfohlenen (HIS Internen) Einstellungen");
+        hisSettings.setText("Use  global settings");
+        hisSettings.setToolTipText("load settings via global preferences");
 
 
 	    hisSettings.addSelectionListener(new SelectionAdapter() {
