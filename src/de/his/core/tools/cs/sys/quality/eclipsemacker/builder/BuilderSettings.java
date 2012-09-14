@@ -38,7 +38,7 @@ import de.his.core.tools.cs.sys.quality.eclipsemacker.gui.PreferenceConstants;
 public class BuilderSettings {
 
 	/** projekt settings (HIS1)*/
-	private static final String PROPERTIES_FILE = "/qisserver/WEB-INF/internal/macker/rules/macker_properties.txt";
+    private static final String PROPERTIES_FILE = "/../webapps/qisserver/WEB-INF/internal/macker/rules/macker_properties.txt";
 
 
     private boolean warnung = false;
@@ -79,9 +79,7 @@ public class BuilderSettings {
 
 		try {
 
-			BufferedReader in = new BufferedReader(
-			        new InputStreamReader(
-			        new FileInputStream(project.getLocation().toString() + PROPERTIES_FILE)));
+            BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(this.getProject().getLocation().toString() + PROPERTIES_FILE)));
 
 			while((s = in.readLine()) != null) {
 
