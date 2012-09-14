@@ -30,8 +30,6 @@ public class MackerPreferencePage
      */
 	public MackerPreferencePage() {
 		super(GRID);
-		setPreferenceStore(Activator.getDefault().getPreferenceStore());
-        setDescription("Preferences for the Macker integration");
 	}
 	
 	/**
@@ -51,7 +49,8 @@ public class MackerPreferencePage
 	 */
     @Override
     public void init(IWorkbench workbench) {
-        // nothing
+        setPreferenceStore(Activator.getDefault().getPreferenceStore());
+        setDescription("Preferences for the Macker integration");
 	}
 	
 }
