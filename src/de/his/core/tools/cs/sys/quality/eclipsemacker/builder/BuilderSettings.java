@@ -144,7 +144,7 @@ public class BuilderSettings {
      */
 	public void setRulesFromDirectory() {
 		ArrayList<File> r = new ArrayList<File>();
-        File dir = new File(project.getLocation().toString() + getRulesDir());
+        File dir = new File(project.getLocation().toString() + "/../webapps/" + getRulesDir());
         if (dir.exists() && dir.isDirectory()) {
             File[] fileList = dir.listFiles();
 
