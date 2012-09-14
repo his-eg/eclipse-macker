@@ -83,5 +83,21 @@
             objectClass="org.eclipse.jdt.core.IJavaProject">
       </page>
    </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="de.his.core.tools.cs.sys.quality.eclipsemacker.preferences.MackerPreferencePage"
+            id="de.his.core.tools.cs.sys.quality.eclipsemacker.preferences.MackerPreferencePage"
+            name="Macker Preferences">
+      </page>
+   </extension>
+   <extension
+         id="mackerPreferences"
+         name="Macker Preferences"
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="de.his.core.tools.cs.sys.quality.eclipsemacker.preferences.MackerGlobalPreferenceInitializer">
+      </initializer>
+   </extension>
 
 </plugin>

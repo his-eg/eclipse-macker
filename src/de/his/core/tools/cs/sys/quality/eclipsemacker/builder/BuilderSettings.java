@@ -24,9 +24,12 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jface.preference.IPreferenceStore;
 
+import de.his.core.tools.cs.sys.quality.eclipsemacker.Activator;
 import de.his.core.tools.cs.sys.quality.eclipsemacker.custommacker.CustomMacker;
 import de.his.core.tools.cs.sys.quality.eclipsemacker.gui.PreferenceConstants;
+import de.his.core.tools.cs.sys.quality.eclipsemacker.preferences.MackerGlobalPreferenceConstants;
 
 /**
  *
@@ -144,7 +147,9 @@ public class BuilderSettings {
      */
 	public void setRulesFromDirectory() {
 		ArrayList<File> r = new ArrayList<File>();
-        File dir = new File(project.getLocation().toString() + "/../webapps/" + getRulesDir());
+        IPreferenceStore store = Activator.getDefault().getPreferenceStore();
+        String rulesProject = store.getString(MackerGlobalPreferenceConstants.P_PROJECT_WITH_RULES);
+        File dir = new File(project.getLocation().toString() + "/../" + rulesProject + "/" + getRulesDir());
         if (dir.exists() && dir.isDirectory()) {
             File[] fileList = dir.listFiles();
 
