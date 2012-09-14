@@ -59,7 +59,7 @@ import de.his.core.tools.cs.sys.quality.eclipsemacker.Activator;
 		@Override
 		public void init(IWorkbench workbench) {
 			setPreferenceStore(Activator.getDefault().getPreferenceStore());
-			setDescription("Macker Preference Page");
+        setDescription("Project specific Macker preferences");
 		}
 	}
 
