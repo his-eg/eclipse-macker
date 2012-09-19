@@ -41,7 +41,10 @@ import de.his.core.tools.cs.sys.quality.eclipsemacker.preferences.MackerGlobalPr
  */
 public class BuilderSettings {
 
-	/** projekt settings (HIS1)*/
+	private static final String SETTINGS_MACKER = ".settings/macker";
+
+
+    /** projekt settings (HIS1)*/
     private static final String PROPERTIES_FILE = "/../webapps/qisserver/WEB-INF/internal/macker/rules/macker_properties.txt";
 
 
@@ -56,6 +59,7 @@ public class BuilderSettings {
     private boolean runOnFullBuild = false;
     private boolean runOnIncBuild = false;
     private String ruleDir = "";
+    private String ruleProject = "";
     private ArrayList<File> ruleFiles = new ArrayList<File>();
     private ArrayList<String> classpathFolders = new ArrayList<String>();
     private ArrayList<String> sourceFolders = new ArrayList<String>();
@@ -124,10 +128,17 @@ public class BuilderSettings {
         	this.setCheckContent(Boolean.parseBoolean(map.get(PreferenceConstants.CHECK_CONTENT)));
             IPreferenceStore store = Activator.getDefault().getPreferenceStore();
             String rulesDir = store.getString(MackerGlobalPreferenceConstants.P_FOLDER_IN_PROJECT_WITH_RULES);
-            if (rulesDir != null && rulesDir.isEmpty()) {
-                //
+            if (rulesDir == null || rulesDir.isEmpty()) {
+                // if nothing is configured assume .settings/macker
+                rulesDir = SETTINGS_MACKER;
             }
             this.setRulesDir(rulesDir);
+            String rulesProject = store.getString(MackerGlobalPreferenceConstants.P_PROJECT_WITH_RULES);
+            if (rulesProject == null || rulesProject.isEmpty()) {
+                this.ruleProject = project.getName();
+            } else {
+                this.ruleProject = rulesProject;
+            }
         	this.setjProject(JavaCore.create(project));
         	//rule files instanziieren
         	setRulesFromDirectory();
@@ -153,22 +164,12 @@ public class BuilderSettings {
      */
 	public void setRulesFromDirectory() {
         ArrayList<File> r = new ArrayList<File>();
-        // set rules from .settings/macker --> ignores all other settings
-        IPath mackerRulesPath = this.project.getFullPath().append(".settings/macker");
-        File mackerRulesPathFile = mackerRulesPath.toFile();
-        if (mackerRulesPathFile != null && mackerRulesPathFile.exists() && mackerRulesPathFile.isDirectory()) {
-            addRuleFiles(r, mackerRulesPathFile);
-        }
-        // set rules from project specific settings
-        // set rules from global settings
-        IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-        String rulesProject = store.getString(MackerGlobalPreferenceConstants.P_PROJECT_WITH_RULES);
         String workspace = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString();
-        File dir = new File(workspace + "/" + rulesProject + "/" + getRulesDir());
+        File dir = new File(workspace + "/" + this.ruleProject + "/" + getRulesDir());
         if (dir.exists() && dir.isDirectory()) {
             addRuleFiles(r, dir);
         }
-		setRulesFull(r);
+
 	}
 
 
@@ -179,6 +180,7 @@ public class BuilderSettings {
                 r.add(f);
             }
         }
+        setRulesFull(r);
     }
 
 	/**
@@ -214,7 +216,11 @@ public class BuilderSettings {
     	this.setFilterSourceContent(getPersistentProperty (new QualifiedName("", PreferenceConstants.SOURCE_FILTER)));
     	this.setUseSourceFilter(Boolean.parseBoolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_SOURCE_FILTER))));
     	this.setCheckContent(Boolean.parseBoolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.CHECK_CONTENT))));
-    	this.setRulesDir(getPersistentProperty (new QualifiedName("", PreferenceConstants.RULES_PATH)));
+    	String rulesDir = getPersistentProperty (new QualifiedName("", PreferenceConstants.RULES_PATH));
+        if (rulesDir == null || rulesDir.isEmpty()) {
+            rulesDir = SETTINGS_MACKER;
+        }
+        this.setRulesDir(rulesDir);
     	this.setjProject(JavaCore.create(project));
     	//rule files instanziieren
     	setRulesFromDirectory();
