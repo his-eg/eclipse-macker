@@ -123,7 +123,11 @@ public class BuilderSettings {
         	this.setUseSourceFilter(Boolean.parseBoolean(map.get(PreferenceConstants.USE_SOURCE_FILTER)));
         	this.setCheckContent(Boolean.parseBoolean(map.get(PreferenceConstants.CHECK_CONTENT)));
             IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-            this.setRulesDir(store.getString(MackerGlobalPreferenceConstants.P_FOLDER_IN_PROJECT_WITH_RULES));
+            String rulesDir = store.getString(MackerGlobalPreferenceConstants.P_FOLDER_IN_PROJECT_WITH_RULES);
+            if (rulesDir != null && rulesDir.isEmpty()) {
+                //
+            }
+            this.setRulesDir(rulesDir);
         	this.setjProject(JavaCore.create(project));
         	//rule files instanziieren
         	setRulesFromDirectory();
@@ -148,22 +152,34 @@ public class BuilderSettings {
      *
      */
 	public void setRulesFromDirectory() {
-		ArrayList<File> r = new ArrayList<File>();
+        ArrayList<File> r = new ArrayList<File>();
+        // set rules from .settings/macker --> ignores all other settings
+        IPath mackerRulesPath = this.project.getFullPath().append(".settings/macker");
+        File mackerRulesPathFile = mackerRulesPath.toFile();
+        if (mackerRulesPathFile != null && mackerRulesPathFile.exists() && mackerRulesPathFile.isDirectory()) {
+            addRuleFiles(r, mackerRulesPathFile);
+        }
+        // set rules from project specific settings
+        // set rules from global settings
         IPreferenceStore store = Activator.getDefault().getPreferenceStore();
         String rulesProject = store.getString(MackerGlobalPreferenceConstants.P_PROJECT_WITH_RULES);
         String workspace = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString();
         File dir = new File(workspace + "/" + rulesProject + "/" + getRulesDir());
         if (dir.exists() && dir.isDirectory()) {
-            File[] fileList = dir.listFiles();
-
-            for (File f : fileList) {
-                if (f.getName().endsWith(".xml")) {
-                    r.add(f);
-				}
-			}
+            addRuleFiles(r, dir);
         }
 		setRulesFull(r);
 	}
+
+
+    private void addRuleFiles(ArrayList<File> r, File dir) {
+        File[] fileList = dir.listFiles();
+        for (File f : fileList) {
+            if (f.getName().endsWith(".xml")) {
+                r.add(f);
+            }
+        }
+    }
 
 	/**
 	 * Die instanziierten Macker Regelen werden einem CustomMacker
