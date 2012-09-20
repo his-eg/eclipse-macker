@@ -21,12 +21,12 @@ import de.his.core.tools.cs.sys.quality.eclipsemacker.preferences.MackerGlobalPr
  * Zudem
  * @author Bender
  */
-public class BuilderSettings extends AbstractBuilderSettings {
+public class BuilderGlobalSettings extends AbstractBuilderSettings {
 
 	/**
      * Create a new BuilderSettings instance
      */
-    public BuilderSettings () {
+    public BuilderGlobalSettings () {
         //
     }
 
@@ -35,7 +35,7 @@ public class BuilderSettings extends AbstractBuilderSettings {
 	 * HIS Spezifische settings setzen.
 	 * @return builderSettings Objekt.
 	 */
-    public BuilderSettings useGlobalSettings() {
+    public BuilderGlobalSettings useGlobalSettings() {
     	LinkedHashMap<String, String> map = loadDispatcherProp();
     	try {
     		this.setDefaultM(Boolean.parseBoolean(map.get(PreferenceConstants.DEFAULT)));

@@ -52,7 +52,7 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 	/**
 	 * Enthaelt alle in der Property Page definierten Einstellungen.
 	 */
-	private BuilderSettings builderSettings;
+	private BuilderGlobalSettings builderSettings;
 
 	/**
 	 * CustomMacker Objekt, erhealt alle zu pruefenden Klassen, sowie
@@ -69,7 +69,7 @@ public class MackerBuilder extends IncrementalProjectBuilder {
      * Create a new MackerBuilder
      */
 	public MackerBuilder() {
-			this.builderSettings = new BuilderSettings();
+			this.builderSettings = new BuilderGlobalSettings();
 			this.customMacker = new CustomMacker();
 	}
 
@@ -746,7 +746,7 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 	/**
 	 * @return the builderSettings
 	 */
-	public BuilderSettings getBuilderSettings() {
+	public BuilderGlobalSettings getBuilderSettings() {
 		return builderSettings;
 	}
 
@@ -754,7 +754,7 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 	/**
 	 * @param builderSettings the builderSettings to set
 	 */
-	public void setBuilderSettings(BuilderSettings builderSettings) {
+	public void setBuilderSettings(BuilderGlobalSettings builderSettings) {
 		this.builderSettings = builderSettings;
 	}
 
