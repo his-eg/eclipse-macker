@@ -174,14 +174,14 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 		count = 0;
 
 		//einmaliges laden der projekt settings
-		if (getProject().getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_HIS_SETTINGS)) == null) {
+		if (getProject().getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_GLOBAL_SETTINGS)) == null) {
 			new Property().init(getProject());
 		}
 		//dem builder eine referenz auf das aktuelel projekt uebergeben
 		this.getBuilderSettings().setProject(getProject());
 
         //Unterscheidung ob globale Settings geladen werden sollen oder die Vorgaben aus der Property Page.
-		if (Boolean.parseBoolean(getProject().getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_HIS_SETTINGS)))) {
+		if (Boolean.parseBoolean(getProject().getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_GLOBAL_SETTINGS)))) {
 			this.getBuilderSettings().useGlobalSettings();
 		} else {
 			this.getBuilderSettings().useProjectSpecificSettings();

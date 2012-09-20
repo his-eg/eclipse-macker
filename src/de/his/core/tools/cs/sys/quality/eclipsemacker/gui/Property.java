@@ -123,7 +123,7 @@ public class Property extends PropertyPage {
 			String rD = resource.getPersistentProperty(new QualifiedName("", PreferenceConstants.DEFAULT));
 
 			//HIS Settings
-			String useHISSettings = resource.getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_HIS_SETTINGS));
+			String useHISSettings = resource.getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_GLOBAL_SETTINGS));
 			hisSettings.setSelection((useHISSettings != null) ? Boolean.parseBoolean(useHISSettings) : USE_HIS_SETTINGS);
 
 
@@ -439,7 +439,7 @@ public class Property extends PropertyPage {
 
 			//HIS Settings
 			resource.setPersistentProperty(
-					new QualifiedName("", PreferenceConstants.USE_HIS_SETTINGS),
+					new QualifiedName("", PreferenceConstants.USE_GLOBAL_SETTINGS),
 					Boolean.toString(hisSettings.getSelection()).toString());
 
 			resource.setPersistentProperty(
@@ -546,7 +546,7 @@ public class Property extends PropertyPage {
 
 			//HIS Settings
 			resource.setPersistentProperty(
-					new QualifiedName("", PreferenceConstants.USE_HIS_SETTINGS),
+					new QualifiedName("", PreferenceConstants.USE_GLOBAL_SETTINGS),
 					Boolean.toString(USE_HIS_SETTINGS));
 
 			resource.setPersistentProperty(

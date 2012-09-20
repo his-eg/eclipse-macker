@@ -32,7 +32,7 @@ public class PreferenceConstants {
     /**
      * use global settings
      */
-    public static final String USE_HIS_SETTINGS = "USE_HIS_SETTINGS";
+    public static final String USE_GLOBAL_SETTINGS = "USE_HIS_SETTINGS";
 
     /**
      * use classpath filter
