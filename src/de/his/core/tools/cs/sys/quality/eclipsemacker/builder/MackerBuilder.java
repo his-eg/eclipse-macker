@@ -737,9 +737,9 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 	}
 
 
-	/**CustomMacker objekt setzen.
-	 * @param customMacker the cutomMacker to set.
-	 */
+    /**CustomMacker objekt setzen.
+     * @param cMa the cutomMacker to set.
+     */
 	public void setCustomMacker(CustomMacker cMa) {
 		this.customMacker = cMa;
 	}
