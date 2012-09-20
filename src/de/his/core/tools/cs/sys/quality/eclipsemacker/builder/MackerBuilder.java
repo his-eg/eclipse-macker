@@ -30,7 +30,6 @@ import org.eclipse.core.runtime.QualifiedName;
 import de.his.core.tools.cs.sys.quality.eclipsemacker.custommacker.CustomMacker;
 import de.his.core.tools.cs.sys.quality.eclipsemacker.custommacker.ShowAs;
 import de.his.core.tools.cs.sys.quality.eclipsemacker.gui.PreferenceConstants;
-import de.his.core.tools.cs.sys.quality.eclipsemacker.gui.Property;
 
 /**
  * Der MackerBuilder ruft bei jedem Speichervorgang oder bei einem Neuaufbau des
@@ -203,20 +202,17 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 		customMacker = new CustomMacker();
 		count = 0;
 
-		//einmaliges laden der projekt settings
-		if (getProject().getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_GLOBAL_SETTINGS)) == null) {
-			new Property().init(getProject());
-		}
-		//dem builder eine referenz auf das aktuelel projekt uebergeben
-		this.getBuilderSettings().setProject(getProject());
+        //dem builder eine referenz auf das aktuelel projekt uebergeben
+        this.getBuilderSettings().setProject(getProject());
 
-        //Unterscheidung ob globale Settings geladen werden sollen oder die Vorgaben aus der Property Page.
-		if (Boolean.parseBoolean(getProject().getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_GLOBAL_SETTINGS)))) {
-			this.getBuilderSettings().useGlobalSettings();
-		} else {
-			this.getBuilderSettings().useProjectSpecificSettings();
-		}
-		
+        if (getProject().getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_GLOBAL_SETTINGS)) == null) {
+            // use local settings
+            this.getBuilderSettings().useGlobalSettings();
+        } else {
+            // use global settings
+            this.getBuilderSettings().useProjectSpecificSettings();
+        }
+
 		//einmaliges hinzufuegen der definierten Regeln
 		this.getBuilderSettings().addRulesToMacker(customMacker);
 
