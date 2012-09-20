@@ -169,28 +169,7 @@ public class MackerBuilder extends IncrementalProjectBuilder {
     protected IProject[] build(int kind, Map args, IProgressMonitor monitor)
 			throws CoreException {
 
-		Date start = new Date();
-		customMacker = new CustomMacker();
-		count = 0;
-
-		//einmaliges laden der projekt settings
-		if (getProject().getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_GLOBAL_SETTINGS)) == null) {
-			new Property().init(getProject());
-		}
-		//dem builder eine referenz auf das aktuelel projekt uebergeben
-		this.getBuilderSettings().setProject(getProject());
-
-        //Unterscheidung ob globale Settings geladen werden sollen oder die Vorgaben aus der Property Page.
-		if (Boolean.parseBoolean(getProject().getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_GLOBAL_SETTINGS)))) {
-			this.getBuilderSettings().useGlobalSettings();
-		} else {
-			this.getBuilderSettings().useProjectSpecificSettings();
-		}
-		
-		//einmaliges hinzufuegen der definierten Regeln
-		this.getBuilderSettings().addRulesToMacker(customMacker);
-
-		addJarsToClasspath();
+		Date start = configureMacker();
 		
 		if (kind == FULL_BUILD) {
 			fullBuild(monitor);
@@ -214,6 +193,32 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 
 		return null;
 	}
+
+    private Date configureMacker() throws CoreException {
+        Date start = new Date();
+		customMacker = new CustomMacker();
+		count = 0;
+
+		//einmaliges laden der projekt settings
+		if (getProject().getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_GLOBAL_SETTINGS)) == null) {
+			new Property().init(getProject());
+		}
+		//dem builder eine referenz auf das aktuelel projekt uebergeben
+		this.getBuilderSettings().setProject(getProject());
+
+        //Unterscheidung ob globale Settings geladen werden sollen oder die Vorgaben aus der Property Page.
+		if (Boolean.parseBoolean(getProject().getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_GLOBAL_SETTINGS)))) {
+			this.getBuilderSettings().useGlobalSettings();
+		} else {
+			this.getBuilderSettings().useProjectSpecificSettings();
+		}
+		
+		//einmaliges hinzufuegen der definierten Regeln
+		this.getBuilderSettings().addRulesToMacker(customMacker);
+
+		addJarsToClasspath();
+        return start;
+    }
 
 	private void addJarsToClasspath() {
 		ArrayList<File> jarsInClasspath = builderSettings.getClasspathElements();
