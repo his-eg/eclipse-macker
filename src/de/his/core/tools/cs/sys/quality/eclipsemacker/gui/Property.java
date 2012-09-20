@@ -38,7 +38,7 @@ public class Property extends PropertyPage {
 	/*
 	 * Default Values
 	 */
-	private static final String RULES_DIR = "/qisserver/WEB-INF/internal/macker/rules/";
+    private static final String RULES_DIR = ".settings/macker";
 	private static final String FILTER_CLASSPATH = "de/his/appclient/\tde/his/appserver/\tde/his/core/";
 	private static final String FILTER_SOURCE = "src/java/\tsrc/generated\tsrc/patches";
 	private static final boolean INC_BUILD = true;

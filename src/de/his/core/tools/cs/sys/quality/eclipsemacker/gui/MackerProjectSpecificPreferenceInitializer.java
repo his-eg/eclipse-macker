@@ -9,10 +9,13 @@ import de.his.core.tools.cs.sys.quality.eclipsemacker.Activator;
  * @author Bender
  * @SuppressWarnings("unused")
  */
-public class AbstractPreferenceInitializer extends
+public class MackerProjectSpecificPreferenceInitializer extends
 		org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer {
 
-	public AbstractPreferenceInitializer() {
+    /**
+     * Create a new
+     */
+	public MackerProjectSpecificPreferenceInitializer() {
 	}
 
 	@Override
