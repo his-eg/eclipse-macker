@@ -66,6 +66,9 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 	public static ArrayList<String> builderErrors = new ArrayList<String>();
 
 
+    /**
+     * Create a new MackerBuilder
+     */
 	public MackerBuilder() {
 			this.builderSettings = new BuilderSettings();
 			this.customMacker = new CustomMacker();
@@ -169,7 +172,9 @@ public class MackerBuilder extends IncrementalProjectBuilder {
     protected IProject[] build(int kind, Map args, IProgressMonitor monitor)
 			throws CoreException {
 
-		Date start = configureMacker();
+        Date start = new Date();
+
+        this.configureMacker();
 		
 		if (kind == FULL_BUILD) {
 			fullBuild(monitor);
@@ -194,8 +199,7 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 		return null;
 	}
 
-    private Date configureMacker() throws CoreException {
-        Date start = new Date();
+    private void configureMacker() throws CoreException {
 		customMacker = new CustomMacker();
 		count = 0;
 
@@ -217,7 +221,6 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 		this.getBuilderSettings().addRulesToMacker(customMacker);
 
 		addJarsToClasspath();
-        return start;
     }
 
 	private void addJarsToClasspath() {
