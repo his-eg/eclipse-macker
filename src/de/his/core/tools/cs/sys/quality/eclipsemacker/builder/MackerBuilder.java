@@ -207,7 +207,7 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 
         if (getProject().getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_GLOBAL_SETTINGS)) == null) {
             // use local settings
-            this.getBuilderSettings().useGlobalSettings();
+            this.getBuilderSettings().initSettings();
         } else {
             // use global settings
             this.getBuilderSettings().useProjectSpecificSettings();

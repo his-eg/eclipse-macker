@@ -25,9 +25,15 @@ import org.eclipse.jdt.core.JavaModelException;
 import de.his.core.tools.cs.sys.quality.eclipsemacker.custommacker.CustomMacker;
 
 
+/**
+ * 
+ * @author keunecke
+ */
+public abstract class AbstractBuilderSettings {
 
-public class AbstractBuilderSettings {
-
+    /**
+     * default folder for macker rule files
+     */
     protected static final String SETTINGS_MACKER = ".settings/macker";
     /** projekt settings (HIS1)*/
     private static final String PROPERTIES_FILE = "/../webapps/qisserver/WEB-INF/internal/macker/rules/macker_properties.txt";
@@ -421,5 +427,11 @@ public class AbstractBuilderSettings {
     public void setClasspaths(ArrayList<String> classpaths) {
     	this.classpathFolders = classpaths;
     }
+
+    /**
+     * Initialize settings
+     * @return the initialized settings object
+     */
+    public abstract AbstractBuilderSettings initSettings();
 
 }

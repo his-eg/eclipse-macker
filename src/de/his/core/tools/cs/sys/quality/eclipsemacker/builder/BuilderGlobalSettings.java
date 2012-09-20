@@ -5,7 +5,6 @@ package de.his.core.tools.cs.sys.quality.eclipsemacker.builder;
 
 import java.util.LinkedHashMap;
 
-
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -35,7 +34,8 @@ public class BuilderGlobalSettings extends AbstractBuilderSettings {
 	 * HIS Spezifische settings setzen.
 	 * @return builderSettings Objekt.
 	 */
-    public BuilderGlobalSettings useGlobalSettings() {
+    @Override
+    public AbstractBuilderSettings initSettings() {
     	LinkedHashMap<String, String> map = loadDispatcherProp();
     	try {
     		this.setDefaultM(Boolean.parseBoolean(map.get(PreferenceConstants.DEFAULT)));
