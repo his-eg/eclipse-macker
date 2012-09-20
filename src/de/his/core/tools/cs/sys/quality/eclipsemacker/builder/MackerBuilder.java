@@ -168,7 +168,8 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 	 * Methode checkRessources aufgerufen, um u.a. die Eclipse-Marker zu setzen.
 	 */
 	@Override
-    protected IProject[] build(int kind, Map args, IProgressMonitor monitor)
+    protected IProject[] build(int kind, @SuppressWarnings("rawtypes")
+    Map args, IProgressMonitor monitor)
 			throws CoreException {
 
         Date start = new Date();
@@ -271,7 +272,7 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 				deleteMarkers(javaFile);
 				File classFile = null;
 				//Src Folder aus dem Dateipfad ermitteln
-				String src = getSourceFolder(fullP, projectName);
+                String src = getSourceFolder(fullP);
 				//aus dem Javafile das Class-File ableiten
 				try {
 
@@ -343,11 +344,10 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 	 * Ermittelt den aktuell verwendeten Classpath.
 	 *
 	 * @param path File Speicherpfad.
-	 * @param pName Projektname.
 	 * @return den aktuell verwendeten source ordner.
 	 */
 
-	private String getSourceFolder(String path, String pName) {
+    private String getSourceFolder(String path) {
 		String src = "";
 
 		for (int i = 0; i < getBuilderSettings().getClasspaths().size(); i++) {
@@ -453,7 +453,8 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 	 * @return true
 	 * @throws IOException
 	 */
-	private boolean checkImports(LineNumberReader reader, Map.Entry entry) throws IOException {
+    private boolean checkImports(LineNumberReader reader, @SuppressWarnings("rawtypes")
+    Map.Entry entry) throws IOException {
 		String line = "";
 		while (reader.ready() && !line.startsWith("public class") && !line.startsWith("abstract class") && customMacker.getListener().getViolation().get(entry.getKey()).size() > 0) {
 			line = reader.readLine().trim();
@@ -700,13 +701,11 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 	 * @throws CoreException
 	 */
 	protected void fullBuild(final IProgressMonitor monitor) throws CoreException {
-
-
 		if (getBuilderSettings().isRunOnFullBuild()) {
-
 			try {
 				getProject().accept(new MackerResourceVisitor(monitor));
 			} catch (CoreException e) {
+                e.printStackTrace();
 			}
 		}
 	}
@@ -737,7 +736,9 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 	}
 
 
-    /**CustomMacker objekt setzen.
+    /**
+     * CustomMacker objekt setzen.
+     * 
      * @param cMa the cutomMacker to set.
      */
 	public void setCustomMacker(CustomMacker cMa) {
