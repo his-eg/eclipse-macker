@@ -203,9 +203,6 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 		customMacker = new CustomMacker();
 		count = 0;
 
-        //dem builder eine referenz auf das aktuelel projekt uebergeben
-        this.getBuilderSettings().setProject(getProject());
-
         if (getProject().getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_GLOBAL_SETTINGS)) == null) {
             // use local settings
             this.builderSettings = new BuilderProjectSpecificSettings();
@@ -214,6 +211,8 @@ public class MackerBuilder extends IncrementalProjectBuilder {
             this.builderSettings = new BuilderGlobalSettings();
         }
 
+        //dem builder eine referenz auf das aktuelel projekt uebergeben
+        this.getBuilderSettings().setProject(getProject());
         this.builderSettings.initSettings();
 
 		//einmaliges hinzufuegen der definierten Regeln
