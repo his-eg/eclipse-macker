@@ -48,6 +48,10 @@ public abstract class AbstractBuilderSettings {
     private boolean runOnFullBuild = false;
     private boolean runOnIncBuild = false;
     private String ruleDir = "";
+
+    /**
+     * Project containing the rules
+     */
     protected String ruleProject = "";
     private ArrayList<File> ruleFiles = new ArrayList<File>();
     private ArrayList<String> classpathFolders = new ArrayList<String>();
@@ -56,6 +60,9 @@ public abstract class AbstractBuilderSettings {
     protected IProject project;
     private IJavaProject jProject;
 
+    /**
+     * Create a new AbstractBuilderSettings instance
+     */
     public AbstractBuilderSettings() {
         super();
     }
