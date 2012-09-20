@@ -71,8 +71,11 @@ public class BuilderSettings {
     private IJavaProject jProject;
 
 
+    /**
+     * Create a new BuilderSettings instance
+     */
     public BuilderSettings () {
-
+        //
     }
 
 
@@ -508,6 +511,9 @@ public class BuilderSettings {
 		return classpathFolders;
 	}
 	
+    /**
+     * @return all classpath elements
+     */
 	public ArrayList<File> getClasspathElements() {
 		ArrayList<File> jars = new ArrayList<File>();
 		IJavaProject jp = getjProject();
@@ -537,10 +543,5 @@ public class BuilderSettings {
 	public void setClasspaths(ArrayList<String> classpaths) {
 		this.classpathFolders = classpaths;
 	}
-
-	public static void main(String[] args) {
-		new BuilderSettings().useGlobalSettings();
-	}
-
 
 }
