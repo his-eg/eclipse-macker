@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import net.innig.macker.event.AccessRuleViolation;
 import net.innig.macker.structure.ClassParseException;
 
 import org.eclipse.core.resources.IFile;
@@ -66,7 +67,9 @@ public class MackerBuilder extends IncrementalProjectBuilder {
      */
     public static ArrayList<String> builderErrors = new ArrayList<String>();
 
-
+    /**
+     * creates a Macker.
+     */
     public MackerBuilder() {
         this.builderSettings = new BuilderSettings();
         this.customMacker = new CustomMacker();
@@ -167,7 +170,7 @@ public class MackerBuilder extends IncrementalProjectBuilder {
      * Methode checkRessources aufgerufen, um u.a. die Eclipse-Marker zu setzen.
      */
     @Override
-    protected IProject[] build(int kind, Map args, IProgressMonitor monitor) throws CoreException {
+    protected IProject[] build(int kind, Map<String, String> args, IProgressMonitor monitor) throws CoreException {
 
         Date start = new Date();
         customMacker = new CustomMacker();
@@ -409,8 +412,7 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 
         InputStream in = null;
         LineNumberReader reader = null;
-
-        for (Map.Entry entry : customMacker.getListener().getViolation().entrySet()) {
+        for (Map.Entry<String, ArrayList<AccessRuleViolation>> entry : customMacker.getListener().getViolation().entrySet()) {
             monitor.subTask("Macker, Setze Warnungen: " + count + "/" + size);
             monitor.worked(1);
 
@@ -444,7 +446,7 @@ public class MackerBuilder extends IncrementalProjectBuilder {
      * @return true
      * @throws IOException
      */
-    private boolean checkImports(LineNumberReader reader, Map.Entry entry) throws IOException {
+    private boolean checkImports(LineNumberReader reader, Map.Entry<String, ArrayList<AccessRuleViolation>> entry) throws IOException {
         String line = "";
         while (reader.ready() && !line.startsWith("public class") && !line.startsWith("abstract class") && (customMacker.getListener().getViolation().get(entry.getKey()).size() > 0)) {
             line = reader.readLine().trim();
@@ -474,7 +476,7 @@ public class MackerBuilder extends IncrementalProjectBuilder {
      * @return true.
      * @throws IOException
      */
-    private boolean checkFullContent(LineNumberReader reader, Map.Entry entry) throws IOException {
+    private boolean checkFullContent(LineNumberReader reader, Map.Entry<String, ArrayList<AccessRuleViolation>> entry) throws IOException {
         String line = "";
 
         while (reader.ready()) {
@@ -629,15 +631,16 @@ public class MackerBuilder extends IncrementalProjectBuilder {
      */
     private boolean checkImportLineViolation(String importline, String to) {
         boolean violation = false;
-        to = to.replace("$", ".");
+        String temp = to.replace("$", ".");
+        String importlinedCleaned = importline;
         if (importline.endsWith("*;")) {
             //importline = db.* | to = db.DB
-            importline = importline.replace("*", "");
-            to = to.substring(0, to.lastIndexOf("."));
+            importlinedCleaned = importline.replace("*", "");
+            temp = temp.substring(0, temp.lastIndexOf("."));
         } else {
-            to = to + ";";
+            temp = temp + ";";
         }
-        violation = importline.indexOf(to) >= 0;
+        violation = importlinedCleaned.indexOf(temp) >= 0;
 
         return violation;
     }
@@ -658,26 +661,31 @@ public class MackerBuilder extends IncrementalProjectBuilder {
             marker.setAttribute(IMarker.MESSAGE, message);
             marker.setAttribute(IMarker.SEVERITY, severity);
 
-            if (lineNumber == -1) {
-                lineNumber = 1;
+            int myLineNumber = lineNumber;
+            if (myLineNumber == -1) {
+                myLineNumber = 1;
             }
 
-            marker.setAttribute(IMarker.LINE_NUMBER, lineNumber);
+            marker.setAttribute(IMarker.LINE_NUMBER, myLineNumber);
 
         } catch (CoreException e) {
+            e.printStackTrace();
         }
     }
 
 
     /**
      * Entfernt Marker.
+     *
      * @param file
      */
     private void deleteMarkers(IFile file) {
         try {
+
             file.deleteMarkers(MARKER_TYPE, false, IResource.DEPTH_ZERO);
 
-        } catch (CoreException ce) {
+        } catch (CoreException e) {
+            e.printStackTrace();
         }
     }
 
@@ -685,17 +693,17 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 
     /**
      * Prueft das gesamte Projekt.
+     *
      * @param monitor
      * @throws CoreException
      */
     protected void fullBuild(final IProgressMonitor monitor) throws CoreException {
-
-
         if (getBuilderSettings().isRunOnFullBuild()) {
 
             try {
                 getProject().accept(new MackerResourceVisitor(monitor));
             } catch (CoreException e) {
+                e.printStackTrace();
             }
         }
     }
@@ -712,7 +720,6 @@ public class MackerBuilder extends IncrementalProjectBuilder {
         if (getBuilderSettings().isRunOnIncBuild()) {
             delta.accept(new MackerDeltaVisitor(monitor));
         }
-
     }
 
 
@@ -726,11 +733,13 @@ public class MackerBuilder extends IncrementalProjectBuilder {
     }
 
 
-    /**CustomMacker objekt setzen.
+    /**
+     * CustomMacker objekt setzen.
+     *
      * @param customMacker the cutomMacker to set.
      */
-    public void setCustomMacker(CustomMacker cMa) {
-        this.customMacker = cMa;
+    public void setCustomMacker(CustomMacker customMacker) {
+        this.customMacker = customMacker;
     }
 
 
@@ -748,6 +757,5 @@ public class MackerBuilder extends IncrementalProjectBuilder {
     public void setBuilderSettings(BuilderSettings builderSettings) {
         this.builderSettings = builderSettings;
     }
-
 
 }

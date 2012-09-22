@@ -40,11 +40,11 @@ public class MackerView extends ViewPart {
      */
     public static final String ID = "com.myco.viewplugin.views.SampleView";
 
-    private TableViewer viewer;
+    TableViewer viewer;
 
     private Action action1;
 
-    private ArrayList<String> all = MackerBuilder.builderErrors;
+    ArrayList<String> all = MackerBuilder.builderErrors;
 
     /*
      * The content provider class is responsible for
@@ -60,10 +60,12 @@ public class MackerView extends ViewPart {
 
         @Override
         public void inputChanged(Viewer v, Object oldInput, Object newInput) {
+            // empty
         }
 
         @Override
         public void dispose() {
+            // empty
         }
 
         @Override
@@ -134,10 +136,6 @@ public class MackerView extends ViewPart {
         }
     }
 
-    class NameSorter extends ViewerSorter {
-    }
-
-
     /**
      * The constructor.
      */
@@ -170,7 +168,7 @@ public class MackerView extends ViewPart {
         viewer = new TableViewer(table);
         viewer.setContentProvider(new ViewContentProvider());
         viewer.setLabelProvider(new ViewLabelProvider());
-        viewer.setSorter(new NameSorter());
+        viewer.setSorter(new ViewerSorter());
         viewer.setInput(getViewSite());
 
         makeActions();
@@ -204,7 +202,7 @@ public class MackerView extends ViewPart {
         manager.add(new Separator());
     }
 
-    private void fillContextMenu(IMenuManager manager) {
+    void fillContextMenu(IMenuManager manager) {
         manager.add(action1);
         // Other plug-ins can contribute there actions here
         manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
@@ -228,9 +226,6 @@ public class MackerView extends ViewPart {
 
 
     }
-
-
-
 
     /**
      * Passing the focus request to the viewer's control.

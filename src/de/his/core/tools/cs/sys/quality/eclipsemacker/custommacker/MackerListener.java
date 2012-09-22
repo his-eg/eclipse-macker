@@ -1,6 +1,3 @@
-/**
- * 
- */
 package de.his.core.tools.cs.sys.quality.eclipsemacker.custommacker;
 
 import java.util.ArrayList;
@@ -16,7 +13,7 @@ import net.innig.macker.rule.RuleSet;
 /**
  * Erweiterter MackerEventListener, speichert Macker Regleverstoesse in einer
  * Map.
- * 
+ *
  * @author Bender
  */
 public class MackerListener implements MackerEventListener {
@@ -27,10 +24,11 @@ public class MackerListener implements MackerEventListener {
      */
     private HashMap<String, ArrayList<AccessRuleViolation>> violation;
 
-
+    /**
+     * listens for event from macker
+     */
     public MackerListener() {
         this.violation = new HashMap<String, ArrayList<AccessRuleViolation>>();
-
     }
 
     /**
@@ -67,20 +65,17 @@ public class MackerListener implements MackerEventListener {
 
     @Override
     public void mackerAborted(RuleSet arg0) {
-
+        // empty
     }
 
     @Override
     public void mackerFinished(RuleSet arg0) throws MackerIsMadException, ListenerException {
-
+        // empty
     }
 
     @Override
     public void mackerStarted(RuleSet arg0) throws ListenerException {
-
+        // empty
     }
-
-
-
 
 }

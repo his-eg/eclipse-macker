@@ -1,10 +1,4 @@
-/**
- *
- */
 package de.his.core.tools.cs.sys.quality.eclipsemacker.gui;
-
-
-
 
 import java.io.File;
 import java.util.StringTokenizer;
@@ -87,23 +81,23 @@ public class Property extends PropertyPage {
 
     private Button buttonCheck;
 
-    private Button hisSettings;
+    Button hisSettings;
 
-    private List list;
+    List list;
 
-    private List listSource;
+    List listSource;
 
     private Button buttonRemoveSource;
 
     private Button buttonAddSource;
 
-    private Text sourcePath;
+    Text sourcePath;
 
     private Button buttonRemoveClass;
 
     private Button buttonAddClass;
 
-    private Text classPath;
+    Text classPath;
 
     /**
      * Constructor.
@@ -294,7 +288,7 @@ public class Property extends PropertyPage {
     }
 
 
-    private void enablePropertys(boolean enabled) {
+    void enablePropertys(boolean enabled) {
         rulesDir.setEnabled(enabled);
         incBuild.setEnabled(enabled);
         fullBuild.setEnabled(enabled);
@@ -528,9 +522,10 @@ public class Property extends PropertyPage {
 
     /**
      * Gibt die aktuellen Werte des Classpath filters zurueck.
+     *
      * @return
      */
-    private String getListContent(List list) {
+    String getListContent(List list) {
         String content = "";
         for (int i = 0; i < list.getItems().length; i++) {
             if (!list.getItem(i).equals("")) {

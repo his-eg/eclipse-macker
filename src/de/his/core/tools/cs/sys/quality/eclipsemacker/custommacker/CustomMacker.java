@@ -1,6 +1,5 @@
 package de.his.core.tools.cs.sys.quality.eclipsemacker.custommacker;
 
-
 import java.util.HashMap;
 
 import net.innig.macker.Macker;
@@ -11,9 +10,9 @@ import net.innig.macker.rule.RulesException;
 import org.eclipse.core.resources.IFile;
 
 /**
- * 
- * @author Bender
+ * a custom macker implementations
  *
+ * @author Bender
  */
 
 public class CustomMacker extends Macker {
@@ -35,7 +34,7 @@ public class CustomMacker extends Macker {
     /**
      * Erweitertes Macker Objekt um eine Map (javaMap) und einem
      * MackerListener (listener).
-     * 
+     *
      */
 
     public CustomMacker() {
@@ -47,7 +46,6 @@ public class CustomMacker extends Macker {
 
     /**
      * Class Datei wird anahnd der definierten Macker-Rules geprueft.
-     * 
      */
     public boolean checkClass() {
         boolean erfolg = true;
@@ -99,12 +97,9 @@ public class CustomMacker extends Macker {
     }
 
     /**
-     * @param MackerListener the MackerListener to set
+     * @param listener the MackerListener to set
      */
-    public void setListener(MackerListener lis) {
-        this.listener = lis;
+    public void setListener(MackerListener listener) {
+        this.listener = listener;
     }
-
-
-
 }
