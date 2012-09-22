@@ -10,16 +10,16 @@ import de.his.core.tools.cs.sys.quality.eclipsemacker.Activator;
  */
 public class MackerGlobalPreferenceInitializer extends AbstractPreferenceInitializer {
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer#initializeDefaultPreferences()
-	 */
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer#initializeDefaultPreferences()
+     */
     @Override
     public void initializeDefaultPreferences() {
-		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
+        IPreferenceStore store = Activator.getDefault().getPreferenceStore();
         store.setDefault(MackerGlobalPreferenceConstants.P_PROJECT_WITH_RULES, "webapps");
         store.setDefault(MackerGlobalPreferenceConstants.P_FOLDER_IN_PROJECT_WITH_RULES, ".settings/macker");
-	}
+    }
 
 }

@@ -14,5 +14,5 @@ public class MackerGlobalPreferenceConstants {
      * Folder within P_PROJECT_WITH_RULES containing the macker rules xml-files
      */
     public static final String P_FOLDER_IN_PROJECT_WITH_RULES = "rulesFolder";
-	
+
 }

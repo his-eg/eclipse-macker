@@ -22,89 +22,86 @@ import org.eclipse.ui.IWorkbenchPart;
 
 public class ToggleNatureAction implements IObjectActionDelegate {
 
-	private ISelection selected;
+    private ISelection selected;
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
-	 */
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
+     */
     @Override
     public void run(IAction action) {
-		if (selected instanceof IStructuredSelection) {
+        if (selected instanceof IStructuredSelection) {
             for (@SuppressWarnings("rawtypes")
-            Iterator it = ((IStructuredSelection) selected).iterator(); it
-					.hasNext();) {
-				Object element = it.next();
-				IProject project = null;
-				if (element instanceof IProject) {
-					project = (IProject) element;
-				} else if (element instanceof IAdaptable) {
-					project = (IProject) ((IAdaptable) element)
-							.getAdapter(IProject.class);
-				}
-				if (project != null) {
-					toggleNature(project);
-				}
-			}
-		}
-	}
+            Iterator it = ((IStructuredSelection) selected).iterator(); it.hasNext();) {
+                Object element = it.next();
+                IProject project = null;
+                if (element instanceof IProject) {
+                    project = (IProject) element;
+                } else if (element instanceof IAdaptable) {
+                    project = (IProject) ((IAdaptable) element).getAdapter(IProject.class);
+                }
+                if (project != null) {
+                    toggleNature(project);
+                }
+            }
+        }
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.ui.IActionDelegate#selectionChanged(org.eclipse.jface.action.IAction,
-	 *      org.eclipse.jface.viewers.ISelection)
-	 */
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.ui.IActionDelegate#selectionChanged(org.eclipse.jface.action.IAction,
+     *      org.eclipse.jface.viewers.ISelection)
+     */
     @Override
     public void selectionChanged(IAction action, ISelection selection) {
-		this.selected = selection;
-	}
+        this.selected = selection;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.ui.IObjectActionDelegate#setActivePart(org.eclipse.jface.action.IAction,
-	 *      org.eclipse.ui.IWorkbenchPart)
-	 */
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.ui.IObjectActionDelegate#setActivePart(org.eclipse.jface.action.IAction,
+     *      org.eclipse.ui.IWorkbenchPart)
+     */
     @Override
     public void setActivePart(IAction action, IWorkbenchPart targetPart) {
         // nothing to do
-	}
+    }
 
-	/**
-	 * Toggles sample nature on a project
-	 * 
-	 * @param project
-	 *            to have sample nature added or removed
-	 */
-	private void toggleNature(IProject project) {
-		try {
-			IProjectDescription description = project.getDescription();
-			String[] natures = description.getNatureIds();
+    /**
+     * Toggles sample nature on a project
+     * 
+     * @param project
+     *            to have sample nature added or removed
+     */
+    private void toggleNature(IProject project) {
+        try {
+            IProjectDescription description = project.getDescription();
+            String[] natures = description.getNatureIds();
 
-			for (int i = 0; i < natures.length; ++i) {
-				if (MackerNature.NATURE_ID.equals(natures[i])) {
-					// Remove the nature
-					String[] newNatures = new String[natures.length - 1];
-					System.arraycopy(natures, 0, newNatures, 0, i);
-					System.arraycopy(natures, i + 1, newNatures, i,
-							natures.length - i - 1);
-					description.setNatureIds(newNatures);
-					project.setDescription(description, null);
-					return;
-				}
-			}
+            for (int i = 0; i < natures.length; ++i) {
+                if (MackerNature.NATURE_ID.equals(natures[i])) {
+                    // Remove the nature
+                    String[] newNatures = new String[natures.length - 1];
+                    System.arraycopy(natures, 0, newNatures, 0, i);
+                    System.arraycopy(natures, i + 1, newNatures, i, natures.length - i - 1);
+                    description.setNatureIds(newNatures);
+                    project.setDescription(description, null);
+                    return;
+                }
+            }
 
-			// Add the nature
-			String[] newNatures = new String[natures.length + 1];
-			System.arraycopy(natures, 0, newNatures, 0, natures.length);
-			newNatures[natures.length] = MackerNature.NATURE_ID;
-			description.setNatureIds(newNatures);
-			project.setDescription(description, null);
-		} catch (CoreException e) {
+            // Add the nature
+            String[] newNatures = new String[natures.length + 1];
+            System.arraycopy(natures, 0, newNatures, 0, natures.length);
+            newNatures[natures.length] = MackerNature.NATURE_ID;
+            description.setNatureIds(newNatures);
+            project.setDescription(description, null);
+        } catch (CoreException e) {
             e.printStackTrace();
-		}
-	}
+        }
+    }
 
 }

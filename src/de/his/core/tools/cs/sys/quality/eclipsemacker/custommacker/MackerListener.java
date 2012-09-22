@@ -19,66 +19,66 @@ import net.innig.macker.rule.RuleSet;
  * 
  * @author Bender
  */
-public class MackerListener implements  MackerEventListener {
+public class MackerListener implements MackerEventListener {
 
-	/**
-	 * Die violation Map speichert als Key den Urpsrung des Fehlers d.h. den PaketPfad einer
-	 * Class Datei. Als Value wird eine Liste mit allen gefundene Regelverstoessen gespeichert.
-	 */
-	private HashMap<String, ArrayList<AccessRuleViolation>> violation;
-	
+    /**
+     * Die violation Map speichert als Key den Urpsrung des Fehlers d.h. den PaketPfad einer
+     * Class Datei. Als Value wird eine Liste mit allen gefundene Regelverstoessen gespeichert.
+     */
+    private HashMap<String, ArrayList<AccessRuleViolation>> violation;
 
-	public MackerListener() {
-		this.violation = new HashMap<String, ArrayList<AccessRuleViolation>>();
-		
-	}
-	
-	/**
-	 * Handler speichert die geworfenen und relevanten Events in einer Map.
-	 */
-	 public void handleMackerEvent(RuleSet ruleSet, MackerEvent event) {
 
-		 if (event instanceof AccessRuleViolation) {
-			 AccessRuleViolation e = (AccessRuleViolation) event;
-			 
-			 if (violation.get(e.getFrom().toString()) == null) {
-				 violation.put(e.getFrom().toString(), new ArrayList<AccessRuleViolation>()); 
-			 } 
-			
-			 violation.get(e.getFrom().toString()).add(e);
+    public MackerListener() {
+        this.violation = new HashMap<String, ArrayList<AccessRuleViolation>>();
 
-		 }
-	 }
+    }
 
-	/**
-	 * @return the violation
-	 */
-	public HashMap<String, ArrayList<AccessRuleViolation>> getViolation() {
-		return violation;
-	}
+    /**
+     * Handler speichert die geworfenen und relevanten Events in einer Map.
+     */
+    @Override
+    public void handleMackerEvent(RuleSet ruleSet, MackerEvent event) {
 
-	/**
-	 * @param violation the violation to set
-	 */
-	public void setViolation(HashMap<String, ArrayList<AccessRuleViolation>> violation) {
-		this.violation = violation;
-	}
+        if (event instanceof AccessRuleViolation) {
+            AccessRuleViolation e = (AccessRuleViolation) event;
 
-	@Override
-	public void mackerAborted(RuleSet arg0) {
-		
-	}
+            if (violation.get(e.getFrom().toString()) == null) {
+                violation.put(e.getFrom().toString(), new ArrayList<AccessRuleViolation>());
+            }
 
-	@Override
-	public void mackerFinished(RuleSet arg0) throws MackerIsMadException,
-			ListenerException {
-		
-	}
+            violation.get(e.getFrom().toString()).add(e);
 
-	@Override
-	public void mackerStarted(RuleSet arg0) throws ListenerException {
-		
-	}
+        }
+    }
+
+    /**
+     * @return the violation
+     */
+    public HashMap<String, ArrayList<AccessRuleViolation>> getViolation() {
+        return violation;
+    }
+
+    /**
+     * @param violation the violation to set
+     */
+    public void setViolation(HashMap<String, ArrayList<AccessRuleViolation>> violation) {
+        this.violation = violation;
+    }
+
+    @Override
+    public void mackerAborted(RuleSet arg0) {
+
+    }
+
+    @Override
+    public void mackerFinished(RuleSet arg0) throws MackerIsMadException, ListenerException {
+
+    }
+
+    @Override
+    public void mackerStarted(RuleSet arg0) throws ListenerException {
+
+    }
 
 
 

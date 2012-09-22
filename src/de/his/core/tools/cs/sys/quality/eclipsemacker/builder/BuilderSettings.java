@@ -41,7 +41,7 @@ import de.his.core.tools.cs.sys.quality.eclipsemacker.preferences.MackerGlobalPr
  */
 public class BuilderSettings {
 
-	private static final String SETTINGS_MACKER = ".settings/macker";
+    private static final String SETTINGS_MACKER = ".settings/macker";
 
 
     /** projekt settings (HIS1)*/
@@ -49,32 +49,47 @@ public class BuilderSettings {
 
 
     private boolean warnung = false;
+
     private boolean error = false;
+
     private boolean defaultM = false;
+
     private String filterClassContent = "";
+
     private String filterSourceContent = "";
+
     private boolean useClassFilter = false;
+
     private boolean useSourceFilter = false;
+
     private boolean checkContent = false;
+
     private boolean runOnFullBuild = false;
+
     private boolean runOnIncBuild = false;
+
     private String ruleDir = "";
+
     private String ruleProject = "";
+
     private ArrayList<File> ruleFiles = new ArrayList<File>();
+
     private ArrayList<String> classpathFolders = new ArrayList<String>();
+
     private ArrayList<String> sourceFolders = new ArrayList<String>();
 
 
     /** Das Aktuelle Java Projekt*/
 
     private IProject project;
+
     private IJavaProject jProject;
 
 
     /**
      * Create a new BuilderSettings instance
      */
-    public BuilderSettings () {
+    public BuilderSettings() {
         //
     }
 
@@ -83,74 +98,74 @@ public class BuilderSettings {
      * HIS Spezifische settings laden
      */
 
-	private LinkedHashMap<String, String> loadDispatcherProp() {
-		String s = "";
-		LinkedHashMap<String, String> map = new LinkedHashMap<String, String>();
-		String separatorDispProp = "=";
+    private LinkedHashMap<String, String> loadDispatcherProp() {
+        String s = "";
+        LinkedHashMap<String, String> map = new LinkedHashMap<String, String>();
+        String separatorDispProp = "=";
 
-		try {
+        try {
 
             BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(this.getProject().getLocation().toString() + PROPERTIES_FILE)));
 
-			while((s = in.readLine()) != null) {
+            while ((s = in.readLine()) != null) {
 
-				if (!s.startsWith("#")) {
-					StringTokenizer st = new StringTokenizer(s, separatorDispProp);
-					map.put(st.nextToken(), st.nextToken());
-				}
-		      }
-			 in.close();
+                if (!s.startsWith("#")) {
+                    StringTokenizer st = new StringTokenizer(s, separatorDispProp);
+                    map.put(st.nextToken(), st.nextToken());
+                }
+            }
+            in.close();
 
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			} catch (NoSuchElementException e) {
-				e.printStackTrace();
-			}
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (NoSuchElementException e) {
+            e.printStackTrace();
+        }
 
-		return map;
-	}
+        return map;
+    }
 
 
-	/**
-	 * HIS Spezifische settings setzen.
-	 * @return builderSettings Objekt.
-	 */
+    /**
+     * HIS Spezifische settings setzen.
+     * @return builderSettings Objekt.
+     */
     public BuilderSettings useGlobalSettings() {
-    	LinkedHashMap<String, String> map = loadDispatcherProp();
-    	try {
-    		this.setDefaultM(Boolean.parseBoolean(map.get(PreferenceConstants.DEFAULT)));
-        	this.setError(Boolean.parseBoolean(map.get(PreferenceConstants.ERROR)));
-        	this.setRunOnFullBuild(Boolean.parseBoolean(map.get(PreferenceConstants.RUN_ON_FULL_BUILD)));
-        	this.setRunOnIncBuild(Boolean.parseBoolean(map.get(PreferenceConstants.RUN_ON_INCREMENTAL_BUILD)));
-        	this.setFilterContent(map.get(PreferenceConstants.CLASSPATH_FILTER).replace(", ", "\t"));
-        	this.setUseFilter(Boolean.parseBoolean(map.get(PreferenceConstants.USE_CLASSPATH_FILTER)));
-        	this.setFilterSourceContent(map.get(PreferenceConstants.SOURCE_FILTER).replace(", ", "\t"));
-        	this.setUseSourceFilter(Boolean.parseBoolean(map.get(PreferenceConstants.USE_SOURCE_FILTER)));
-        	this.setCheckContent(Boolean.parseBoolean(map.get(PreferenceConstants.CHECK_CONTENT)));
+        LinkedHashMap<String, String> map = loadDispatcherProp();
+        try {
+            this.setDefaultM(Boolean.parseBoolean(map.get(PreferenceConstants.DEFAULT)));
+            this.setError(Boolean.parseBoolean(map.get(PreferenceConstants.ERROR)));
+            this.setRunOnFullBuild(Boolean.parseBoolean(map.get(PreferenceConstants.RUN_ON_FULL_BUILD)));
+            this.setRunOnIncBuild(Boolean.parseBoolean(map.get(PreferenceConstants.RUN_ON_INCREMENTAL_BUILD)));
+            this.setFilterContent(map.get(PreferenceConstants.CLASSPATH_FILTER).replace(", ", "\t"));
+            this.setUseFilter(Boolean.parseBoolean(map.get(PreferenceConstants.USE_CLASSPATH_FILTER)));
+            this.setFilterSourceContent(map.get(PreferenceConstants.SOURCE_FILTER).replace(", ", "\t"));
+            this.setUseSourceFilter(Boolean.parseBoolean(map.get(PreferenceConstants.USE_SOURCE_FILTER)));
+            this.setCheckContent(Boolean.parseBoolean(map.get(PreferenceConstants.CHECK_CONTENT)));
             IPreferenceStore store = Activator.getDefault().getPreferenceStore();
             String rulesDir = store.getString(MackerGlobalPreferenceConstants.P_FOLDER_IN_PROJECT_WITH_RULES);
-            if (rulesDir == null || rulesDir.isEmpty()) {
+            if ((rulesDir == null) || rulesDir.isEmpty()) {
                 // if nothing is configured assume .settings/macker
                 rulesDir = SETTINGS_MACKER;
             }
             this.setRulesDir(rulesDir);
             String rulesProject = store.getString(MackerGlobalPreferenceConstants.P_PROJECT_WITH_RULES);
-            if (rulesProject == null || rulesProject.isEmpty()) {
+            if ((rulesProject == null) || rulesProject.isEmpty()) {
                 this.ruleProject = project.getName();
             } else {
                 this.ruleProject = rulesProject;
             }
-        	this.setjProject(JavaCore.create(project));
-        	//rule files instanziieren
-        	setRulesFromDirectory();
-        	this.getSources();
-    	} catch (NullPointerException e) {
-    		e.printStackTrace();
-    	}
+            this.setjProject(JavaCore.create(project));
+            //rule files instanziieren
+            setRulesFromDirectory();
+            this.getSources();
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
 
-    	return this;
+        return this;
     }
 
 
@@ -165,7 +180,7 @@ public class BuilderSettings {
      * man aber auch auf andere Projekte verweisen.
      *
      */
-	public void setRulesFromDirectory() {
+    public void setRulesFromDirectory() {
         ArrayList<File> r = new ArrayList<File>();
         String workspace = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString();
         File dir = new File(workspace + "/" + this.ruleProject + "/" + getRulesDir());
@@ -173,7 +188,7 @@ public class BuilderSettings {
             addRuleFiles(r, dir);
         }
 
-	}
+    }
 
 
     private void addRuleFiles(ArrayList<File> r, File dir) {
@@ -186,48 +201,48 @@ public class BuilderSettings {
         setRulesFull(r);
     }
 
-	/**
-	 * Die instanziierten Macker Regelen werden einem CustomMacker
-	 * Objekt uebergeben.
-	 * @param cm CustomMacker Objekt.
-	 */
-	public void addRulesToMacker(CustomMacker cm) {
-		for (File f : getRulesFull()) {
-			try {
-				cm.addRulesFile(f);
-			} catch (RulesException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-	}
+    /**
+     * Die instanziierten Macker Regelen werden einem CustomMacker
+     * Objekt uebergeben.
+     * @param cm CustomMacker Objekt.
+     */
+    public void addRulesToMacker(CustomMacker cm) {
+        for (File f : getRulesFull()) {
+            try {
+                cm.addRulesFile(f);
+            } catch (RulesException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
 
-	/**
-	 * Aus einem Projekt werden die Einstellungen (Property Page) geladen
-	 * und gespeichert.
-	 */
+    /**
+     * Aus einem Projekt werden die Einstellungen (Property Page) geladen
+     * und gespeichert.
+     */
     public void useProjectSpecificSettings() {
 
-    	this.setDefaultM(Boolean.parseBoolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.DEFAULT))));
-    	this.setError(Boolean.parseBoolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.ERROR))));
-    	this.setRunOnFullBuild(Boolean.parseBoolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.RUN_ON_FULL_BUILD))));
-    	this.setRunOnIncBuild(Boolean.parseBoolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.RUN_ON_INCREMENTAL_BUILD))));
-    	this.setFilterContent(getPersistentProperty (new QualifiedName("", PreferenceConstants.CLASSPATH_FILTER)));
-    	this.setUseFilter(Boolean.parseBoolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_CLASSPATH_FILTER))));
-    	this.setFilterSourceContent(getPersistentProperty (new QualifiedName("", PreferenceConstants.SOURCE_FILTER)));
-    	this.setUseSourceFilter(Boolean.parseBoolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_SOURCE_FILTER))));
-    	this.setCheckContent(Boolean.parseBoolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.CHECK_CONTENT))));
-    	String rulesDir = getPersistentProperty (new QualifiedName("", PreferenceConstants.RULES_PATH));
-        if (rulesDir == null || rulesDir.isEmpty()) {
+        this.setDefaultM(Boolean.parseBoolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.DEFAULT))));
+        this.setError(Boolean.parseBoolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.ERROR))));
+        this.setRunOnFullBuild(Boolean.parseBoolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.RUN_ON_FULL_BUILD))));
+        this.setRunOnIncBuild(Boolean.parseBoolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.RUN_ON_INCREMENTAL_BUILD))));
+        this.setFilterContent(getPersistentProperty(new QualifiedName("", PreferenceConstants.CLASSPATH_FILTER)));
+        this.setUseFilter(Boolean.parseBoolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_CLASSPATH_FILTER))));
+        this.setFilterSourceContent(getPersistentProperty(new QualifiedName("", PreferenceConstants.SOURCE_FILTER)));
+        this.setUseSourceFilter(Boolean.parseBoolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_SOURCE_FILTER))));
+        this.setCheckContent(Boolean.parseBoolean(getPersistentProperty(new QualifiedName("", PreferenceConstants.CHECK_CONTENT))));
+        String rulesDir = getPersistentProperty(new QualifiedName("", PreferenceConstants.RULES_PATH));
+        if ((rulesDir == null) || rulesDir.isEmpty()) {
             rulesDir = SETTINGS_MACKER;
         }
         this.setRulesDir(rulesDir);
-    	this.setjProject(JavaCore.create(project));
-    	//rule files instanziieren
-    	setRulesFromDirectory();
-    	this.getSources();
+        this.setjProject(JavaCore.create(project));
+        //rule files instanziieren
+        setRulesFromDirectory();
+        this.getSources();
     }
 
     /**
@@ -235,313 +250,313 @@ public class BuilderSettings {
      * @param qn QualifiedName Objekt.
      * @return String Value.
      */
-	private String getPersistentProperty (QualifiedName qn) {
-		try {
-			return getProject().getPersistentProperty(qn);
-		} catch (CoreException e) {
-			return "";
-		}
-	}
+    private String getPersistentProperty(QualifiedName qn) {
+        try {
+            return getProject().getPersistentProperty(qn);
+        } catch (CoreException e) {
+            return "";
+        }
+    }
 
-   //Getter/Setter--------------------------------------------------------------------------------------
-
-
-	/**
-	 * @return the project
-	 */
-	public IProject getProject() {
-		return project;
-	}
+    //Getter/Setter--------------------------------------------------------------------------------------
 
 
-	/**
-	 * @return the filterSourceContent
-	 */
-	public String getFilterSourceContent() {
-		return filterSourceContent;
-	}
+    /**
+     * @return the project
+     */
+    public IProject getProject() {
+        return project;
+    }
 
 
-
-	/**
-	 * @param filterSourceContent the filterSourceContent to set
-	 */
-	public void setFilterSourceContent(String filterSourceContent) {
-		this.filterSourceContent = filterSourceContent;
-	}
+    /**
+     * @return the filterSourceContent
+     */
+    public String getFilterSourceContent() {
+        return filterSourceContent;
+    }
 
 
 
-	/**
-	 * @return the useSourceFilter
-	 */
-	public boolean isUseSourceFilter() {
-		return useSourceFilter;
-	}
+    /**
+     * @param filterSourceContent the filterSourceContent to set
+     */
+    public void setFilterSourceContent(String filterSourceContent) {
+        this.filterSourceContent = filterSourceContent;
+    }
 
 
 
-	/**
-	 * @param useSourceFilter the useSourceFilter to set
-	 */
-	public void setUseSourceFilter(boolean useSourceFilter) {
-		this.useSourceFilter = useSourceFilter;
-	}
-
-
-	/**
-	 * Laden der Sourcefilter Vorgaben.
-	 * @return the sources, Liste mit definierten Source Verzeichnissen
-	 * welche spaeter ueberprueft werden sollen.
-	 */
-	public ArrayList<String> getSources() {
-		if (this.sourceFolders.size() == 0) {
-			//setFilterSourceContent
-			String list = this.getFilterSourceContent();
-			StringTokenizer st = new StringTokenizer(list, "\t");
-
-			while (st.hasMoreTokens()) {
-				sourceFolders.add(st.nextToken());
-			}
-		}
-
-		return sourceFolders;
-	}
+    /**
+     * @return the useSourceFilter
+     */
+    public boolean isUseSourceFilter() {
+        return useSourceFilter;
+    }
 
 
 
-	/**
-	 * @param sources the sources to set
-	 */
-	public void setSources(ArrayList<String> sources) {
-		this.sourceFolders = sources;
-	}
+    /**
+     * @param useSourceFilter the useSourceFilter to set
+     */
+    public void setUseSourceFilter(boolean useSourceFilter) {
+        this.useSourceFilter = useSourceFilter;
+    }
+
+
+    /**
+     * Laden der Sourcefilter Vorgaben.
+     * @return the sources, Liste mit definierten Source Verzeichnissen
+     * welche spaeter ueberprueft werden sollen.
+     */
+    public ArrayList<String> getSources() {
+        if (this.sourceFolders.size() == 0) {
+            //setFilterSourceContent
+            String list = this.getFilterSourceContent();
+            StringTokenizer st = new StringTokenizer(list, "\t");
+
+            while (st.hasMoreTokens()) {
+                sourceFolders.add(st.nextToken());
+            }
+        }
+
+        return sourceFolders;
+    }
 
 
 
-	/**
-	 * @return the jProject
-	 */
-	public IJavaProject getjProject() {
-		return jProject;
-	}
+    /**
+     * @param sources the sources to set
+     */
+    public void setSources(ArrayList<String> sources) {
+        this.sourceFolders = sources;
+    }
 
 
 
-	/**
-	 * @param jProject the jProject to set
-	 */
-	public void setjProject(IJavaProject jProject) {
-		this.jProject = jProject;
-	}
+    /**
+     * @return the jProject
+     */
+    public IJavaProject getjProject() {
+        return jProject;
+    }
 
 
 
-	/**
-	 * @return the rulesDir
-	 */
-	public String getRulesDir() {
-		return ruleDir;
-	}
+    /**
+     * @param jProject the jProject to set
+     */
+    public void setjProject(IJavaProject jProject) {
+        this.jProject = jProject;
+    }
 
 
 
-	/**
-	 * @param rulesDir the rulesDir to set
-	 */
-	public void setRulesDir(String rulesDir) {
-		this.ruleDir = rulesDir;
-	}
+    /**
+     * @return the rulesDir
+     */
+    public String getRulesDir() {
+        return ruleDir;
+    }
 
 
 
-	/**
-	 * @param project the project to set
-	 */
-	public void setProject(IProject project) {
-		this.project = project;
-	}
+    /**
+     * @param rulesDir the rulesDir to set
+     */
+    public void setRulesDir(String rulesDir) {
+        this.ruleDir = rulesDir;
+    }
 
-	/**
-	 * @return the warnung
-	 */
-	public boolean isWarnung() {
-		return warnung;
-	}
 
-	/**
-	 * @param warnung the warnung to set
-	 */
-	public void setWarnung(boolean warnung) {
-		this.warnung = warnung;
-	}
 
-	/**
-	 * @return the error
-	 */
-	public boolean isError() {
-		return error;
-	}
+    /**
+     * @param project the project to set
+     */
+    public void setProject(IProject project) {
+        this.project = project;
+    }
 
-	/**
-	 * @param error the error to set
-	 */
-	public void setError(boolean error) {
-		this.error = error;
-	}
+    /**
+     * @return the warnung
+     */
+    public boolean isWarnung() {
+        return warnung;
+    }
 
-	/**
-	 * @return the defaultM
-	 */
-	public boolean isDefaultM() {
-		return defaultM;
-	}
+    /**
+     * @param warnung the warnung to set
+     */
+    public void setWarnung(boolean warnung) {
+        this.warnung = warnung;
+    }
 
-	/**
-	 * @param defaultM the defaultM to set
-	 */
-	public void setDefaultM(boolean defaultM) {
-		this.defaultM = defaultM;
-	}
+    /**
+     * @return the error
+     */
+    public boolean isError() {
+        return error;
+    }
 
-	/**
-	 * @return the filterContent
-	 */
-	public String getFilterContent() {
-		return filterClassContent;
-	}
+    /**
+     * @param error the error to set
+     */
+    public void setError(boolean error) {
+        this.error = error;
+    }
 
-	/**
-	 * @param filterContent the filterContent to set
-	 */
-	public void setFilterContent(String filterContent) {
-		this.filterClassContent = filterContent;
-	}
+    /**
+     * @return the defaultM
+     */
+    public boolean isDefaultM() {
+        return defaultM;
+    }
 
-	/**
-	 * @return the useFilter
-	 */
-	public boolean isUseFilter() {
-		return useClassFilter;
-	}
+    /**
+     * @param defaultM the defaultM to set
+     */
+    public void setDefaultM(boolean defaultM) {
+        this.defaultM = defaultM;
+    }
 
-	/**
-	 * @param useFilter the useFilter to set
-	 */
-	public void setUseFilter(boolean useFilter) {
-		this.useClassFilter = useFilter;
-	}
+    /**
+     * @return the filterContent
+     */
+    public String getFilterContent() {
+        return filterClassContent;
+    }
 
-	/**
-	 * @return the checkContent
-	 */
-	public boolean isCheckContent() {
-		return checkContent;
-	}
+    /**
+     * @param filterContent the filterContent to set
+     */
+    public void setFilterContent(String filterContent) {
+        this.filterClassContent = filterContent;
+    }
 
-	/**
-	 * @param checkContent the checkContent to set
-	 */
-	public void setCheckContent(boolean checkContent) {
-		this.checkContent = checkContent;
-	}
+    /**
+     * @return the useFilter
+     */
+    public boolean isUseFilter() {
+        return useClassFilter;
+    }
 
-	/**
-	 * @return the runOnFullBuild
-	 */
-	public boolean isRunOnFullBuild() {
-		return runOnFullBuild;
-	}
+    /**
+     * @param useFilter the useFilter to set
+     */
+    public void setUseFilter(boolean useFilter) {
+        this.useClassFilter = useFilter;
+    }
 
-	/**
-	 * @param runOnFullBuild the runOnFullBuild to set
-	 */
-	public void setRunOnFullBuild(boolean runOnFullBuild) {
-		this.runOnFullBuild = runOnFullBuild;
-	}
+    /**
+     * @return the checkContent
+     */
+    public boolean isCheckContent() {
+        return checkContent;
+    }
 
-	/**
-	 * @return the runOnIncBuild
-	 */
-	public boolean isRunOnIncBuild() {
-		return runOnIncBuild;
-	}
+    /**
+     * @param checkContent the checkContent to set
+     */
+    public void setCheckContent(boolean checkContent) {
+        this.checkContent = checkContent;
+    }
 
-	/**
-	 * @param runOnIncBuild the runOnIncBuild to set
-	 */
-	public void setRunOnIncBuild(boolean runOnIncBuild) {
-		this.runOnIncBuild = runOnIncBuild;
-	}
+    /**
+     * @return the runOnFullBuild
+     */
+    public boolean isRunOnFullBuild() {
+        return runOnFullBuild;
+    }
 
-	/**
-	 * @return the rulesFull
-	 */
-	public ArrayList<File> getRulesFull() {
-		return ruleFiles;
-	}
+    /**
+     * @param runOnFullBuild the runOnFullBuild to set
+     */
+    public void setRunOnFullBuild(boolean runOnFullBuild) {
+        this.runOnFullBuild = runOnFullBuild;
+    }
 
-	/**
-	 * @param rulesFull the rulesFull to set
-	 */
-	public void setRulesFull(ArrayList<File> rulesFull) {
-		this.ruleFiles = rulesFull;
-	}
+    /**
+     * @return the runOnIncBuild
+     */
+    public boolean isRunOnIncBuild() {
+        return runOnIncBuild;
+    }
 
-	/**
-	 * Ermitteln der vom Projekt verwendeten ClassPath Verzeichnisse.
-	 * @return the classpaths
-	 */
-	public ArrayList<String> getClasspaths() {
-		if (this.classpathFolders.size() == 0) {
-			IJavaProject jp = getjProject();
-			try {
-				IClasspathEntry[] rawClasspath = jp.getRawClasspath();
-				for (int i = 0; i < rawClasspath.length; i++) {
-					if (!rawClasspath[i].getPath().toOSString().startsWith("org.eclipse")) {
-						classpathFolders.add(rawClasspath[i].getPath().toOSString());
-					}
+    /**
+     * @param runOnIncBuild the runOnIncBuild to set
+     */
+    public void setRunOnIncBuild(boolean runOnIncBuild) {
+        this.runOnIncBuild = runOnIncBuild;
+    }
 
-				}
-			} catch (JavaModelException e) {
-				e.printStackTrace();
-			}
-		}
+    /**
+     * @return the rulesFull
+     */
+    public ArrayList<File> getRulesFull() {
+        return ruleFiles;
+    }
 
-		return classpathFolders;
-	}
-	
+    /**
+     * @param rulesFull the rulesFull to set
+     */
+    public void setRulesFull(ArrayList<File> rulesFull) {
+        this.ruleFiles = rulesFull;
+    }
+
+    /**
+     * Ermitteln der vom Projekt verwendeten ClassPath Verzeichnisse.
+     * @return the classpaths
+     */
+    public ArrayList<String> getClasspaths() {
+        if (this.classpathFolders.size() == 0) {
+            IJavaProject jp = getjProject();
+            try {
+                IClasspathEntry[] rawClasspath = jp.getRawClasspath();
+                for (int i = 0; i < rawClasspath.length; i++) {
+                    if (!rawClasspath[i].getPath().toOSString().startsWith("org.eclipse")) {
+                        classpathFolders.add(rawClasspath[i].getPath().toOSString());
+                    }
+
+                }
+            } catch (JavaModelException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return classpathFolders;
+    }
+
     /**
      * @return all classpath elements
      */
-	public ArrayList<File> getClasspathElements() {
-		ArrayList<File> jars = new ArrayList<File>();
-		IJavaProject jp = getjProject();
-		IClasspathEntry[] rawClasspath;
-		IPath location = jp.getProject().getLocation();
-		try {
-			rawClasspath = jp.getRawClasspath();
-			for (int i = 0; i < rawClasspath.length; i++) {
-				IPath iPath = rawClasspath[i].getPath();
-				iPath = iPath.removeFirstSegments(1); //this removes the webapps prefix
-				IPath fullPathToJar = location.append(iPath);
-				File file = fullPathToJar.toFile();
-				jars.add(file);
-			}
-			IPath outputLocation = jp.getOutputLocation().removeFirstSegments(1);
-			File outputFolder = location.append(outputLocation).toFile();
-			jars.add(outputFolder);
-		} catch (JavaModelException e) {
-			e.printStackTrace();
-		}
-		return jars;
-	}
+    public ArrayList<File> getClasspathElements() {
+        ArrayList<File> jars = new ArrayList<File>();
+        IJavaProject jp = getjProject();
+        IClasspathEntry[] rawClasspath;
+        IPath location = jp.getProject().getLocation();
+        try {
+            rawClasspath = jp.getRawClasspath();
+            for (int i = 0; i < rawClasspath.length; i++) {
+                IPath iPath = rawClasspath[i].getPath();
+                iPath = iPath.removeFirstSegments(1); //this removes the webapps prefix
+                IPath fullPathToJar = location.append(iPath);
+                File file = fullPathToJar.toFile();
+                jars.add(file);
+            }
+            IPath outputLocation = jp.getOutputLocation().removeFirstSegments(1);
+            File outputFolder = location.append(outputLocation).toFile();
+            jars.add(outputFolder);
+        } catch (JavaModelException e) {
+            e.printStackTrace();
+        }
+        return jars;
+    }
 
-	/**
-	 * @param classpaths the classpaths to set
-	 */
-	public void setClasspaths(ArrayList<String> classpaths) {
-		this.classpathFolders = classpaths;
-	}
+    /**
+     * @param classpaths the classpaths to set
+     */
+    public void setClasspaths(ArrayList<String> classpaths) {
+        this.classpathFolders = classpaths;
+    }
 
 }

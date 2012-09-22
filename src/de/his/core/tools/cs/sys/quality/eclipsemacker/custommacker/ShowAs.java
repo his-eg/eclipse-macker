@@ -7,8 +7,5 @@ package de.his.core.tools.cs.sys.quality.eclipsemacker.custommacker;
  */
 
 public enum ShowAs {
-	DEFAULT,
-	INFO,
-	WARNING,
-	ERROR
+    DEFAULT, INFO, WARNING, ERROR
 }
