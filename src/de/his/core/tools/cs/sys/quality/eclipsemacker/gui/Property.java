@@ -288,7 +288,7 @@ public class Property extends PropertyPage {
     }
 
 
-    void enablePropertys(boolean enabled) {
+    void enablePropertys (boolean enabled) {
         rulesDir.setEnabled(enabled);
         incBuild.setEnabled(enabled);
         fullBuild.setEnabled(enabled);
@@ -307,7 +307,6 @@ public class Property extends PropertyPage {
         error.setEnabled(enabled);
         warning.setEnabled(enabled);
         defaultM.setEnabled(enabled);
-
     }
 
 
@@ -509,32 +508,30 @@ public class Property extends PropertyPage {
         return found;
     }
 
-    /**
-     * Setzt die Werte des Classpath Filters
-     * @param content
-     */
-    private void setListContent(String content, List list) {
-        StringTokenizer st = new StringTokenizer(content, "\t");
-        while (st.hasMoreTokens()) {
-            list.add(st.nextToken());
-        }
-    }
-
-    /**
-     * Gibt die aktuellen Werte des Classpath filters zurueck.
-     *
-     * @return
-     */
-    String getListContent(List list) {
-        String content = "";
-        for (int i = 0; i < list.getItems().length; i++) {
-            if (!list.getItem(i).equals("")) {
-                content += list.getItem(i) + "\t";
-            }
-        }
-        return content;
-    }
-
+	/**
+	 * Setzt die Werte des Classpath Filters
+	 * @param content
+	 */
+	private void setListContent(String content, List list) {
+		StringTokenizer st = new StringTokenizer(content, "\t");
+	     while (st.hasMoreTokens()) {
+	       list.add(st.nextToken());
+	     }
+	}
+	/**
+	 * Gibt die aktuellen Werte des Classpath filters zurueck.
+	 * @return
+	 */
+	private String getListContent(List list) {
+		String content = "";
+		for (int i = 0; i < list.getItems().length; i++) {
+			if (!list.getItem(i).equals("")) {
+				content += list.getItem(i)+ "\t";
+			}
+		}
+		return content;
+	}
+	
     /**
      * Setzt beim ersten Start eines Projektes mit dem Plugin
      * die Defaultwerte.
@@ -544,7 +541,6 @@ public class Property extends PropertyPage {
     public boolean init(IResource resource) {
 
         try {
-
             //HIS Settings
             resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.USE_GLOBAL_SETTINGS), Boolean.toString(USE_HIS_SETTINGS));
 
@@ -575,8 +571,5 @@ public class Property extends PropertyPage {
         }
         return true;
     }
-
-
-
 
 }

@@ -31,7 +31,6 @@ import org.eclipse.core.runtime.QualifiedName;
 import de.his.core.tools.cs.sys.quality.eclipsemacker.custommacker.CustomMacker;
 import de.his.core.tools.cs.sys.quality.eclipsemacker.custommacker.ShowAs;
 import de.his.core.tools.cs.sys.quality.eclipsemacker.gui.PreferenceConstants;
-import de.his.core.tools.cs.sys.quality.eclipsemacker.gui.Property;
 
 /**
  * Der MackerBuilder ruft bei jedem Speichervorgang oder bei einem Neuaufbau des
@@ -51,10 +50,10 @@ public class MackerBuilder extends IncrementalProjectBuilder {
      */
     private int count = 0;
 
-    /**
-     * Enthaelt alle in der Property Page definierten Einstellungen.
-     */
-    private BuilderSettings builderSettings;
+	/**
+	 * Enthaelt alle in der Property Page definierten Einstellungen.
+	 */
+    private AbstractBuilderSettings builderSettings;
 
     /**
      * CustomMacker Objekt, erhealt alle zu pruefenden Klassen, sowie
@@ -68,12 +67,12 @@ public class MackerBuilder extends IncrementalProjectBuilder {
     public static ArrayList<String> builderErrors = new ArrayList<String>();
 
     /**
-     * creates a Macker.
+     * Create a new MackerBuilder
      */
-    public MackerBuilder() {
-        this.builderSettings = new BuilderSettings();
-        this.customMacker = new CustomMacker();
-    }
+	public MackerBuilder() {
+			this.builderSettings = new BuilderGlobalSettings();
+			this.customMacker = new CustomMacker();
+	}
 
     /**
      * Der Delta Visitor wird bei einem Incremetal Build aufgerufen.
@@ -175,26 +174,8 @@ public class MackerBuilder extends IncrementalProjectBuilder {
         Date start = new Date();
         customMacker = new CustomMacker();
         count = 0;
-
-        //einmaliges laden der projekt settings
-        if (getProject().getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_GLOBAL_SETTINGS)) == null) {
-            new Property().init(getProject());
-        }
-        //dem builder eine referenz auf das aktuelel projekt uebergeben
-        this.getBuilderSettings().setProject(getProject());
-
-        //Unterscheidung ob globale Settings geladen werden sollen oder die Vorgaben aus der Property Page.
-        if (Boolean.parseBoolean(getProject().getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_GLOBAL_SETTINGS)))) {
-            this.getBuilderSettings().useGlobalSettings();
-        } else {
-            this.getBuilderSettings().useProjectSpecificSettings();
-        }
-
-        //einmaliges hinzufuegen der definierten Regeln
-        this.getBuilderSettings().addRulesToMacker(customMacker);
-
-        addJarsToClasspath();
-
+        this.configureMacker();
+		
         if (kind == FULL_BUILD) {
             fullBuild(monitor);
 
@@ -208,14 +189,30 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 
         }
 
-        //Die gesammelten Resourcen pruefen.
-        checkResources(monitor);
-
-        //Zeit des Pruefens messen.
-        Date end = new Date();
-        builderErrors.add("Duration : " + ((end.getTime() - start.getTime()) / 1000));
-
         return null;
+    }
+
+    private void configureMacker() throws CoreException {
+		customMacker = new CustomMacker();
+		count = 0;
+
+        String useGlobalSettingsPref = getProject().getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_GLOBAL_SETTINGS));
+        if (useGlobalSettingsPref == null) {
+            // use local settings
+            this.builderSettings = new BuilderProjectSpecificSettings();
+        } else {
+            // use global settings
+            this.builderSettings = new BuilderGlobalSettings();
+        }
+
+        //dem builder eine referenz auf das aktuelel projekt uebergeben
+        this.getBuilderSettings().setProject(getProject());
+        this.builderSettings.initSettings();
+
+		//einmaliges hinzufuegen der definierten Regeln
+		this.getBuilderSettings().addRulesToMacker(customMacker);
+
+		addJarsToClasspath();
     }
 
     private void addJarsToClasspath() {
@@ -268,7 +265,7 @@ public class MackerBuilder extends IncrementalProjectBuilder {
                 deleteMarkers(javaFile);
                 File classFile = null;
                 //Src Folder aus dem Dateipfad ermitteln
-                String src = getSourceFolder(fullP, projectName);
+                String src = getSourceFolder(fullP);
                 //aus dem Javafile das Class-File ableiten
                 try {
 
@@ -333,17 +330,15 @@ public class MackerBuilder extends IncrementalProjectBuilder {
     }
 
 
+
     /**
      * Ermittelt den aktuell verwendeten Classpath.
      *
      * @param path File Speicherpfad.
-     * @param pName Projektname.
      * @return den aktuell verwendeten source ordner.
      */
-
-    private String getSourceFolder(String path, String pName) {
+    private String getSourceFolder(String path) {
         String src = "";
-
         for (int i = 0; i < getBuilderSettings().getClasspaths().size(); i++) {
             String vgl = getBuilderSettings().getClasspaths().get(i).replace("\\", "/");
             //den aktuellen classpath ermitteln, durch vergleich mit java file path.
@@ -454,13 +449,9 @@ public class MackerBuilder extends IncrementalProjectBuilder {
                 // Ein Import-Tag wird auf Uebereinstimmung mit den gefundenen Macker-Events geprueft.
                 //eine line kann mehrere marker besitzen
                 for (int i = 0; i < customMacker.getListener().getViolation().get(entry.getKey()).size(); i++) {
-
-                    if (checkImportLineViolation(line, customMacker.getListener().getViolation().get(entry.getKey()).get(i).getTo().toString())) {
-
-                        setMarker(customMacker, reader.getLineNumber(), i, entry.getKey().toString());
-                        //bei Uebereinstimmung betreffenden Event aus Liste entfernen.
-                        customMacker.getListener().getViolation().get(entry.getKey()).remove(i);
-                    }
+                    setMarker(customMacker, reader.getLineNumber(), i, entry.getKey().toString());
+                    //bei Uebereinstimmung betreffenden Event aus Liste entfernen.
+                    customMacker.getListener().getViolation().get(entry.getKey()).remove(i);
                 }
             }
         }
@@ -681,15 +672,11 @@ public class MackerBuilder extends IncrementalProjectBuilder {
      */
     private void deleteMarkers(IFile file) {
         try {
-
             file.deleteMarkers(MARKER_TYPE, false, IResource.DEPTH_ZERO);
-
         } catch (CoreException e) {
             e.printStackTrace();
         }
     }
-
-
 
     /**
      * Prueft das gesamte Projekt.
@@ -732,7 +719,6 @@ public class MackerBuilder extends IncrementalProjectBuilder {
         return customMacker;
     }
 
-
     /**
      * CustomMacker objekt setzen.
      *
@@ -746,15 +732,14 @@ public class MackerBuilder extends IncrementalProjectBuilder {
     /**
      * @return the builderSettings
      */
-    public BuilderSettings getBuilderSettings() {
+    public AbstractBuilderSettings getBuilderSettings() {
         return builderSettings;
     }
-
 
     /**
      * @param builderSettings the builderSettings to set
      */
-    public void setBuilderSettings(BuilderSettings builderSettings) {
+    public void setBuilderSettings(AbstractBuilderSettings builderSettings) {
         this.builderSettings = builderSettings;
     }
 
