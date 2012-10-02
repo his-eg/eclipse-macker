@@ -27,6 +27,7 @@ public class BuilderProjectSpecificSettings extends AbstractBuilderSettings {
         if (rulesDir == null || rulesDir.isEmpty()) {
             rulesDir = SETTINGS_MACKER;
         }
+        String rulesProject = project.getName();
         this.setRulesDir(rulesDir);
         this.setjProject(JavaCore.create(project));
         //rule files instanziieren

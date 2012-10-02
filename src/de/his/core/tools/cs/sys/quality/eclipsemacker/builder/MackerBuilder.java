@@ -203,7 +203,8 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 		customMacker = new CustomMacker();
 		count = 0;
 
-        if (getProject().getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_GLOBAL_SETTINGS)) == null) {
+        String useGlobalSettingsPref = getProject().getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_GLOBAL_SETTINGS));
+        if (useGlobalSettingsPref == null) {
             // use local settings
             this.builderSettings = new BuilderProjectSpecificSettings();
         } else {

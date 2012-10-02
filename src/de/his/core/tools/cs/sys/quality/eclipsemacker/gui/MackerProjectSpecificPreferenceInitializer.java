@@ -22,8 +22,8 @@ public class MackerProjectSpecificPreferenceInitializer extends
 	public void initializeDefaultPreferences() {
 		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 		
+        store.setDefault(PreferenceConstants.USE_GLOBAL_SETTINGS, true);
 		store.setDefault(PreferenceConstants.RULES_PATH, "/rules/test/loc/");
-		
 		store.setDefault(PreferenceConstants.RUN_ON_FULL_BUILD, false);
 		store.setDefault(PreferenceConstants.RUN_ON_INCREMENTAL_BUILD, true);
 		store.setDefault(PreferenceConstants.CHECK_CONTENT, false);

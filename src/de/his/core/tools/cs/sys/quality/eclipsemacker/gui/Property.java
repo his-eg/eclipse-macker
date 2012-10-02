@@ -283,7 +283,6 @@ public class Property extends PropertyPage {
 		error.setEnabled(enabled);
 		warning.setEnabled(enabled);
 		defaultM.setEnabled(enabled);
-
 	}
 
 
