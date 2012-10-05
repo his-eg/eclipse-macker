@@ -176,9 +176,18 @@ public class MackerBuilder extends IncrementalProjectBuilder {
         count = 0;
         this.configureMacker();
 		
+        // collect resources
+        collectResources(kind, monitor);
+
+        //check collected resources
+        checkResources(monitor);
+
+        return null;
+    }
+
+    private void collectResources(int kind, IProgressMonitor monitor) throws CoreException {
         if (kind == FULL_BUILD) {
             fullBuild(monitor);
-
         } else {
             IResourceDelta delta = getDelta(getProject());
             if (delta == null) {
@@ -188,11 +197,6 @@ public class MackerBuilder extends IncrementalProjectBuilder {
             }
 
         }
-
-        //Die gesammelten Resourcen pruefen.
-        checkResources(monitor);
-
-        return null;
     }
 
     private void configureMacker() throws CoreException {
