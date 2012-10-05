@@ -189,6 +189,9 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 
         }
 
+        //Die gesammelten Resourcen pruefen.
+        checkResources(monitor);
+
         return null;
     }
 
@@ -275,13 +278,11 @@ public class MackerBuilder extends IncrementalProjectBuilder {
                 }
 
                 if (classFile != null) {
-
                     try {
                         //Class-Location und javaFile in einer Map speichern
                         String classLoc = fullP.replace(src, "").replace("/" + projectName + "/", "").replace(".java", "").replace("/", ".");
                         customMacker.getJavaMap().put(classLoc, javaFile);
                         count++;
-
                         //Macker die Class-Datei zum ueberpruefen uebergeben
                         customMacker.addClass(classFile);
 
