@@ -3,19 +3,18 @@ package de.his.core.tools.cs.sys.quality.eclipsemacker.custommacker;
 
 import java.util.HashMap;
 
-import org.eclipse.core.resources.IFile;
-
 import net.innig.macker.Macker;
 import net.innig.macker.event.ListenerException;
 import net.innig.macker.event.MackerIsMadException;
 import net.innig.macker.rule.RulesException;
 
+import org.eclipse.core.resources.IFile;
+
 /**
- * 
+ * Extended macker, that provides the possibility to listen for macker events
  * @author Bender
  *
  */
-
 public class CustomMacker extends Macker{
 
 	/**
@@ -45,18 +44,16 @@ public class CustomMacker extends Macker{
 	}
 
 	
-	/**
-	 * Class Datei wird anahnd der definierten Macker-Rules geprueft.
-	 * 
-	 */
+	            /**
+    * Class Datei wird anahnd der definierten Macker-Rules geprueft.
+    * @return true iff macker does not find any rule violation 
+    */
 	public boolean checkClass() {
 		boolean erfolg = true;
 		
 		if (this.hasRules()) {
-			
 			try {
 				this.check();
-
 			} catch (RulesException e) {
 				erfolg = false;
 				e.printStackTrace();
@@ -66,13 +63,10 @@ public class CustomMacker extends Macker{
 			} catch (MackerIsMadException e) {
 				//
 			}
-			
 		} else {
 			erfolg = false;
 		}
-		
 		return erfolg;
-
 	}
 	
 	/**
@@ -98,11 +92,11 @@ public class CustomMacker extends Macker{
 		return listener;
 	}
 
-	/**
-	 * @param MackerListener the MackerListener to set
-	 */
-	public void setListener(MackerListener lis) {
-		this.listener = lis;
+	    /**
+     * @param mackerListener the MackerListener to set
+     */
+    public void setListener(MackerListener mackerListener) {
+        this.listener = mackerListener;
 	}
 
 	

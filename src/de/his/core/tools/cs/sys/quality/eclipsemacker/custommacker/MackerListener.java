@@ -28,25 +28,26 @@ public class MackerListener implements  MackerEventListener {
 	private HashMap<String, ArrayList<AccessRuleViolation>> violation;
 	
 
+    /**
+     * Create a new macker listener 
+     */
 	public MackerListener() {
 		this.violation = new HashMap<String, ArrayList<AccessRuleViolation>>();
 		
 	}
 	
-	/**
-	 * Handler speichert die geworfenen und relevanten Events in einer Map.
-	 */
-	 public void handleMackerEvent(RuleSet ruleSet, MackerEvent event) {
-
+    /**
+     * Handler speichert die geworfenen und relevanten Events in einer Map@Override
+     */
+    @Override
+    public void handleMackerEvent(RuleSet ruleSet, MackerEvent event) {
 		 if (event instanceof AccessRuleViolation) {
 			 AccessRuleViolation e = (AccessRuleViolation) event;
 			 
 			 if (violation.get(e.getFrom().toString()) == null) {
 				 violation.put(e.getFrom().toString(), new ArrayList<AccessRuleViolation>()); 
 			 } 
-			
 			 violation.get(e.getFrom().toString()).add(e);
-
 		 }
 	 }
 
@@ -66,18 +67,18 @@ public class MackerListener implements  MackerEventListener {
 
 	@Override
 	public void mackerAborted(RuleSet arg0) {
-		
+        // nothing
 	}
 
 	@Override
 	public void mackerFinished(RuleSet arg0) throws MackerIsMadException,
 			ListenerException {
-		
+        // nothing
 	}
 
 	@Override
 	public void mackerStarted(RuleSet arg0) throws ListenerException {
-		
+        //nothing
 	}
 
 
