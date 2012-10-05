@@ -435,14 +435,11 @@ public class Property extends PropertyPage {
         super.performDefaults();
         //HIS Settings
         hisSettings.setSelection(USE_HIS_SETTINGS);
-
-
         rulesDir.setText(RULES_DIR);
         checkContent.setSelection(CHECK_CONTENT);
         fullBuild.setSelection(FULL_BUILD);
         incBuild.setSelection(INC_BUILD);
         list.setItems(new String[] { "de/his/appclient/", "de/his/appserver/", "de/his/core/" });
-
         listSource.setItems(new String[] { "src/java/", "src/generated", "src/patches" });
         warning.setSelection(WARNING);
         defaultM.setSelection(DEFAULT);
@@ -458,33 +455,19 @@ public class Property extends PropertyPage {
         // store the values
         try {
             IResource resource = ((IJavaProject) getElement()).getResource();
-
             //HIS Settings
             resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.USE_GLOBAL_SETTINGS), Boolean.toString(hisSettings.getSelection()).toString());
-
             resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.USE_SOURCE_FILTER), Boolean.toString(useSourceFilter.getSelection()).toString());
-
             resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.USE_CLASSPATH_FILTER), Boolean.toString(useFilter.getSelection()).toString());
-
             resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.DEFAULT), Boolean.toString(defaultM.getSelection()));
-
             resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.ERROR), Boolean.toString(error.getSelection()));
-
             resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.WARNING), Boolean.toString(warning.getSelection()));
-
             resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.CLASSPATH_FILTER), getListContent(list));
-
             resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.SOURCE_FILTER), getListContent(listSource));
-
-
             resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.RULES_PATH), rulesDir.getText());
-
             resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.RUN_ON_INCREMENTAL_BUILD), Boolean.toString(incBuild.getSelection()));
-
             resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.RUN_ON_FULL_BUILD), Boolean.toString(fullBuild.getSelection()));
-
             resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.CHECK_CONTENT), Boolean.toString(checkContent.getSelection()));
-
             //pruefen ob das angegeben (Macker-Rules)Verzeichnis gefunden wurde.
             buttonCheck.setSelection(checkRulesDir(resource));
 
@@ -536,39 +519,23 @@ public class Property extends PropertyPage {
      * Setzt beim ersten Start eines Projektes mit dem Plugin
      * die Defaultwerte.
      * @param resource
-     * @return
+     * @return true if successful
+     * @throws CoreException 
      */
-    public boolean init(IResource resource) {
-
-        try {
-            //HIS Settings
-            resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.USE_GLOBAL_SETTINGS), Boolean.toString(USE_HIS_SETTINGS));
-
-            resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.USE_CLASSPATH_FILTER), Boolean.toString(USE_CLASSPTAH_FILTER));
-
-            resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.USE_SOURCE_FILTER), Boolean.toString(USE_SOURCE_FILTER));
-
-            resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.CLASSPATH_FILTER), FILTER_CLASSPATH);
-
-            resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.SOURCE_FILTER), FILTER_SOURCE);
-
-            resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.DEFAULT), Boolean.toString(DEFAULT));
-
-            resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.ERROR), Boolean.toString(ERROR).toString());
-
-            resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.WARNING), Boolean.toString(WARNING));
-
-            resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.RULES_PATH), RULES_DIR);
-
-            resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.RUN_ON_INCREMENTAL_BUILD), Boolean.toString(INC_BUILD));
-
-            resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.RUN_ON_FULL_BUILD), Boolean.toString(FULL_BUILD));
-
-            resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.CHECK_CONTENT), Boolean.toString(CHECK_CONTENT));
-
-        } catch (CoreException e) {
-            return false;
-        }
+    public boolean init(IResource resource) throws CoreException {
+        //HIS Settings
+        resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.USE_GLOBAL_SETTINGS), Boolean.toString(USE_HIS_SETTINGS));
+        resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.USE_CLASSPATH_FILTER), Boolean.toString(USE_CLASSPTAH_FILTER));
+        resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.USE_SOURCE_FILTER), Boolean.toString(USE_SOURCE_FILTER));
+        resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.CLASSPATH_FILTER), FILTER_CLASSPATH);
+        resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.SOURCE_FILTER), FILTER_SOURCE);
+        resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.DEFAULT), Boolean.toString(DEFAULT));
+        resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.ERROR), Boolean.toString(ERROR).toString());
+        resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.WARNING), Boolean.toString(WARNING));
+        resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.RULES_PATH), RULES_DIR);
+        resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.RUN_ON_INCREMENTAL_BUILD), Boolean.toString(INC_BUILD));
+        resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.RUN_ON_FULL_BUILD), Boolean.toString(FULL_BUILD));
+        resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.CHECK_CONTENT), Boolean.toString(CHECK_CONTENT));
         return true;
     }
 
