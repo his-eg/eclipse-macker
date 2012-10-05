@@ -7,6 +7,9 @@ public class PreferenceConstants {
 	
 	/** Rules Path */
 	public static final String RULES_PATH = "RULES_PATH";
+
+    /** Rules Project */
+    public static final String RULES_PROJECT = "RULES_PROJECT";
     
 	/** Source Path  */
     public static final String SOURCE_PATH = "SOURCE_PATH";

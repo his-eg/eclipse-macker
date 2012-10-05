@@ -39,6 +39,8 @@ import de.his.core.tools.cs.sys.quality.eclipsemacker.Activator;
 			addField(new StringFieldEditor(PreferenceConstants.RULES_PATH, "&Macker Rules Directory:",
 					getFieldEditorParent()));
 			
+        addField(new StringFieldEditor(PreferenceConstants.RULES_PROJECT, "&Macker Rules Project:", getFieldEditorParent()));
+
 			addField(new BooleanFieldEditor(PreferenceConstants.RUN_ON_FULL_BUILD,
 					"&Run Macker on Full Build", getFieldEditorParent()));
 			
