@@ -9,7 +9,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Map;
 import java.util.StringTokenizer;
 
@@ -170,21 +169,22 @@ public class MackerBuilder extends IncrementalProjectBuilder {
      */
     @Override
     protected IProject[] build(int kind, Map<String, String> args, IProgressMonitor monitor) throws CoreException {
-
-        Date start = new Date();
         customMacker = new CustomMacker();
         count = 0;
         this.configureMacker();
-		
         // collect resources
         collectResources(kind, monitor);
-
         //check collected resources
         checkResources(monitor);
-
         return null;
     }
 
+    /**
+     * This method collects all resources that should be checked depending on the kind of build
+     * @param kind
+     * @param monitor
+     * @throws CoreException
+     */
     private void collectResources(int kind, IProgressMonitor monitor) throws CoreException {
         if (kind == FULL_BUILD) {
             fullBuild(monitor);
@@ -199,10 +199,13 @@ public class MackerBuilder extends IncrementalProjectBuilder {
         }
     }
 
+    /**
+     * Prepare the macker configuration depending on settings
+     * @throws CoreException
+     */
     private void configureMacker() throws CoreException {
 		customMacker = new CustomMacker();
 		count = 0;
-
         String useGlobalSettingsPref = getProject().getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_GLOBAL_SETTINGS));
         if (useGlobalSettingsPref == "false") {
             // use local settings
@@ -222,6 +225,9 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 		addJarsToClasspath();
     }
 
+    /**
+     * Compute the classpath that should be used by macker
+     */
     private void addJarsToClasspath() {
         ArrayList<File> jarsInClasspath = builderSettings.getClasspathElements();
         ArrayList<URL> jarUrls = new ArrayList<URL>();
