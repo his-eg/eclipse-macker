@@ -29,6 +29,8 @@ import org.eclipse.ui.dialogs.PropertyPage;
  * @author Bender
  */
 public class Property extends PropertyPage {
+    private static final String WEBAPPS = "webapps";
+
     /*
      * Default Values
      */
@@ -533,6 +535,7 @@ public class Property extends PropertyPage {
         resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.ERROR), Boolean.toString(ERROR).toString());
         resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.WARNING), Boolean.toString(WARNING));
         resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.RULES_PATH), RULES_DIR);
+        resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.RULES_PROJECT), WEBAPPS);
         resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.RUN_ON_INCREMENTAL_BUILD), Boolean.toString(INC_BUILD));
         resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.RUN_ON_FULL_BUILD), Boolean.toString(FULL_BUILD));
         resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.CHECK_CONTENT), Boolean.toString(CHECK_CONTENT));
