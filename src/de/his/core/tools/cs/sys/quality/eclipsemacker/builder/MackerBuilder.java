@@ -307,15 +307,18 @@ public class MackerBuilder extends IncrementalProjectBuilder {
      * @return true falls Filterbedingung erfuellt.
      */
     private boolean toCheck(String path) {
-        boolean toCheck = false;
-
-        StringTokenizer st = new StringTokenizer(getBuilderSettings().getFilterContent(), "\t");
+        String filterContent = getBuilderSettings().getFilterContent();
+        StringTokenizer st = new StringTokenizer(filterContent, "\t");
+        ArrayList<String> sources = getBuilderSettings().getSources();
+        boolean useSourceFilter = getBuilderSettings().isUseSourceFilter();
         while (st.hasMoreTokens()) {
             String check = st.nextToken();
-            if (path.indexOf(check) > -1) {
-                if (getBuilderSettings().isUseSourceFilter()) {
-                    for (String s : getBuilderSettings().getSources()) {
-                        if (path.indexOf(s) > -1) {
+            int indexOf = path.indexOf(check);
+            if (indexOf > -1) {
+                if (useSourceFilter) {
+                    for (String s : sources) {
+                        int indexOfSrcFolder = path.indexOf(s);
+                        if (indexOfSrcFolder > -1) {
                             return true;
                         }
                     }
@@ -326,7 +329,7 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 
             }
         }
-        return toCheck;
+        return false;
     }
 
 
