@@ -46,9 +46,9 @@ public class Property extends PropertyPage {
 
     private static final boolean CHECK_CONTENT = false;
 
-    private static final boolean WARNING = false;
+    private static final boolean DEFAULT_WARNING = false;
 
-    private static final boolean ERROR = false;
+    private static final boolean DEFAULT_ERROR = false;
 
     private static final boolean DEFAULT = true;
 
@@ -167,8 +167,8 @@ public class Property extends PropertyPage {
 
             useSourceFilter.setSelection((useFS != null) ? Boolean.parseBoolean(useFS) : USE_SOURCE_FILTER);
             useFilter.setSelection((useF != null) ? Boolean.parseBoolean(useF) : USE_CLASSPTAH_FILTER);
-            warning.setSelection((rW != null) ? Boolean.parseBoolean(rW) : WARNING);
-            error.setSelection((rE != null) ? Boolean.parseBoolean(rE) : ERROR);
+            warning.setSelection((rW != null) ? Boolean.parseBoolean(rW) : DEFAULT_WARNING);
+            error.setSelection((rE != null) ? Boolean.parseBoolean(rE) : DEFAULT_ERROR);
             defaultM.setSelection((rD != null) ? Boolean.parseBoolean(rD) : DEFAULT);
 
             checkContent.setSelection((checkC != null) ? Boolean.parseBoolean(checkC) : CHECK_CONTENT);
@@ -443,9 +443,9 @@ public class Property extends PropertyPage {
         incBuild.setSelection(INC_BUILD);
         list.setItems(new String[] { "de/his/appclient/", "de/his/appserver/", "de/his/core/" });
         listSource.setItems(new String[] { "src/java/", "src/generated", "src/patches" });
-        warning.setSelection(WARNING);
+        warning.setSelection(DEFAULT_WARNING);
         defaultM.setSelection(DEFAULT);
-        error.setSelection(ERROR);
+        error.setSelection(DEFAULT_ERROR);
         useFilter.setSelection(USE_CLASSPTAH_FILTER);
     }
 
@@ -503,15 +503,16 @@ public class Property extends PropertyPage {
 	       list.add(st.nextToken());
 	     }
 	}
-	/**
-	 * Gibt die aktuellen Werte des Classpath filters zurueck.
-	 * @return
-	 */
-	private String getListContent(List list) {
+	
+    /**
+     * Gibt die aktuellen Werte des Classpath filters als String zurueck.
+     * @return Mit tab gejointer String der Einträge in der übergebenen Liste
+     */
+    String getListContent(List listContent) {
 		String content = "";
-		for (int i = 0; i < list.getItems().length; i++) {
-			if (!list.getItem(i).equals("")) {
-				content += list.getItem(i)+ "\t";
+        for (int i = 0; i < listContent.getItems().length; i++) {
+            if (!listContent.getItem(i).equals("")) {
+                content += listContent.getItem(i) + "\t";
 			}
 		}
 		return content;
@@ -532,8 +533,8 @@ public class Property extends PropertyPage {
         resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.CLASSPATH_FILTER), FILTER_CLASSPATH);
         resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.SOURCE_FILTER), FILTER_SOURCE);
         resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.DEFAULT), Boolean.toString(DEFAULT));
-        resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.ERROR), Boolean.toString(ERROR).toString());
-        resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.WARNING), Boolean.toString(WARNING));
+        resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.ERROR), Boolean.toString(DEFAULT_ERROR).toString());
+        resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.WARNING), Boolean.toString(DEFAULT_WARNING));
         resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.RULES_PATH), RULES_DIR);
         resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.RULES_PROJECT), WEBAPPS);
         resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.RUN_ON_INCREMENTAL_BUILD), Boolean.toString(INC_BUILD));
