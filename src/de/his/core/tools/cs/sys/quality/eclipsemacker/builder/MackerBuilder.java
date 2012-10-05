@@ -416,7 +416,6 @@ public class MackerBuilder extends IncrementalProjectBuilder {
     private boolean importCheck(IProgressMonitor monitor) throws CoreException {
 
         boolean erfolg = false;
-        int count = 1;
         int size = customMacker.getListener().getViolation().size();
 
         InputStream in = null;
@@ -442,7 +441,6 @@ public class MackerBuilder extends IncrementalProjectBuilder {
                 erfolg = false;
                 e.printStackTrace();
             }
-            count++;
         }
         return erfolg;
     }
