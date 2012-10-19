@@ -174,10 +174,15 @@ public class MackerBuilder extends IncrementalProjectBuilder {
         customMacker = new CustomMacker();
         count = 0;
         this.configureMacker();
-        // collect resources
-        collectResources(kind, monitor);
-        //check collected resources
-        checkResources(monitor);
+        if(!this.getBuilderSettings().getRulesFull().isEmpty()) {
+            // collect resources
+            collectResources(kind, monitor);
+            //check collected resources
+            checkResources(monitor);
+        } else {
+            ConsoleLoggingHelper log = new ConsoleLoggingHelper(JavaCore.create(getProject()), "Macker");
+            log.logToConsole("Skipping further checks as no rules were found.");
+        }
         return null;
     }
 
@@ -209,7 +214,7 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 		customMacker = new CustomMacker();
 		count = 0;
         String useGlobalSettingsPref = getProject().getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_GLOBAL_SETTINGS));
-        if (useGlobalSettingsPref == "false") {
+        if ("false".equals(useGlobalSettingsPref)) {
             // use local settings
             this.builderSettings = new BuilderProjectSpecificSettings();
         } else {
@@ -222,7 +227,10 @@ public class MackerBuilder extends IncrementalProjectBuilder {
         this.builderSettings.initSettings();
 
         //log if no rules found
-        new ConsoleLoggingHelper(JavaCore.create(getProject()), "Macker").logToConsole("No Rules found.");
+        ConsoleLoggingHelper log = new ConsoleLoggingHelper(JavaCore.create(getProject()), "Macker");
+        log.logToConsole("No Rules found for configuration of Project '"+getProject().getName()+"'");
+        log.logToConsole("Rules configured in project '" + this.builderSettings.getProject().getName() + "'.");
+        log.logToConsole("Rules configured in folder '" + this.builderSettings.getRulesDir() + "'");
 
 		//einmaliges hinzufuegen der definierten Regeln
 		this.getBuilderSettings().addRulesToMacker(customMacker);
