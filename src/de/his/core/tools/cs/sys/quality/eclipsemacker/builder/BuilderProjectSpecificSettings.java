@@ -27,7 +27,7 @@ public class BuilderProjectSpecificSettings extends AbstractBuilderSettings {
         if (rulesDir == null || rulesDir.isEmpty()) {
             rulesDir = SETTINGS_MACKER;
         }
-        String rulesProjectName = "webapps";
+        String rulesProjectName = WEBAPPS;
         String configuredProject = getPersistentProperty(new QualifiedName("", PreferenceConstants.RULES_PROJECT));
         if (configuredProject != null) {
             rulesProjectName = configuredProject;

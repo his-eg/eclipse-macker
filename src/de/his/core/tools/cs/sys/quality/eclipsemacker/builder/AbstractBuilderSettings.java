@@ -35,6 +35,9 @@ public abstract class AbstractBuilderSettings {
      * default folder for macker rule files
      */
     protected static final String SETTINGS_MACKER = ".settings/macker";
+
+    /** default project containing macker rule files */
+    protected static final String WEBAPPS = "webapps";
     /** projekt settings (HIS1)*/
     private static final String PROPERTIES_FILE = "/../webapps/qisserver/WEB-INF/internal/macker/rules/macker_properties.txt";
     private boolean warnung = false;

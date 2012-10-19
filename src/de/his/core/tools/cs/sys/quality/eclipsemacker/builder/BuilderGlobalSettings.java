@@ -21,7 +21,8 @@ import de.his.core.tools.cs.sys.quality.eclipsemacker.preferences.MackerGlobalPr
  */
 public class BuilderGlobalSettings extends AbstractBuilderSettings {
 
-	/**
+
+    /**
      * Create a new BuilderSettings instance
      */
     public BuilderGlobalSettings () {
@@ -57,7 +58,7 @@ public class BuilderGlobalSettings extends AbstractBuilderSettings {
             // the rules should reside in project webapps by default (HIS specific)
             String rulesProject = store.getString(MackerGlobalPreferenceConstants.P_PROJECT_WITH_RULES);
             if (rulesProject == null || rulesProject.isEmpty()) {
-                this.ruleProject = "webapps";
+                this.ruleProject = WEBAPPS;
             } else {
                 this.ruleProject = rulesProject;
             }
