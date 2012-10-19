@@ -71,32 +71,32 @@ public abstract class AbstractBuilderSettings {
      * HIS Spezifische settings laden
      */
     protected LinkedHashMap<String, String> loadDispatcherProp() {
-    	String s = "";
-    	LinkedHashMap<String, String> map = new LinkedHashMap<String, String>();
-    	String separatorDispProp = "=";
-    
-    	try {
-    
+        String s = "";
+        LinkedHashMap<String, String> map = new LinkedHashMap<String, String>();
+        String separatorDispProp = "=";
+
+        try {
+
             BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(this.getProject().getLocation().toString() + PROPERTIES_FILE)));
+
+            while ((s = in.readLine()) != null) {
+
+                if (!s.startsWith("#")) {
+                    StringTokenizer st = new StringTokenizer(s, separatorDispProp);
+                    map.put(st.nextToken(), st.nextToken());
+                }
+            }
+            in.close();
     
-    		while((s = in.readLine()) != null) {
-    
-    			if (!s.startsWith("#")) {
-    				StringTokenizer st = new StringTokenizer(s, separatorDispProp);
-    				map.put(st.nextToken(), st.nextToken());
-    			}
-    	      }
-    		 in.close();
-    
-    		} catch (FileNotFoundException e) {
-    			e.printStackTrace();
-    		} catch (IOException e) {
-    			e.printStackTrace();
-    		} catch (NoSuchElementException e) {
-    			e.printStackTrace();
-    		}
-    
-    	return map;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (NoSuchElementException e) {
+            e.printStackTrace();
+        }
+
+        return map;
     }
 
     /**

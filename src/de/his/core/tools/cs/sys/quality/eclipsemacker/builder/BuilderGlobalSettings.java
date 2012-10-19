@@ -53,12 +53,15 @@ public class BuilderGlobalSettings extends AbstractBuilderSettings {
                 rulesDir = SETTINGS_MACKER;
             }
             this.setRulesDir(rulesDir);
+            
+            // the rules should reside in project webapps by default (HIS specific)
             String rulesProject = store.getString(MackerGlobalPreferenceConstants.P_PROJECT_WITH_RULES);
             if (rulesProject == null || rulesProject.isEmpty()) {
-                this.ruleProject = project.getName();
+                this.ruleProject = "webapps";
             } else {
                 this.ruleProject = rulesProject;
             }
+            
         	this.setjProject(JavaCore.create(project));
         	//rule files instanziieren
         	setRulesFromDirectory();
