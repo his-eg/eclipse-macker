@@ -39,7 +39,7 @@ public abstract class AbstractBuilderSettings {
     /** default project containing macker rule files */
     protected static final String WEBAPPS = "webapps";
     /** projekt settings (HIS1)*/
-    private static final String PROPERTIES_FILE = "/../webapps/qisserver/WEB-INF/internal/macker/rules/macker_properties.txt";
+    private static final String PROPERTIES_FILE = ".settings/macker/macker_properties.txt";
     private boolean warnung = false;
     private boolean error = false;
     private boolean defaultM = false;
@@ -72,25 +72,21 @@ public abstract class AbstractBuilderSettings {
 
     /**
      * HIS Spezifische settings laden
+     * @param settingsProject 
      */
-    protected LinkedHashMap<String, String> loadDispatcherProp() {
+    protected LinkedHashMap<String, String> loadDispatcherProp(String settingsProject) {
         String s = "";
         LinkedHashMap<String, String> map = new LinkedHashMap<String, String>();
         String separatorDispProp = "=";
-
         try {
-
-            BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(this.getProject().getLocation().toString() + PROPERTIES_FILE)));
-
+            BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(settingsProject + "/" + PROPERTIES_FILE)));
             while ((s = in.readLine()) != null) {
-
                 if (!s.startsWith("#")) {
                     StringTokenizer st = new StringTokenizer(s, separatorDispProp);
                     map.put(st.nextToken(), st.nextToken());
                 }
             }
             in.close();
-    
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
