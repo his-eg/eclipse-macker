@@ -26,10 +26,12 @@ import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.jdt.core.JavaCore;
 
 import de.his.core.tools.cs.sys.quality.eclipsemacker.custommacker.CustomMacker;
 import de.his.core.tools.cs.sys.quality.eclipsemacker.custommacker.ShowAs;
 import de.his.core.tools.cs.sys.quality.eclipsemacker.gui.PreferenceConstants;
+import de.his.core.tools.cs.sys.quality.eclipsemacker.util.ConsoleLoggingHelper;
 
 /**
  * Der MackerBuilder ruft bei jedem Speichervorgang oder bei einem Neuaufbau des
@@ -218,6 +220,9 @@ public class MackerBuilder extends IncrementalProjectBuilder {
         //dem builder eine referenz auf das aktuelel projekt uebergeben
         this.getBuilderSettings().setProject(getProject());
         this.builderSettings.initSettings();
+
+        //log if no rules found
+        new ConsoleLoggingHelper(JavaCore.create(getProject()), "Macker").logToConsole("No Rules found.");
 
 		//einmaliges hinzufuegen der definierten Regeln
 		this.getBuilderSettings().addRulesToMacker(customMacker);

@@ -78,8 +78,9 @@ public abstract class AbstractBuilderSettings {
         String s = "";
         LinkedHashMap<String, String> map = new LinkedHashMap<String, String>();
         String separatorDispProp = "=";
+        String workspace = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString();
         try {
-            BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(settingsProject + "/" + PROPERTIES_FILE)));
+            BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(workspace + "/" + settingsProject + "/" + PROPERTIES_FILE)));
             while ((s = in.readLine()) != null) {
                 if (!s.startsWith("#")) {
                     StringTokenizer st = new StringTokenizer(s, separatorDispProp);

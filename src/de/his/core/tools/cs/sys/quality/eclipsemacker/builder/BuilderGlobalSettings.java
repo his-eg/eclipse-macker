@@ -51,7 +51,11 @@ public class BuilderGlobalSettings extends AbstractBuilderSettings {
         this.setError(Boolean.parseBoolean(map.get(PreferenceConstants.ERROR)));
         this.setRunOnFullBuild(Boolean.parseBoolean(map.get(PreferenceConstants.RUN_ON_FULL_BUILD)));
         this.setRunOnIncBuild(Boolean.parseBoolean(map.get(PreferenceConstants.RUN_ON_INCREMENTAL_BUILD)));
-        this.setFilterContent(map.get(PreferenceConstants.CLASSPATH_FILTER).replace(", ", "\t"));
+        String filter = map.get(PreferenceConstants.CLASSPATH_FILTER);
+        if (filter != null) {
+            String replace = filter.replace(", ", "\t");
+            this.setFilterContent(replace);
+        }
         this.setUseFilter(Boolean.parseBoolean(map.get(PreferenceConstants.USE_CLASSPATH_FILTER)));
         this.setFilterSourceContent(map.get(PreferenceConstants.SOURCE_FILTER).replace(", ", "\t"));
         this.setUseSourceFilter(Boolean.parseBoolean(map.get(PreferenceConstants.USE_SOURCE_FILTER)));
