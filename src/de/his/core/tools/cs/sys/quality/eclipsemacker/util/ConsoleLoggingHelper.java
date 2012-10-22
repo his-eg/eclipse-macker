@@ -9,6 +9,9 @@ import org.eclipse.ui.console.IConsoleManager;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
 
+import de.his.core.tools.cs.sys.quality.eclipsemacker.Activator;
+import de.his.core.tools.cs.sys.quality.eclipsemacker.preferences.MackerGlobalPreferenceConstants;
+
 /**
  * Helper class for logging messages to a console
  * 
@@ -22,6 +25,8 @@ public class ConsoleLoggingHelper {
 
     private String name;
 
+    private boolean debugging = false;
+
     /**
      * Create a new ConsoleLoggingHelper
      * 
@@ -31,6 +36,9 @@ public class ConsoleLoggingHelper {
     public ConsoleLoggingHelper(IJavaProject javaProject, String name) {
         this.javaProject = javaProject;
         this.name = name;
+        if (Activator.getDefault().getPreferenceStore().getBoolean(MackerGlobalPreferenceConstants.DEBUG_SWITCH)) {
+            this.debugging = true;
+        }
     }
 
     /**
@@ -39,21 +47,22 @@ public class ConsoleLoggingHelper {
      * @param message
      */
     public void logToConsole(String message) {
-        MessageConsole console = findConsole(this.name);
-        MessageConsoleStream newMessageStream = console.newMessageStream();
-        try {
-            newMessageStream.write("[" + this.javaProject.getElementName() + "] " + message + "\n");
-            newMessageStream.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
+        if (debugging) {
+            MessageConsole console = findConsole(this.name);
+            MessageConsoleStream newMessageStream = console.newMessageStream();
             try {
-                newMessageStream.close();
+                newMessageStream.write("[" + this.javaProject.getElementName() + "] " + message + "\n");
+                newMessageStream.flush();
             } catch (IOException e) {
                 e.printStackTrace();
+            } finally {
+                try {
+                    newMessageStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
-
     }
 
     private MessageConsole findConsole(String name) {

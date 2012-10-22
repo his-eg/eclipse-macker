@@ -1,5 +1,6 @@
 package de.his.core.tools.cs.sys.quality.eclipsemacker.preferences;
 
+import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.ui.IWorkbench;
@@ -42,6 +43,7 @@ public class MackerPreferencePage
     public void createFieldEditors() {
         addField(new StringFieldEditor(MackerGlobalPreferenceConstants.P_PROJECT_WITH_RULES, "Project with Rules:", getFieldEditorParent()));
         addField(new StringFieldEditor(MackerGlobalPreferenceConstants.P_FOLDER_IN_PROJECT_WITH_RULES, "Folder with Rules:", getFieldEditorParent()));
+        addField(new BooleanFieldEditor(MackerGlobalPreferenceConstants.DEBUG_SWITCH, "Debug to console", getFieldEditorParent()));
 	}
 
 	/* (non-Javadoc)

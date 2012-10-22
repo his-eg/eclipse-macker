@@ -20,6 +20,7 @@ public class MackerGlobalPreferenceInitializer extends AbstractPreferenceInitial
         IPreferenceStore store = Activator.getDefault().getPreferenceStore();
         store.setDefault(MackerGlobalPreferenceConstants.P_PROJECT_WITH_RULES, "webapps");
         store.setDefault(MackerGlobalPreferenceConstants.P_FOLDER_IN_PROJECT_WITH_RULES, ".settings/macker");
+        store.setDefault(MackerGlobalPreferenceConstants.DEBUG_SWITCH, false);
     }
 
 }

@@ -15,4 +15,7 @@ public class MackerGlobalPreferenceConstants {
      */
     public static final String P_FOLDER_IN_PROJECT_WITH_RULES = "rulesFolder";
 
+    /** Switch for debug messages on a console view */
+    public static final String DEBUG_SWITCH = "debugMode";
+
 }
