@@ -227,10 +227,12 @@ public class MackerBuilder extends IncrementalProjectBuilder {
         this.builderSettings.initSettings();
 
         //log if no rules found
-        ConsoleLoggingHelper log = new ConsoleLoggingHelper(JavaCore.create(getProject()), "Macker");
-        log.logToConsole("No Rules found for configuration of Project '"+getProject().getName()+"'");
-        log.logToConsole("Rules configured in project '" + this.builderSettings.getProject().getName() + "'.");
-        log.logToConsole("Rules configured in folder '" + this.builderSettings.getRulesDir() + "'");
+        if (this.builderSettings.getRulesFull().isEmpty()) {
+            ConsoleLoggingHelper log = new ConsoleLoggingHelper(JavaCore.create(getProject()), "Macker");
+            log.logToConsole("No Rules found for configuration of Project '" + getProject().getName() + "'");
+            log.logToConsole("Rules configured in project '" + this.builderSettings.getProject().getName() + "'.");
+            log.logToConsole("Rules configured in folder '" + this.builderSettings.getRulesDir() + "'");
+        }
 
 		//einmaliges hinzufuegen der definierten Regeln
 		this.getBuilderSettings().addRulesToMacker(customMacker);

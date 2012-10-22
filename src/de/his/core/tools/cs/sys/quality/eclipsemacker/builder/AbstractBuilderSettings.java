@@ -23,6 +23,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
 
 import de.his.core.tools.cs.sys.quality.eclipsemacker.custommacker.CustomMacker;
+import de.his.core.tools.cs.sys.quality.eclipsemacker.util.ConsoleLoggingHelper;
 
 
 /**
@@ -42,7 +43,8 @@ public abstract class AbstractBuilderSettings {
     private static final String PROPERTIES_FILE = ".settings/macker/macker_properties.txt";
     private boolean warnung = false;
     private boolean error = false;
-    private boolean defaultM = false;
+
+    private boolean defaultM = true;
     private String filterClassContent = "";
     private String filterSourceContent = "";
     private boolean useClassFilter = false;
@@ -108,9 +110,12 @@ public abstract class AbstractBuilderSettings {
      *
      */
     public void setRulesFromDirectory() {
+        ConsoleLoggingHelper log = new ConsoleLoggingHelper(getjProject(), "Macker");
         ArrayList<File> r = new ArrayList<File>();
         String workspace = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString();
-        File dir = new File(workspace + "/" + this.ruleProject + "/" + getRulesDir());
+        String pathname = workspace + "/" + this.ruleProject + "/" + getRulesDir();
+        log.logToConsole("Effective rules directory: " + pathname);
+        File dir = new File(pathname);
         if (dir.exists() && dir.isDirectory()) {
             addRuleFiles(r, dir);
         }
