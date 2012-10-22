@@ -21,7 +21,8 @@ public class MackerProjectSpecificPreferenceInitializer extends org.eclipse.core
     public void initializeDefaultPreferences() {
         IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 
-        store.setDefault(PreferenceConstants.RULES_PATH, "/rules/test/loc/");
+        store.setDefault(PreferenceConstants.RULES_PATH, ".settings/macker");
+        store.setDefault(PreferenceConstants.RULES_PROJECT, "webapps");
         store.setDefault(PreferenceConstants.RUN_ON_FULL_BUILD, false);
         store.setDefault(PreferenceConstants.RUN_ON_INCREMENTAL_BUILD, true);
         store.setDefault(PreferenceConstants.CHECK_CONTENT, false);

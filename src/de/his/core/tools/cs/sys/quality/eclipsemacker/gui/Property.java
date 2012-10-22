@@ -63,6 +63,8 @@ public class Property extends PropertyPage {
      */
     private Text rulesDir;
 
+    private Text rulesProject;
+
     private Button incBuild;
 
     private Button fullBuild;
@@ -266,10 +268,7 @@ public class Property extends PropertyPage {
 
 
     private void addRulesDir(Composite parent) {
-
-
         Composite first = new Composite(parent, SWT.None);
-
         GridLayout r = new GridLayout();
         r.numColumns = 3;
         first.setLayout(r);
@@ -278,6 +277,14 @@ public class Property extends PropertyPage {
         ruleLabel.setText("Macker Rules Directory:");
         rulesDir = new Text(first, SWT.SINGLE | SWT.BORDER);
         rulesDir.setToolTipText("Ein zum Projekt relativer Pfad");
+
+        Composite second = new Composite(parent, SWT.None);
+        second.setLayout(r);
+
+        Label ruleProjectLabel = new Label(first, SWT.NONE);
+        ruleProjectLabel.setText("Macker Rules Directory:");
+        rulesProject = new Text(second, SWT.SINGLE | SWT.BORDER);
+        rulesProject.setToolTipText("Das Projekt für die Macker Regeln");
 
         GridData gd = new GridData(GridData.FILL_HORIZONTAL);
         gd.widthHint = convertWidthInCharsToPixels(55);
@@ -292,6 +299,7 @@ public class Property extends PropertyPage {
 
     void enablePropertys (boolean enabled) {
         rulesDir.setEnabled(enabled);
+        rulesProject.setEnabled(enabled);
         incBuild.setEnabled(enabled);
         fullBuild.setEnabled(enabled);
         checkContent.setEnabled(enabled);
@@ -317,37 +325,28 @@ public class Property extends PropertyPage {
         check.setLayout(new GridLayout());
         check.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-
         useFilter = new Button(check, SWT.CHECK);
         useFilter.setText("Use Classpath Filter");
         useFilter.setToolTipText("Legt fest welche Pakete in einem Projekt ueberprueft werden sollen");
-
         useSourceFilter = new Button(check, SWT.CHECK);
         useSourceFilter.setText("Use Source Filter");
         useSourceFilter.setToolTipText("Legt fest welche Source-Verzeichnisse in einem Projekt ueberprueft werden sollen");
-
         incBuild = new Button(check, SWT.CHECK);
         incBuild.setText("Run on Incremental Build");
         incBuild.setToolTipText("Nach jedem Speichervorgang Pruefen");
-
         fullBuild = new Button(check, SWT.CHECK);
         fullBuild.setText("Run on Full Build");
         fullBuild.setToolTipText("Pruefen bei einem Neuaufbau des Projektes5");
-
         checkContent = new Button(check, SWT.CHECK);
         checkContent.setText("Check Content");
         checkContent.setToolTipText("Fehleranzeige innerhalb einer Klasse");
-
-
         Label events = new Label(parent, SWT.None);
         events.setText("Show Macker Events as");
-
         radioGroup = new Composite(parent, SWT.NONE);
         GridLayout g = new GridLayout();
         g.numColumns = 3;
         radioGroup.setLayout(g);
         radioGroup.setLayoutData(new GridData(GridData.FILL_BOTH));
-
         warning = createRadioButton(radioGroup, "Warning");
         warning.setToolTipText("Zeige alle Verstoesse als Warnungen an");
         error = createRadioButton(radioGroup, "Error");
