@@ -51,13 +51,15 @@ public class BuilderGlobalSettings extends AbstractBuilderSettings {
         this.setError(Boolean.parseBoolean(map.get(PreferenceConstants.ERROR)));
         this.setRunOnFullBuild(Boolean.parseBoolean(map.get(PreferenceConstants.RUN_ON_FULL_BUILD)));
         this.setRunOnIncBuild(Boolean.parseBoolean(map.get(PreferenceConstants.RUN_ON_INCREMENTAL_BUILD)));
-        String filter = map.get(PreferenceConstants.CLASSPATH_FILTER);
-        if (filter != null) {
-            String replace = filter.replace(", ", "\t");
-            this.setFilterContent(replace);
+        String classPathFilter = map.get(PreferenceConstants.CLASSPATH_FILTER);
+        if (classPathFilter != null) {
+            this.setFilterContent(classPathFilter.replace(", ", "\t"));
         }
         this.setUseFilter(Boolean.parseBoolean(map.get(PreferenceConstants.USE_CLASSPATH_FILTER)));
-        this.setFilterSourceContent(map.get(PreferenceConstants.SOURCE_FILTER).replace(", ", "\t"));
+        String sourceFilter = map.get(PreferenceConstants.SOURCE_FILTER);
+        if (sourceFilter != null) {
+            this.setFilterSourceContent(sourceFilter.replace(", ", "\t"));
+        }
         this.setUseSourceFilter(Boolean.parseBoolean(map.get(PreferenceConstants.USE_SOURCE_FILTER)));
         this.setCheckContent(Boolean.parseBoolean(map.get(PreferenceConstants.CHECK_CONTENT)));
         String rulesDir = store.getString(MackerGlobalPreferenceConstants.P_FOLDER_IN_PROJECT_WITH_RULES);
