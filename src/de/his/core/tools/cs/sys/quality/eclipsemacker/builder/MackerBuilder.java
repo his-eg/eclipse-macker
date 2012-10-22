@@ -213,13 +213,16 @@ public class MackerBuilder extends IncrementalProjectBuilder {
     private void configureMacker() throws CoreException {
 		customMacker = new CustomMacker();
 		count = 0;
+        ConsoleLoggingHelper log = new ConsoleLoggingHelper(JavaCore.create(getProject()), "Macker");
         String useGlobalSettingsPref = getProject().getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_GLOBAL_SETTINGS));
         if ("false".equals(useGlobalSettingsPref)) {
             // use local settings
             this.builderSettings = new BuilderProjectSpecificSettings();
+            log.logToConsole("Using project specific settings");
         } else {
             // use global settings
             this.builderSettings = new BuilderGlobalSettings();
+            log.logToConsole("Using global settings");
         }
 
         //dem builder eine referenz auf das aktuelel projekt uebergeben
@@ -228,7 +231,6 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 
         //log if no rules found
         if (this.builderSettings.getRulesFull().isEmpty()) {
-            ConsoleLoggingHelper log = new ConsoleLoggingHelper(JavaCore.create(getProject()), "Macker");
             log.logToConsole("No Rules found for configuration of Project '" + getProject().getName() + "'");
             log.logToConsole("Rules configured in project '" + this.builderSettings.getProject().getName() + "'.");
             log.logToConsole("Rules configured in folder '" + this.builderSettings.getRulesDir() + "'");
