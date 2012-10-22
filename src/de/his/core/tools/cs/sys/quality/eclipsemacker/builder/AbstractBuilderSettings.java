@@ -42,7 +42,8 @@ public abstract class AbstractBuilderSettings {
     private static final String PROPERTIES_FILE = ".settings/macker/macker_properties.txt";
     private boolean warnung = false;
     private boolean error = false;
-    private boolean defaultM = false;
+
+    private boolean defaultM = true;
     private String filterClassContent = "";
     private String filterSourceContent = "";
     private boolean useClassFilter = false;
