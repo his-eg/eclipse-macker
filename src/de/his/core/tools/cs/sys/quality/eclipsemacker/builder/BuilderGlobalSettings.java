@@ -45,7 +45,7 @@ public class BuilderGlobalSettings extends AbstractBuilderSettings {
             this.ruleProject = rulesProject;
         }
 
-        LinkedHashMap<String, String> map = loadDispatcherProp(this.ruleProject);
+        LinkedHashMap<String, String> map = loadDispatcherProp();
         // override default values only if macker property file found
         if (!map.isEmpty()) {
             boolean defaultLevel = Boolean.parseBoolean(map.get(PreferenceConstants.DEFAULT));

@@ -2,7 +2,6 @@ package de.his.core.tools.cs.sys.quality.eclipsemacker.builder;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -13,7 +12,9 @@ import java.util.StringTokenizer;
 
 import net.innig.macker.rule.RulesException;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -74,15 +75,16 @@ public abstract class AbstractBuilderSettings {
 
     /**
      * HIS Spezifische settings laden
-     * @param settingsProject 
      */
-    protected LinkedHashMap<String, String> loadDispatcherProp(String settingsProject) {
+    protected LinkedHashMap<String, String> loadDispatcherProp() {
+        IWorkspace ws = ResourcesPlugin.getWorkspace();
+        IProject rp = ws.getRoot().getProject(ruleProject);
+        IFile file = rp.getFile(getRulesDir() + "/" + PROPERTIES_FILE);
         String s = "";
         LinkedHashMap<String, String> map = new LinkedHashMap<String, String>();
         String separatorDispProp = "=";
-        String workspace = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString();
         try {
-            BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(workspace + "/" + settingsProject + "/" + PROPERTIES_FILE)));
+            BufferedReader in = new BufferedReader(new InputStreamReader(file.getContents()));
             while ((s = in.readLine()) != null) {
                 if (!s.startsWith("#")) {
                     StringTokenizer st = new StringTokenizer(s, separatorDispProp);
@@ -95,6 +97,8 @@ public abstract class AbstractBuilderSettings {
         } catch (IOException e) {
             e.printStackTrace();
         } catch (NoSuchElementException e) {
+            e.printStackTrace();
+        } catch (CoreException e) {
             e.printStackTrace();
         }
 
@@ -112,11 +116,15 @@ public abstract class AbstractBuilderSettings {
     public void setRulesFromDirectory() {
         ConsoleLoggingHelper log = new ConsoleLoggingHelper(getjProject(), "Macker");
         ArrayList<File> r = new ArrayList<File>();
-        String workspace = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString();
-        String pathname = workspace + "/" + this.ruleProject + "/" + getRulesDir();
+        IWorkspace ws = ResourcesPlugin.getWorkspace();
+        IProject ruleIProject = ws.getRoot().getProject(ruleProject);
+        String pathname = ruleIProject.getLocationURI().toString() + "/" + getRulesDir();
         log.logToConsole("Effective rules directory: " + pathname);
-        File dir = new File(pathname);
-        if (dir.exists() && dir.isDirectory()) {
+        IFile ruleDirectory = ruleIProject.getFile(getRulesDir());
+        File dir = new File(ruleDirectory.getRawLocationURI());
+        boolean exists = dir.exists();
+        boolean directory = dir.isDirectory();
+        if (exists && directory) {
             addRuleFiles(r, dir);
         }
     
