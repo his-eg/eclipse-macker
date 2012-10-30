@@ -127,7 +127,6 @@ public abstract class AbstractBuilderSettings {
         if (exists && directory) {
             addRuleFiles(r, dir);
         }
-    
     }
 
     private void addRuleFiles(ArrayList<File> r, File dir) {
