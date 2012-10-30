@@ -131,10 +131,12 @@ public abstract class AbstractBuilderSettings {
     }
 
     private void addRuleFiles(ArrayList<File> r, File dir) {
+        ConsoleLoggingHelper log = new ConsoleLoggingHelper(getjProject(), "Macker");
         File[] fileList = dir.listFiles();
         for (File f : fileList) {
             if (f.getName().endsWith(".xml")) {
                 r.add(f);
+                log.logToConsole("Found rule file: " + f.getAbsolutePath());
             }
         }
         setRulesFull(r);
