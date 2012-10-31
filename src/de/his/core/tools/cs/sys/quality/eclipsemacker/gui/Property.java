@@ -270,21 +270,18 @@ public class Property extends PropertyPage {
     private void addRulesDir(Composite parent) {
         Composite first = new Composite(parent, SWT.None);
         GridLayout r = new GridLayout();
-        r.numColumns = 3;
+        r.numColumns = 2;
         first.setLayout(r);
 
         Label ruleLabel = new Label(first, SWT.NONE);
         ruleLabel.setText("Macker Rules Directory:");
         rulesDir = new Text(first, SWT.SINGLE | SWT.BORDER);
-        rulesDir.setToolTipText("Ein zum Projekt relativer Pfad");
-
-        Composite second = new Composite(parent, SWT.None);
-        second.setLayout(r);
+        rulesDir.setToolTipText("A path relative to the project's root");
 
         Label ruleProjectLabel = new Label(first, SWT.NONE);
-        ruleProjectLabel.setText("Macker Rules Directory:");
-        rulesProject = new Text(second, SWT.SINGLE | SWT.BORDER);
-        rulesProject.setToolTipText("Das Projekt für die Macker Regeln");
+        ruleProjectLabel.setText("Macker Rules Project:");
+        rulesProject = new Text(first, SWT.SINGLE | SWT.BORDER);
+        rulesProject.setToolTipText("Project containing macker rules");
 
         GridData gd = new GridData(GridData.FILL_HORIZONTAL);
         gd.widthHint = convertWidthInCharsToPixels(55);
