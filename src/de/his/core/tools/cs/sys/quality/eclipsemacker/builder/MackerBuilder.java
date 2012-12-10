@@ -478,9 +478,11 @@ public class MackerBuilder extends IncrementalProjectBuilder {
                 // Ein Import-Tag wird auf Uebereinstimmung mit den gefundenen Macker-Events geprueft.
                 //eine line kann mehrere marker besitzen
                 for (int i = 0; i < customMacker.getListener().getViolation().get(entry.getKey()).size(); i++) {
-                    setMarker(customMacker, reader.getLineNumber(), i, entry.getKey().toString());
-                    //bei Uebereinstimmung betreffenden Event aus Liste entfernen.
-                    customMacker.getListener().getViolation().get(entry.getKey()).remove(i);
+                    if (checkImportLineViolation(line, customMacker.getListener().getViolation().get(entry.getKey()).get(i).getTo().toString())) {
+                        setMarker(customMacker, reader.getLineNumber(), i, entry.getKey().toString());
+                        //bei Uebereinstimmung betreffenden Event aus Liste entfernen.
+                        customMacker.getListener().getViolation().get(entry.getKey()).remove(i);
+                    }
                 }
             }
         }
