@@ -445,12 +445,7 @@ public class MackerBuilder extends IncrementalProjectBuilder {
             reader = new LineNumberReader(new InputStreamReader(in));
 
             try {
-
-                if (!getBuilderSettings().isCheckContent()) {
-                    erfolg = checkImports(reader, entry);
-                } else {
-                    erfolg = checkFullContent(reader, entry);
-                }
+                erfolg = checkFullContent(reader, entry);
                 in.close();
                 reader.close();
 
@@ -461,34 +456,6 @@ public class MackerBuilder extends IncrementalProjectBuilder {
         }
         return erfolg;
     }
-
-    /**
-     * Die Importanweisungen werden mit Markern versehen.
-     *
-     * @param reader vom Typ LineNumberReader
-     * @param entry Map entry mit Classlocation und AccessRuleViolations.
-     * @return true
-     * @throws IOException
-     */
-    private boolean checkImports(LineNumberReader reader, Map.Entry<String, ArrayList<AccessRuleViolation>> entry) throws IOException {
-        String line = "";
-        while (reader.ready() && !line.startsWith("public class") && !line.startsWith("abstract class") && (customMacker.getListener().getViolation().get(entry.getKey()).size() > 0)) {
-            line = reader.readLine().trim();
-            if (line.startsWith("import")) {
-                // Ein Import-Tag wird auf Uebereinstimmung mit den gefundenen Macker-Events geprueft.
-                //eine line kann mehrere marker besitzen
-                for (int i = 0; i < customMacker.getListener().getViolation().get(entry.getKey()).size(); i++) {
-                    if (checkImportLineViolation(line, customMacker.getListener().getViolation().get(entry.getKey()).get(i).getTo().toString())) {
-                        setMarker(customMacker, reader.getLineNumber(), i, entry.getKey().toString());
-                        //bei Uebereinstimmung betreffenden Event aus Liste entfernen.
-                        customMacker.getListener().getViolation().get(entry.getKey()).remove(i);
-                    }
-                }
-            }
-        }
-        return true;
-    }
-
 
     /**
      * Setzt innerhlab der gesamten Klasse Eclipse-Marker.
@@ -524,19 +491,28 @@ public class MackerBuilder extends IncrementalProjectBuilder {
                             if (t.equals(to.substring(start))) {
                                 setMarker(customMacker, reader.getLineNumber(), i, entry.getKey().toString());
                                 gefunden = true;
-                                //statischer zugriff auf die klasse
-                            } else if (t.indexOf(".") > -1) {
+                            }
+                            //statischer zugriff auf die klasse
+                            if (t.indexOf(".") > -1) {
                                 if ((t.substring(0, t.indexOf(".")).equals(to.substring(start)))) {
                                     setMarker(customMacker, reader.getLineNumber(), i, entry.getKey().toString());
                                     gefunden = true;
                                 }
-                                //verwendung der klasse als exception (im ty/catch block)
-                            } else if (t.startsWith("(")) {
+                            }
+                            //vollqualifizierter Zugriff
+                            if (t.startsWith(to)) {
+                                setMarker(customMacker, reader.getLineNumber(), i, entry.getKey().toString());
+                                gefunden = true;
+
+                            }
+                            //verwendung der klasse als exception (im ty/catch block)
+                            if (t.startsWith("(")) {
                                 if (((t.replace("(", ""))).equals(to.substring(start))) {
                                     setMarker(customMacker, reader.getLineNumber(), i, entry.getKey().toString());
                                     gefunden = true;
                                 }
                             }
+
                             //verwendung der klasse als parameter
                             if (line.startsWith("public") || line.startsWith("private") || line.startsWith("protected")) {
                                 //erster parameter der methode
