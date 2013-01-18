@@ -105,13 +105,10 @@ public class MackerBuilder extends IncrementalProjectBuilder {
         @Override
         public boolean visit(IResourceDelta delta) throws CoreException {
             IResource resource = delta.getResource();
-            IMarker[] markers = resource.findMarkers(MackerBuilder.MARKER_TYPE, true, IResource.DEPTH_ONE);
-            for (IMarker marker : markers) {
-                marker.delete();
-            }
             switch (delta.getKind()) {
 
                 case IResourceDelta.ADDED:
+                cleanMarkersForResourceDelta(resource);
                     // handle added resource
                     checkMacker(resource, monitor);
                     break;
@@ -119,6 +116,7 @@ public class MackerBuilder extends IncrementalProjectBuilder {
                     // handle removed resource
                     break;
                 case IResourceDelta.CHANGED:
+                cleanMarkersForResourceDelta(resource);
                     // handle changed resource
                     checkMacker(resource, monitor);
                     break;
@@ -126,6 +124,14 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 
             //return true to continue visiting children.
             return true;
+        }
+
+
+        private void cleanMarkersForResourceDelta(IResource resource) throws CoreException {
+            IMarker[] markers = resource.findMarkers(MackerBuilder.MARKER_TYPE, true, IResource.DEPTH_ZERO);
+            for (IMarker marker : markers) {
+                marker.delete();
+            }
         }
     }
 
@@ -148,7 +154,7 @@ public class MackerBuilder extends IncrementalProjectBuilder {
         public boolean visit(IResource resource) {
             IMarker[] markers;
             try {
-                markers = resource.findMarkers(MackerBuilder.MARKER_TYPE, true, IResource.DEPTH_ONE);
+                markers = resource.findMarkers(MackerBuilder.MARKER_TYPE, true, IResource.DEPTH_ZERO);
                 for (IMarker marker : markers) {
                     marker.delete();
                 }
