@@ -175,6 +175,11 @@ public class MackerBuilder extends IncrementalProjectBuilder {
         count = 0;
         this.configureMacker();
         if(!this.getBuilderSettings().getRulesFull().isEmpty()) {
+            // clean markers
+            IMarker[] markers = getProject().findMarkers(MackerBuilder.MARKER_TYPE, true, IResource.DEPTH_INFINITE);
+            for (IMarker marker : markers) {
+                marker.delete();
+            }
             // collect resources
             collectResources(kind, monitor);
             //check collected resources
