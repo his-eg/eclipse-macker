@@ -2,8 +2,10 @@ package de.his.core.tools.cs.sys.quality.eclipsemacker.builder;
 
 import java.util.Iterator;
 
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.action.IAction;
@@ -92,6 +94,10 @@ public class ToggleNatureAction implements IObjectActionDelegate {
 							natures.length - i - 1);
 					description.setNatureIds(newNatures);
 					project.setDescription(description, null);
+                    IMarker[] markers = project.findMarkers(MackerBuilder.MARKER_TYPE, true, IResource.DEPTH_INFINITE);
+                    for (IMarker marker : markers) {
+                        marker.delete();
+                    }
 					return;
 				}
 			}

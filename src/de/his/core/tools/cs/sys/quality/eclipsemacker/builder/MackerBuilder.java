@@ -157,7 +157,7 @@ public class MackerBuilder extends IncrementalProjectBuilder {
     /**
      * Feste Marker-ID.
      */
-    private static final String MARKER_TYPE = "de.his.core.tools.cs.sys.quality.eclipsemacker.mackerEvent";
+    public static final String MARKER_TYPE = "de.his.core.tools.cs.sys.quality.eclipsemacker.mackerEvent";
 
 
 
