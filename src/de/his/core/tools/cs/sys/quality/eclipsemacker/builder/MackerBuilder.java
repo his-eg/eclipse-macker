@@ -105,7 +105,10 @@ public class MackerBuilder extends IncrementalProjectBuilder {
         @Override
         public boolean visit(IResourceDelta delta) throws CoreException {
             IResource resource = delta.getResource();
-
+            IMarker[] markers = resource.findMarkers(MackerBuilder.MARKER_TYPE, true, IResource.DEPTH_ONE);
+            for (IMarker marker : markers) {
+                marker.delete();
+            }
             switch (delta.getKind()) {
 
                 case IResourceDelta.ADDED:
@@ -120,6 +123,7 @@ public class MackerBuilder extends IncrementalProjectBuilder {
                     checkMacker(resource, monitor);
                     break;
             }
+
             //return true to continue visiting children.
             return true;
         }
@@ -142,6 +146,15 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 
         @Override
         public boolean visit(IResource resource) {
+            IMarker[] markers;
+            try {
+                markers = resource.findMarkers(MackerBuilder.MARKER_TYPE, true, IResource.DEPTH_ONE);
+                for (IMarker marker : markers) {
+                    marker.delete();
+                }
+            } catch (CoreException e) {
+                e.printStackTrace();
+            }
             checkMacker(resource, monitor);
             //return true to continue visiting children.
             return true;
@@ -175,11 +188,6 @@ public class MackerBuilder extends IncrementalProjectBuilder {
         count = 0;
         this.configureMacker();
         if(!this.getBuilderSettings().getRulesFull().isEmpty()) {
-            // clean markers
-            IMarker[] markers = getProject().findMarkers(MackerBuilder.MARKER_TYPE, true, IResource.DEPTH_INFINITE);
-            for (IMarker marker : markers) {
-                marker.delete();
-            }
             // collect resources
             collectResources(kind, monitor);
             //check collected resources
@@ -698,8 +706,11 @@ public class MackerBuilder extends IncrementalProjectBuilder {
      */
     protected void fullBuild(final IProgressMonitor monitor) throws CoreException {
         if (getBuilderSettings().isRunOnFullBuild()) {
-
             try {
+                IMarker[] markers = getProject().findMarkers(MackerBuilder.MARKER_TYPE, true, IResource.DEPTH_INFINITE);
+                for (IMarker marker : markers) {
+                    marker.delete();
+                }
                 getProject().accept(new MackerResourceVisitor(monitor));
             } catch (CoreException e) {
                 e.printStackTrace();
