@@ -9,7 +9,7 @@
 	<classpathentry kind="lib" path="lib/jakarta-regexp.jar"/>
 	<classpathentry kind="lib" path="lib/jaxp.jar"/>
 	<classpathentry kind="lib" path="lib/jdom.jar"/>
-	<classpathentry kind="lib" path="lib/macker.jar"/>
+	<classpathentry kind="lib" path="lib/macker.jar" sourcepath="/home/keunecke/Downloads/macker-0.4.2.zip"/>
 	<classpathentry kind="lib" path="lib/xalan.jar"/>
 	<classpathentry kind="lib" path="lib/xercesImpl.jar"/>
 	<classpathentry kind="lib" path="lib/xmlParserAPIs.jar"/>
