@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
 import de.his.core.tools.cs.sys.quality.eclipsemacker.custommacker.CustomMacker;
@@ -427,17 +428,28 @@ public abstract class AbstractBuilderSettings {
     	try {
     		rawClasspath = jp.getRawClasspath();
     		for (int i = 0; i < rawClasspath.length; i++) {
-    			IPath iPath = rawClasspath[i].getPath();
-    			iPath = iPath.removeFirstSegments(1); //this removes the webapps prefix
-    			IPath fullPathToJar = location.append(iPath);
-    			File file = fullPathToJar.toFile();
-    			jars.add(file);
+                IClasspathEntry iClasspathEntry = rawClasspath[i];
+                if (iClasspathEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+                    IPath iPath = iClasspathEntry.getPath();
+                    iPath = iPath.removeFirstSegments(1); //this removes the webapps prefix
+                    IPath fullPathToJar = location.append(iPath);
+                    File file = fullPathToJar.toFile();
+                    jars.add(file);
+                }
+                if (iClasspathEntry.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
+                    IPath path = iClasspathEntry.getPath();
+                    IProject refProject = ResourcesPlugin.getWorkspace().getRoot().getProject(path.lastSegment());
+                    IJavaProject create = JavaCore.create(refProject);
+                    IPath outputLocation = create.getOutputLocation();
+                    jars.add(outputLocation.toFile());
+                }
     		}
     		IPath outputLocation = jp.getOutputLocation().removeFirstSegments(1);
     		File outputFolder = location.append(outputLocation).toFile();
     		jars.add(outputFolder);
     	} catch (JavaModelException e) {
     		e.printStackTrace();
+            System.out.println("");
     	}
     	return jars;
     }
