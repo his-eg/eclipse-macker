@@ -109,17 +109,17 @@ public class MackerBuilder extends IncrementalProjectBuilder {
 
                 case IResourceDelta.ADDED:
                 cleanMarkersForResourceDelta(resource);
-                    // handle added resource
-                    checkMacker(resource, monitor);
-                    break;
+                // handle added resource
+                checkMacker(resource, monitor);
+                break;
                 case IResourceDelta.REMOVED:
-                    // handle removed resource
-                    break;
+                // handle removed resource
+                break;
                 case IResourceDelta.CHANGED:
                 cleanMarkersForResourceDelta(resource);
-                    // handle changed resource
-                    checkMacker(resource, monitor);
-                    break;
+                // handle changed resource
+                checkMacker(resource, monitor);
+                break;
             }
 
             //return true to continue visiting children.
