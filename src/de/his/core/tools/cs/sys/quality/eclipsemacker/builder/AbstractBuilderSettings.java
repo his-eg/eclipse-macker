@@ -437,11 +437,12 @@ public abstract class AbstractBuilderSettings {
                     jars.add(file);
                 }
                 if (iClasspathEntry.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
+                    // add default output folder
                     IPath path = iClasspathEntry.getPath();
                     IProject refProject = ResourcesPlugin.getWorkspace().getRoot().getProject(path.lastSegment());
                     IJavaProject create = JavaCore.create(refProject);
                     IPath projectLocation = refProject.getLocation();
-                    IPath outputLocation = create.getOutputLocation();
+                    IPath outputLocation = create.getOutputLocation().removeFirstSegments(1);
                     File file = projectLocation.append(outputLocation).toFile();
                     jars.add(file);
                 }
@@ -451,7 +452,6 @@ public abstract class AbstractBuilderSettings {
     		jars.add(outputFolder);
     	} catch (JavaModelException e) {
     		e.printStackTrace();
-            System.out.println("");
     	}
     	return jars;
     }
