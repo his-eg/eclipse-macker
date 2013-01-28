@@ -440,8 +440,10 @@ public abstract class AbstractBuilderSettings {
                     IPath path = iClasspathEntry.getPath();
                     IProject refProject = ResourcesPlugin.getWorkspace().getRoot().getProject(path.lastSegment());
                     IJavaProject create = JavaCore.create(refProject);
+                    IPath projectLocation = refProject.getLocation();
                     IPath outputLocation = create.getOutputLocation();
-                    jars.add(outputLocation.toFile());
+                    File file = projectLocation.append(outputLocation).toFile();
+                    jars.add(file);
                 }
     		}
     		IPath outputLocation = jp.getOutputLocation().removeFirstSegments(1);
