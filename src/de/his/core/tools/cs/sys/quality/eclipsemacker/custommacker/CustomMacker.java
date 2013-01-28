@@ -50,7 +50,6 @@ public class CustomMacker extends Macker{
     */
 	public boolean checkClass() {
 		boolean erfolg = true;
-		
 		if (this.hasRules()) {
 			try {
 				this.check();
