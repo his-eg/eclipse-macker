@@ -437,14 +437,7 @@ public abstract class AbstractBuilderSettings {
                     jars.add(file);
                 }
                 if (iClasspathEntry.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
-                    // add default output folder
-                    IPath path = iClasspathEntry.getPath();
-                    IProject refProject = ResourcesPlugin.getWorkspace().getRoot().getProject(path.lastSegment());
-                    IJavaProject create = JavaCore.create(refProject);
-                    IPath projectLocation = refProject.getLocation();
-                    IPath outputLocation = create.getOutputLocation().removeFirstSegments(1);
-                    File file = projectLocation.append(outputLocation).toFile();
-                    jars.add(file);
+                    handleReferencedProject(jars, iClasspathEntry);
                 }
     		}
     		IPath outputLocation = jp.getOutputLocation().removeFirstSegments(1);
@@ -454,6 +447,25 @@ public abstract class AbstractBuilderSettings {
     		e.printStackTrace();
     	}
     	return jars;
+    }
+
+    private void handleReferencedProject(ArrayList<File> jars, IClasspathEntry iClasspathEntry) throws JavaModelException {
+        // add default output folder
+        IPath path = iClasspathEntry.getPath();
+        IProject refProject = ResourcesPlugin.getWorkspace().getRoot().getProject(path.lastSegment());
+        IJavaProject referencedProject = JavaCore.create(refProject);
+        IPath projectLocation = refProject.getLocation();
+        File file = projectLocation.append(referencedProject.getOutputLocation().removeFirstSegments(1)).toFile();
+        jars.add(file);
+        // also add libraries
+        IClasspathEntry[] entries = referencedProject.getResolvedClasspath(true);
+        for (IClasspathEntry referencedClassPathElement : entries) {
+            if (referencedClassPathElement.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
+                IPath libPath = referencedClassPathElement.getPath();
+                File lib = projectLocation.append(libPath.removeFirstSegments(1)).toFile();
+                jars.add(lib);
+            }
+        }
     }
 
     /**
