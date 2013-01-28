@@ -429,7 +429,7 @@ public abstract class AbstractBuilderSettings {
     		rawClasspath = jp.getRawClasspath();
     		for (int i = 0; i < rawClasspath.length; i++) {
                 IClasspathEntry iClasspathEntry = rawClasspath[i];
-                if (iClasspathEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+                if (iClasspathEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE || iClasspathEntry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
                     IPath iPath = iClasspathEntry.getPath();
                     iPath = iPath.removeFirstSegments(1); //this removes the webapps prefix
                     IPath fullPathToJar = location.append(iPath);
