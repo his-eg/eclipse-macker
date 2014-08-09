@@ -30,4 +30,4 @@ Bundle-ClassPath: bin/de/,
  lib/xmlParserAPIs.jar
 Import-Package: org.eclipse.jdt.core,
  org.eclipse.ui.console
-Bundle-Vendor: HIS GmbH
+Bundle-Vendor: HIS eG
