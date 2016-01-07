@@ -12,9 +12,6 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import net.innig.macker.event.AccessRuleViolation;
-import net.innig.macker.structure.ClassParseException;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
@@ -28,6 +25,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.jdt.core.JavaCore;
 
+import de.andrena.tools.macker.event.AccessRuleViolation;
+import de.andrena.tools.macker.structure.ClassParseException;
 import de.his.core.tools.cs.sys.quality.eclipsemacker.custommacker.CustomMacker;
 import de.his.core.tools.cs.sys.quality.eclipsemacker.custommacker.ShowAs;
 import de.his.core.tools.cs.sys.quality.eclipsemacker.gui.PreferenceConstants;
@@ -51,9 +50,9 @@ public class MackerBuilder extends IncrementalProjectBuilder {
      */
     private int count = 0;
 
-	/**
-	 * Enthaelt alle in der Property Page definierten Einstellungen.
-	 */
+    /**
+     * Enthaelt alle in der Property Page definierten Einstellungen.
+     */
     private AbstractBuilderSettings builderSettings;
 
     /**
@@ -70,10 +69,10 @@ public class MackerBuilder extends IncrementalProjectBuilder {
     /**
      * Create a new MackerBuilder
      */
-	public MackerBuilder() {
-			this.builderSettings = new BuilderGlobalSettings();
-			this.customMacker = new CustomMacker();
-	}
+    public MackerBuilder() {
+        this.builderSettings = new BuilderGlobalSettings();
+        this.customMacker = new CustomMacker();
+    }
 
     /**
      * Der Delta Visitor wird bei einem Incremetal Build aufgerufen.
@@ -107,15 +106,15 @@ public class MackerBuilder extends IncrementalProjectBuilder {
             IResource resource = delta.getResource();
             switch (delta.getKind()) {
 
-                case IResourceDelta.ADDED:
+            case IResourceDelta.ADDED:
                 cleanMarkersForResourceDelta(resource);
                 // handle added resource
                 checkMacker(resource, monitor);
                 break;
-                case IResourceDelta.REMOVED:
+            case IResourceDelta.REMOVED:
                 // handle removed resource
                 break;
-                case IResourceDelta.CHANGED:
+            case IResourceDelta.CHANGED:
                 cleanMarkersForResourceDelta(resource);
                 // handle changed resource
                 checkMacker(resource, monitor);
@@ -230,8 +229,8 @@ public class MackerBuilder extends IncrementalProjectBuilder {
      * @throws CoreException
      */
     private void configureMacker() throws CoreException {
-		customMacker = new CustomMacker();
-		count = 0;
+        customMacker = new CustomMacker();
+        count = 0;
         ConsoleLoggingHelper log = new ConsoleLoggingHelper(JavaCore.create(getProject()), "Macker");
         String useGlobalSettingsPref = getProject().getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_GLOBAL_SETTINGS));
         if ("false".equals(useGlobalSettingsPref)) {
@@ -255,10 +254,10 @@ public class MackerBuilder extends IncrementalProjectBuilder {
             log.logToConsole("Rules configured in folder '" + this.builderSettings.getRulesDir() + "'");
         }
 
-		//einmaliges hinzufuegen der definierten Regeln
-		this.getBuilderSettings().addRulesToMacker(customMacker);
+        //einmaliges hinzufuegen der definierten Regeln
+        this.getBuilderSettings().addRulesToMacker(customMacker);
 
-		addJarsToClasspath();
+        addJarsToClasspath();
     }
 
     /**
@@ -617,19 +616,19 @@ public class MackerBuilder extends IncrementalProjectBuilder {
     private int setSeverity(ShowAs choice) {
         int i = 0;
         switch (choice) {
-            case INFO:
-                i = IMarker.SEVERITY_INFO;
-                break;
-            case WARNING:
-                i = IMarker.SEVERITY_WARNING;
-                break;
-            case ERROR:
-                i = IMarker.SEVERITY_ERROR;
-                break;
+        case INFO:
+            i = IMarker.SEVERITY_INFO;
+            break;
+        case WARNING:
+            i = IMarker.SEVERITY_WARNING;
+            break;
+        case ERROR:
+            i = IMarker.SEVERITY_ERROR;
+            break;
 
-            default:
-                i = IMarker.SEVERITY_ERROR;
-                break;
+        default:
+            i = IMarker.SEVERITY_ERROR;
+            break;
 
         }
         return i;

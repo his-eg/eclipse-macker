@@ -18,16 +18,17 @@ Export-Package: de.his.core.tools.cs.sys.quality.eclipsemacker,
  de.his.core.tools.cs.sys.quality.eclipsemacker.view
 Bundle-ClassPath: bin/de/,
  .,
- lib/bcel.jar,
- lib/commons-lang.jar,
+ lib/ant-1.5.jar,
+ lib/commons-lang-2.3.jar,
  lib/innig-util.jar,
- lib/jakarta-regexp.jar,
+ lib/jakarta-regexp-1.4.jar,
+ lib/javassist-3.17.1-GA.jar,
  lib/jaxp.jar,
- lib/jdom.jar,
- lib/macker.jar,
- lib/xalan.jar,
- lib/xercesImpl.jar,
- lib/xmlParserAPIs.jar
+ lib/jdom-1.0.jar,
+ lib/macker-1.0.3-SNAPSHOT.jar,
+ lib/xalan-2.5.1.jar,
+ lib/xercesImpl-2.8.1.jar,
+ lib/xmlParserAPIs-2.6.2.jar
 Import-Package: org.eclipse.jdt.core,
  org.eclipse.ui.console
 Bundle-Vendor: HIS eG
