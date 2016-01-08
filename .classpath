@@ -6,14 +6,7 @@
 	<classpathentry kind="lib" path="lib/ant-1.5.jar"/>
 	<classpathentry kind="lib" path="lib/commons-lang-2.3.jar"/>
 	<classpathentry kind="lib" path="lib/innig-util.jar"/>
-	<classpathentry kind="lib" path="lib/jakarta-regexp-1.4.jar"/>
 	<classpathentry kind="lib" path="lib/javassist-3.17.1-GA.jar"/>
-	<classpathentry kind="lib" path="lib/jaxp.jar"/>
-	<classpathentry kind="lib" path="lib/jdom-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/macker-1.0.3-SNAPSHOT.jar" sourcepath="lib/macker-1.0.3-SNAPSHOT-sources.jar"/>
-	<classpathentry kind="lib" path="lib/xalan-2.5.1.jar"/>
-	<classpathentry kind="lib" path="lib/xercesImpl-2.8.1.jar"/>
-	<classpathentry kind="lib" path="lib/xml-apis-1.3.04.jar"/>
-	<classpathentry kind="lib" path="lib/xmlParserAPIs-2.6.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
