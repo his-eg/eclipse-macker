@@ -61,6 +61,7 @@
          <view
                id="de.his.core.tools.cs.sys.quality.eclipsemacker.view.MackerView"
                minimized="false"
+               relative="org.eclipse.debug.ui.ConsoleView"
                relationship="stack">
          </view>
          
