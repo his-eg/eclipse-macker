@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipsemacker
 Bundle-SymbolicName: de.his.core.tools.cs.sys.quality.eclipsemacker; singleton:=true
-Bundle-Version: 1.1.0.2016-05-30
+Bundle-Version: 1.1.1.2016-06-06
 Bundle-Activator: de.his.core.tools.cs.sys.quality.eclipsemacker.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
@@ -16,19 +16,14 @@ Export-Package: de.his.core.tools.cs.sys.quality.eclipsemacker,
  de.his.core.tools.cs.sys.quality.eclipsemacker.custommacker,
  de.his.core.tools.cs.sys.quality.eclipsemacker.gui,
  de.his.core.tools.cs.sys.quality.eclipsemacker.view
-Bundle-ClassPath: bin/de/,
- .,
- lib/ant-1.5.jar,
+Bundle-ClassPath: .,
  lib/commons-lang-2.3.jar,
- lib/innig-util.jar,
- lib/jakarta-regexp-1.4.jar,
  lib/javassist-3.17.1-GA.jar,
- lib/jaxp.jar,
- lib/jdom-1.0.jar,
- lib/macker-1.0.3-SNAPSHOT.jar,
- lib/xalan-2.5.1.jar,
- lib/xercesImpl-2.8.1.jar,
- lib/xmlParserAPIs-2.6.2.jar
+ lib/ant-1.9.6.jar,
+ lib/ant-launcher-1.9.6.jar,
+ lib/jdom2-2.0.6.jar,
+ lib/macker-1.0.3.jar,
+ bin/
 Import-Package: org.eclipse.jdt.core,
  org.eclipse.ui.console
 Bundle-Vendor: HIS eG
