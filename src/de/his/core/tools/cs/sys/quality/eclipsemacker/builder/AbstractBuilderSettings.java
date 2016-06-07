@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.NoSuchElementException;
@@ -117,8 +118,20 @@ public abstract class AbstractBuilderSettings {
         ConsoleLoggingHelper log = new ConsoleLoggingHelper(getjProject(), "Macker");
         ArrayList<File> r = new ArrayList<File>();
         IWorkspace ws = ResourcesPlugin.getWorkspace();
+        //log.logToConsole("ruleProject = " + ruleProject);
         IProject ruleIProject = ws.getRoot().getProject(ruleProject);
-        String pathname = ruleIProject.getLocationURI().toString() + "/" + getRulesDir();
+        //log.logToConsole("ruleIProject = " + ruleIProject);
+        URI uri = ruleIProject.getLocationURI();
+        //log.logToConsole("URI = " + uri);
+        if (uri==null) { // avoid NPE
+	        log.logToConsole("Configuration error: rule project " + ruleProject + " not found.");
+	        // TODO: Display error message on GUI?
+	        return;
+        }
+        // non-null URI -> the rule project exists
+        String uriStr = uri.toString();
+        String rulesDir = getRulesDir();
+        String pathname = uriStr + "/" + rulesDir;
         log.logToConsole("Effective rules directory: " + pathname);
         IFile ruleDirectory = ruleIProject.getFile(getRulesDir());
         File dir = new File(ruleDirectory.getRawLocationURI());
