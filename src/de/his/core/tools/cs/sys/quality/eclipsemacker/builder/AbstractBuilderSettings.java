@@ -6,8 +6,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 import org.eclipse.core.resources.IFile;
@@ -435,7 +437,7 @@ public abstract class AbstractBuilderSettings {
                     jars.add(file);
                 }
                 if (iClasspathEntry.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
-                    handleReferencedProject(jars, iClasspathEntry);
+                    handleReferencedProject(jars, iClasspathEntry, new HashSet<String>());
                 }
             }
             IPath outputLocation = jp.getOutputLocation().removeFirstSegments(1);
@@ -444,24 +446,39 @@ public abstract class AbstractBuilderSettings {
         } catch (JavaModelException e) {
             e.printStackTrace();
         }
+        System.out.println("Project '" + this.getjProject().getElementName() + "' - Classpath: " + jars);
         return jars;
     }
 
-    private void handleReferencedProject(ArrayList<File> jars, IClasspathEntry iClasspathEntry) throws JavaModelException {
+    private void handleReferencedProject(ArrayList<File> jars, IClasspathEntry iClasspathEntry, Set<String> previousReferencedProjects) throws JavaModelException {
         // add default output folder
         IPath path = iClasspathEntry.getPath();
-        IProject refProject = ResourcesPlugin.getWorkspace().getRoot().getProject(path.lastSegment());
+        String projectName = path.lastSegment();
+        previousReferencedProjects.add(projectName);
+		IProject refProject = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
         IJavaProject referencedProject = JavaCore.create(refProject);
         IPath projectLocation = refProject.getLocation();
         File file = projectLocation.append(referencedProject.getOutputLocation().removeFirstSegments(1)).toFile();
         jars.add(file);
-        // also add libraries
+        // also add libraries and other classpath entries
         IClasspathEntry[] entries = referencedProject.getResolvedClasspath(true);
         for (IClasspathEntry referencedClassPathElement : entries) {
+        	// handle library
             if (referencedClassPathElement.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
                 IPath libPath = referencedClassPathElement.getPath();
                 File lib = projectLocation.append(libPath.removeFirstSegments(1)).toFile();
                 jars.add(lib);
+            }
+            // handle project
+            if( referencedClassPathElement.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
+            	// only add if dependency is exported to dependent projects
+            	if(referencedClassPathElement.isExported()) {
+            		String nextProjectToHandle = referencedClassPathElement.getPath().lastSegment();
+            		//only proceed if the referenced project was not yet scanned
+					if(!previousReferencedProjects.contains(nextProjectToHandle)) {
+            			handleReferencedProject(jars, referencedClassPathElement, previousReferencedProjects);
+            		}
+            	}
             }
         }
     }
