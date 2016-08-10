@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipsemacker
 Bundle-SymbolicName: de.his.core.tools.cs.sys.quality.eclipsemacker; singleton:=true
-Bundle-Version: 1.2.0.2016-06-10
+Bundle-Version: 1.2.1.2016-08-10
 Bundle-Activator: de.his.core.tools.cs.sys.quality.eclipsemacker.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
