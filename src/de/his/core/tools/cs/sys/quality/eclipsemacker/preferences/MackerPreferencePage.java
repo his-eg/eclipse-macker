@@ -41,9 +41,15 @@ public class MackerPreferencePage
 	 */
     @Override
     public void createFieldEditors() {
-        addField(new StringFieldEditor(MackerGlobalPreferenceConstants.P_PROJECT_WITH_RULES, "Project with Rules:", getFieldEditorParent()));
-        addField(new StringFieldEditor(MackerGlobalPreferenceConstants.P_FOLDER_IN_PROJECT_WITH_RULES, "Folder with Rules:", getFieldEditorParent()));
+        addGlobalRuleLocationConfiguration();
         addField(new BooleanFieldEditor(MackerGlobalPreferenceConstants.DEBUG_SWITCH, "Debug to console", getFieldEditorParent()));
+	}
+
+	private void addGlobalRuleLocationConfiguration() {
+		ProjectNameStringFieldEditor ruleProjectNameEditor = new ProjectNameStringFieldEditor(MackerGlobalPreferenceConstants.P_PROJECT_WITH_RULES, "Project with Rules:", getFieldEditorParent());
+		ruleProjectNameEditor.setValidateStrategy(StringFieldEditor.VALIDATE_ON_FOCUS_LOST);
+		addField(ruleProjectNameEditor);
+        addField(new StringFieldEditor(MackerGlobalPreferenceConstants.P_FOLDER_IN_PROJECT_WITH_RULES, "Folder with Rules:", getFieldEditorParent()));
 	}
 
 	/* (non-Javadoc)
