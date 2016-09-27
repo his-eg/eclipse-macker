@@ -17,12 +17,12 @@ Export-Package: de.his.core.tools.cs.sys.quality.eclipsemacker,
  de.his.core.tools.cs.sys.quality.eclipsemacker.gui,
  de.his.core.tools.cs.sys.quality.eclipsemacker.view
 Bundle-ClassPath: .,
+ lib/macker-1.0.4.jar,
  lib/commons-lang-2.3.jar,
  lib/javassist-3.17.1-GA.jar,
  lib/ant-1.9.6.jar,
  lib/ant-launcher-1.9.6.jar,
  lib/jdom2-2.0.6.jar,
- lib/macker-1.0.3.jar,
  bin/
 Import-Package: org.eclipse.jdt.core,
  org.eclipse.ui.console
