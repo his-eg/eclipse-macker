@@ -45,6 +45,8 @@ import de.his.core.tools.cs.sys.quality.eclipsemacker.util.ConsoleLoggingHelper;
  */
 public class MackerBuilder extends IncrementalProjectBuilder {
 
+    private static final boolean DEBUG = false;
+
     /**
      * Zaehlvariable der bereits geprueften Klassen.
      */
@@ -257,19 +259,22 @@ public class MackerBuilder extends IncrementalProjectBuilder {
         //einmaliges hinzufuegen der definierten Regeln
         this.getBuilderSettings().addRulesToMacker(customMacker);
 
-        addJarsToClasspath();
+        addJarsToClasspath(log);
     }
 
     /**
      * Compute the classpath that should be used by macker
      */
-    private void addJarsToClasspath() {
+    private void addJarsToClasspath(ConsoleLoggingHelper log) {
         ArrayList<File> jarsInClasspath = builderSettings.getClasspathElements();
         ArrayList<URL> jarUrls = new ArrayList<URL>();
         for (File jar : jarsInClasspath) {
             try {
-                jarUrls.add(jar.toURI().toURL());
+            	URL entry = jar.toURI().toURL();
+                jarUrls.add(entry);
+                if (DEBUG) log.logToConsole("Added classpath entry: " + entry);
             } catch (MalformedURLException e) {
+                log.logToConsole("ERROR: Failed to add classpath entry: " + jar);
                 e.printStackTrace();
             }
         }
