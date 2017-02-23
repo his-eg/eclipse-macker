@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry exported="true" kind="lib" path="lib/macker-1.0.5.jar"/>
-	<classpathentry exported="true" kind="lib" path="bin/"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="src"/>
@@ -10,5 +8,6 @@
 	<classpathentry kind="lib" path="lib/ant-1.9.6.jar"/>
 	<classpathentry kind="lib" path="lib/ant-launcher-1.9.6.jar"/>
 	<classpathentry kind="lib" path="lib/jdom2-2.0.6.jar"/>
+	<classpathentry kind="lib" path="lib/macker-1.0.5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
