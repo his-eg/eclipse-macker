@@ -312,7 +312,6 @@ public class MackerBuilder extends IncrementalProjectBuilder {
             }
 
             if (checkFilter) {
-
                 String projectName = resource.getProject().getName();
                 monitor.beginTask(javaFile.getName(), 8000);
                 deleteMarkers(javaFile);
@@ -321,38 +320,35 @@ public class MackerBuilder extends IncrementalProjectBuilder {
                 String src = getSourceFolder(fullP);
                 //aus dem Javafile das Class-File ableiten
                 try {
-
                     classFile = new File(javaFile.getLocation().toString().replace(src, getBuilderSettings().getjProject().getOutputLocation().toOSString().replace(projectName, "")).replace(".java", ".class").replace("\\", "/"));
                 } catch (CoreException e2) {
                     e2.printStackTrace();
                 }
 
                 if (classFile != null) {
+                	String exists = classFile.exists() ? "exists" : "not existing";
                     try {
-                        //Class-Location und javaFile in einer Map speichern
+                        // Class-Location und javaFile in einer Map speichern
                         String classLoc = fullP.replace(src, "").replace("/" + projectName + "/", "").replace(".java", "").replace("/", ".");
                         customMacker.getJavaMap().put(classLoc, javaFile);
                         count++;
-                        //Macker die Class-Datei zum ueberpruefen uebergeben
+                        // Macker die Class-Datei zum ueberpruefen uebergeben
                         customMacker.addClass(classFile);
-
                     } catch (ClassParseException e) {
-                        builderErrors.add("#12 " + fullP + " e");
+                        builderErrors.add("E/1 " + fullP + " (" + exists + "): " + e.getMessage());
                     } catch (IOException e) {
-                        builderErrors.add("#11 " + classFile.exists() + " " + e.getMessage());
+                        builderErrors.add("E/2 " + fullP + " (" + exists + "): " + e.getMessage());
+                    } catch (IllegalStateException e) {
+                        builderErrors.add("E/3 " + fullP + " (" + exists + "): " + e.getMessage());
                     }
-                    monitor.subTask("Macker, Lade Klassen: " + count + " " + javaFile.getName());
-
-
+                    monitor.subTask("Macker, lade Klassen: " + count + " " + javaFile.getName());
                 }
             }
         }
-
     }
 
-
     /**
-     * Prueft anahnd eines uebergebenen Pfades die Filterbedingungen.
+     * Prueft anhand eines uebergebenen Pfades die Filterbedingungen.
      *
      * @param path File Speicherpfad.
      * @return true falls Filterbedingung erfuellt.
