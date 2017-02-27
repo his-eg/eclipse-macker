@@ -1,6 +1,6 @@
 The Eclipse Macker Plugin displays warnings and errors about architectural violations discovered by Macker right in Eclipse.
 
-To use the Macker Eclipse Plugin, you need Eclipse 3.4 or later, and JDK/JRE 1.5 or later.
+Since release 1.2.4, Eclipse Macker requires Java 8. This is a consequence of Eclipse needing Java 8 since version 4.6 (Neon).
 
 What is Macker?
 -
