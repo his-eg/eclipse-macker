@@ -38,12 +38,17 @@ public abstract class AbstractBuilderSettings {
 
     /** default folder for macker rule files */
     protected static final String SETTINGS_MACKER = ".settings/macker";
+    
+    /** project settings (HIS1)*/
+    private static final String PROPERTIES_FILE = ".settings/macker/macker_properties.txt";
 
     /** default project containing macker rule files */
     protected static final String WEBAPPS = "webapps";
     
-    /** project settings (HIS1)*/
-    private static final String PROPERTIES_FILE = ".settings/macker/macker_properties.txt";
+    /** HisInOne extensions folder, relative to webapps */
+    private static final String H1_EXTENSIONS_FOLDER = "//qisserver//WEB-INF//extensions//";
+    
+    private static final String JRE_CONTAINER_PREFIX = "org.eclipse.jdt.launching.JRE_CONTAINER";
     
     private static final boolean DEBUG = false;
     
@@ -482,16 +487,19 @@ public abstract class AbstractBuilderSettings {
                 }
                 case IClasspathEntry.CPE_CONTAINER:
                 {
-                	// Skip JRE_CONTAINER
-                    if (iPath.toString().startsWith("org.eclipse.jdt.launching.JRE_CONTAINER")) break;
-                	
-                	// Now it must be the ecl1 classpath container.
-                	// Remove container prefix "net.sf.ecl1.ECL1_CONTAINER/"
-                	// What remains is a comma-separated list of project names,
-                	// like "cm.exa.base.api,cm.exa.coursemanagement.api,cm.exa.roommanagement.api,cm.exa.attendeelist.api"
+                	// Skip JRE_CONTAINER (which may have more than 1 segments) and empty classpath containers,
+                	// i.e. containers not exporting projects or libraries (which have typically just 1 segment)
+                	if (DEBUG) System.out.println("iPath = " + iPath);
+                    if (iPath.toString().startsWith(JRE_CONTAINER_PREFIX)) break;
+                	if (iPath.segmentCount()<2) break;
+
+                	// Now it must be a non-empty container like the ecl1 classpath container.
+                	// Remove the container prefix, e.g. "net.sf.ecl1.ECL1_CONTAINER/";
+                	// what remains is a comma-separated list of project names like
+                	// "cm.exa.base.api,cm.exa.coursemanagement.api,cm.exa.roommanagement.api,cm.exa.attendeelist.api".
+                	// Note that here we obtain the project name even if a jar is exported!
                     iPath = iPath.removeFirstSegments(1);
                 	String iPathStr = iPath.toString();
-                	if (DEBUG) System.out.println("iPath = " + iPath);
                     String[] projectNames = iPathStr.split(",");
                     for (String projectName : projectNames) {
                     	if (DEBUG) System.out.println("projectName = " + projectName);
@@ -506,10 +514,10 @@ public abstract class AbstractBuilderSettings {
                     		String jarName = projectName + ".jar";
                     		if (!addedJarsAndProjects.contains(jarName)) {
 	                    		IPath projectPath = jp.getProject().getLocation();
-	                    		IPath jarPath = projectPath.append("//qisserver//WEB-INF//extensions//" + jarName);
+	                    		IPath jarPath = projectPath.append(H1_EXTENSIONS_FOLDER + jarName);
 	                    		if (DEBUG) System.out.println("jarPath = " + jarPath);
 	                            File file = jarPath.toFile();
-	                        	//System.out.println("file = " + file);
+	                            if (DEBUG) System.out.println("file = " + file);
 	                            if (file.exists()) {
 		                            jars.add(file);
 		                            addedJarsAndProjects.add(jarName);
@@ -526,6 +534,7 @@ public abstract class AbstractBuilderSettings {
                 }
                 }
             } // end_for raw classpath entries
+            
             // add project output folder
             IPath outputLocation = jp.getOutputLocation().removeFirstSegments(1);
             File outputFolder = location.append(outputLocation).toFile();
