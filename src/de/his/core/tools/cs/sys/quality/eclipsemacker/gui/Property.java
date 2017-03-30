@@ -3,8 +3,12 @@ package de.his.core.tools.cs.sys.quality.eclipsemacker.gui;
 import java.io.File;
 import java.util.StringTokenizer;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jface.preference.PreferencePage;
@@ -22,18 +26,19 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.PropertyPage;
 
 /**
- * Diese Klasse erstellt eine "Property Page" fuer jedes
- * Java Projekt im Workspace um Plugin bezogene Einstellungen
- * vorzunehmen.
+ * Diese Klasse erstellt eine "Property Page" fuer jedes Java Projekt im Workspace,
+ * um Plugin-bezogene Einstellungen vorzunehmen.
  *
  * @author Bender
  */
 public class Property extends PropertyPage {
-    private static final String WEBAPPS = "webapps";
-
+	
     /*
      * Default Values
      */
+	/** Default für das rulesProject */
+    private static final String WEBAPPS = "webapps";
+
     private static final String RULES_DIR = ".settings/macker";
 
     private static final String FILTER_CLASSPATH = "de/his/appclient/\tde/his/appserver/\tde/his/core/";
@@ -83,6 +88,7 @@ public class Property extends PropertyPage {
 
     private Button useSourceFilter;
 
+    /** true wenn das rulesDir im rulesProject vorhanden ist */
     private Button buttonCheck;
 
     Button hisSettings;
@@ -103,6 +109,7 @@ public class Property extends PropertyPage {
 
     Text classPath;
 
+    
     /**
      * Constructor.
      */
@@ -110,14 +117,10 @@ public class Property extends PropertyPage {
         super();
     }
 
-
-
-
     /**
      * GUI der Propertypage.
      * @param parent
      */
-
     private void addSection(Composite parent) {
         //HIS Settings Checkbox
         addHisSettings(parent);
@@ -137,6 +140,7 @@ public class Property extends PropertyPage {
         try {
             IResource resource = ((IJavaProject) getElement()).getResource();
             String rPath = resource.getPersistentProperty(new QualifiedName("", PreferenceConstants.RULES_PATH));
+            String rProject = resource.getPersistentProperty(new QualifiedName("", PreferenceConstants.RULES_PROJECT));
             String incB = resource.getPersistentProperty(new QualifiedName("", PreferenceConstants.RUN_ON_INCREMENTAL_BUILD));
             String fullB = resource.getPersistentProperty(new QualifiedName("", PreferenceConstants.RUN_ON_FULL_BUILD));
             String checkC = resource.getPersistentProperty(new QualifiedName("", PreferenceConstants.CHECK_CONTENT));
@@ -177,18 +181,16 @@ public class Property extends PropertyPage {
             fullBuild.setSelection((fullB != null) ? Boolean.parseBoolean(fullB) : FULL_BUILD);
             incBuild.setSelection((incB != null) ? Boolean.parseBoolean(incB) : INC_BUILD);
             rulesDir.setText((rPath != null) ? rPath : RULES_DIR);
+            rulesProject.setText((rProject != null) ? rProject : WEBAPPS);
 
-            buttonCheck.setSelection(checkRulesDir(resource));
+            buttonCheck.setSelection(checkRulesDir());
 
         } catch (CoreException e) {
             rulesDir.setText(RULES_DIR);
         }
 
-
         enablePropertys(!hisSettings.getSelection());
     }
-
-
 
     private void addSourceFilter(Composite parent) {
         Composite f = new Composite(parent, SWT.None);
@@ -239,24 +241,20 @@ public class Property extends PropertyPage {
         });
     }
 
-
-
     private void addHisSettings(Composite parent) {
         Composite title = new Composite(parent, SWT.None);
 
         //		Label headerLabel = new Label(parent, SWT.NONE);
-        //		headerLabel.setText("Macker Propertys");
+        //		headerLabel.setText("Macker Properties");
         GridLayout tz = new GridLayout();
         tz.numColumns = 2;
 
         title.setLayout(tz);
         title.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-
         hisSettings = new Button(title, SWT.CHECK);
-        hisSettings.setText("Use  global settings");
+        hisSettings.setText("Use global settings");
         hisSettings.setToolTipText("load settings via global preferences");
-
 
         hisSettings.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -265,7 +263,6 @@ public class Property extends PropertyPage {
             }
         });
     }
-
 
     private void addRulesDir(Composite parent) {
         Composite first = new Composite(parent, SWT.None);
@@ -286,15 +283,14 @@ public class Property extends PropertyPage {
         GridData gd = new GridData(GridData.FILL_HORIZONTAL);
         gd.widthHint = convertWidthInCharsToPixels(55);
         rulesDir.setLayoutData(gd);
+        rulesProject.setLayoutData(gd);
 
         buttonCheck = new Button(first, SWT.CHECK);
         buttonCheck.setEnabled(false);
         buttonCheck.setSelection(false);
-
     }
 
-
-    void enablePropertys (boolean enabled) {
+    void enablePropertys(boolean enabled) {
         rulesDir.setEnabled(enabled);
         rulesProject.setEnabled(enabled);
         incBuild.setEnabled(enabled);
@@ -315,7 +311,6 @@ public class Property extends PropertyPage {
         warning.setEnabled(enabled);
         defaultM.setEnabled(enabled);
     }
-
 
     private void addCheckboxes(Composite parent) {
         Composite check = new Composite(parent, SWT.None);
@@ -400,7 +395,6 @@ public class Property extends PropertyPage {
         });
     }
 
-
     private Button createRadioButton(Composite parent, String label) {
         final Button button = new Button(parent, SWT.RADIO);
         button.setText(label);
@@ -419,7 +413,6 @@ public class Property extends PropertyPage {
         data.grabExcessHorizontalSpace = true;
         composite.setLayoutData(data);
 
-
         addSection(composite);
 
         return composite;
@@ -434,6 +427,7 @@ public class Property extends PropertyPage {
         //HIS Settings
         hisSettings.setSelection(USE_HIS_SETTINGS);
         rulesDir.setText(RULES_DIR);
+        rulesProject.setText(WEBAPPS);
         checkContent.setSelection(CHECK_CONTENT);
         fullBuild.setSelection(FULL_BUILD);
         incBuild.setSelection(INC_BUILD);
@@ -453,7 +447,7 @@ public class Property extends PropertyPage {
         // store the values
         try {
             IResource resource = ((IJavaProject) getElement()).getResource();
-            //HIS Settings
+            // HIS Settings
             resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.USE_GLOBAL_SETTINGS), Boolean.toString(hisSettings.getSelection()).toString());
             resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.USE_SOURCE_FILTER), Boolean.toString(useSourceFilter.getSelection()).toString());
             resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.USE_CLASSPATH_FILTER), Boolean.toString(useFilter.getSelection()).toString());
@@ -463,11 +457,12 @@ public class Property extends PropertyPage {
             resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.CLASSPATH_FILTER), getListContent(list));
             resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.SOURCE_FILTER), getListContent(listSource));
             resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.RULES_PATH), rulesDir.getText());
+            resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.RULES_PROJECT), rulesProject.getText());
             resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.RUN_ON_INCREMENTAL_BUILD), Boolean.toString(incBuild.getSelection()));
             resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.RUN_ON_FULL_BUILD), Boolean.toString(fullBuild.getSelection()));
             resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.CHECK_CONTENT), Boolean.toString(checkContent.getSelection()));
-            //pruefen ob das angegeben (Macker-Rules)Verzeichnis gefunden wurde.
-            buttonCheck.setSelection(checkRulesDir(resource));
+            // pruefen ob das angegebene (Macker-Rules-)Verzeichnis gefunden wurde.
+            buttonCheck.setSelection(checkRulesDir());
 
         } catch (CoreException e) {
             return false;
@@ -476,17 +471,21 @@ public class Property extends PropertyPage {
     }
 
     /**
-     * Prueft ob ein angegebener Pfad im Projekt vorhanden ist.
-     * @param project das aktuell verwendete JavaProjekt.
-     * @return true falls Verzeichnis im Projekt vorhanden.
+     * Prueft, ob das rules-Verzeichnis im rules-Project vorhanden ist.
+     * @return true falls das rules-Verzeichnis gefunden wurde
      */
-    private boolean checkRulesDir(IResource project) {
-        boolean found = false;
-        File dir = new File(project.getLocation().toString() + rulesDir.getText());
+    private boolean checkRulesDir() {
+        IWorkspace ws = ResourcesPlugin.getWorkspace();
+        IProject rp = ws.getRoot().getProject(rulesProject.getText());
+        if (rp==null) return false;
+        IPath rpLocation = rp.getLocation();
+        if (rpLocation==null) return false;
+        File dir = new File(rpLocation + "//" + rulesDir.getText());
+        //System.out.println("dir " + dir + " exists? " + dir.exists());
         if (dir.exists() && dir.isDirectory()) {
-            found = true;
+            return true;
         }
-        return found;
+        return false;
     }
 
 	/**
@@ -515,8 +514,7 @@ public class Property extends PropertyPage {
 	}
 	
     /**
-     * Setzt beim ersten Start eines Projektes mit dem Plugin
-     * die Defaultwerte.
+     * Setzt beim ersten Start eines Projektes mit dem Plugin die Defaultwerte.
      * @param resource
      * @return true if successful
      * @throws CoreException 
@@ -538,5 +536,4 @@ public class Property extends PropertyPage {
         resource.setPersistentProperty(new QualifiedName("", PreferenceConstants.CHECK_CONTENT), Boolean.toString(CHECK_CONTENT));
         return true;
     }
-
 }
