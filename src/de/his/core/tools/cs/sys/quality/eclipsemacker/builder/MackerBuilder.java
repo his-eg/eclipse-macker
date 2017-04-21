@@ -27,10 +27,12 @@ import org.eclipse.jdt.core.JavaCore;
 
 import de.andrena.tools.macker.event.AccessRuleViolation;
 import de.andrena.tools.macker.structure.ClassParseException;
+import de.his.core.tools.cs.sys.quality.eclipsemacker.Activator;
 import de.his.core.tools.cs.sys.quality.eclipsemacker.custommacker.CustomMacker;
 import de.his.core.tools.cs.sys.quality.eclipsemacker.custommacker.ShowAs;
 import de.his.core.tools.cs.sys.quality.eclipsemacker.gui.PreferenceConstants;
-import de.his.core.tools.cs.sys.quality.eclipsemacker.util.ConsoleLoggingHelper;
+import de.his.core.tools.cs.sys.quality.eclipsemacker.preferences.MackerGlobalPreferenceConstants;
+import de.his.core.tools.cs.sys.quality.eclipsemacker.util.ConsoleLogger;
 
 /**
  * Der MackerBuilder ruft bei jedem Speichervorgang oder bei einem Neuaufbau des
@@ -200,7 +202,7 @@ public class MackerBuilder extends IncrementalProjectBuilder {
             //check collected resources
             checkResources(monitor);
         } else {
-            ConsoleLoggingHelper log = new ConsoleLoggingHelper(JavaCore.create(getProject()), "Macker");
+            ConsoleLogger log = new ConsoleLogger(JavaCore.create(getProject()).getElementName(), "Macker", Activator.isLoggingEnabled());
             log.logToConsole("Skipping further checks as no rules were found.");
         }
         return null;
@@ -233,7 +235,7 @@ public class MackerBuilder extends IncrementalProjectBuilder {
     private void configureMacker() throws CoreException {
         customMacker = new CustomMacker();
         count = 0;
-        ConsoleLoggingHelper log = new ConsoleLoggingHelper(JavaCore.create(getProject()), "Macker");
+        ConsoleLogger log = new ConsoleLogger(JavaCore.create(getProject()).getElementName(), "Macker", Activator.isLoggingEnabled());
         String useGlobalSettingsPref = getProject().getPersistentProperty(new QualifiedName("", PreferenceConstants.USE_GLOBAL_SETTINGS));
         if ("false".equals(useGlobalSettingsPref)) {
             // use local settings
@@ -265,7 +267,7 @@ public class MackerBuilder extends IncrementalProjectBuilder {
     /**
      * Compute the classpath that should be used by macker
      */
-    private void addJarsToClasspath(ConsoleLoggingHelper log) {
+    private void addJarsToClasspath(ConsoleLogger log) {
         ArrayList<File> jarsInClasspath = builderSettings.getClasspathElements();
         ArrayList<URL> jarUrls = new ArrayList<URL>();
         for (File jar : jarsInClasspath) {

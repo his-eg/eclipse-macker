@@ -4,6 +4,8 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
+import de.his.core.tools.cs.sys.quality.eclipsemacker.preferences.MackerGlobalPreferenceConstants;
+
 /**
  * The activator class controls the plug-in life cycle
  */
@@ -59,5 +61,12 @@ public class Activator extends AbstractUIPlugin {
 	 */
 	public static ImageDescriptor getImageDescriptor(String path) {
 		return imageDescriptorFromPlugin(PLUGIN_ID, path);
+	}
+	
+	/**
+	 * @return true if console logging is enabled in preferences
+	 */
+	public static boolean isLoggingEnabled() {
+		return getDefault().getPreferenceStore().getBoolean(MackerGlobalPreferenceConstants.DEBUG_SWITCH);
 	}
 }

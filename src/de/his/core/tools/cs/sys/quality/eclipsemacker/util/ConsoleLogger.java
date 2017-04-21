@@ -2,43 +2,37 @@ package de.his.core.tools.cs.sys.quality.eclipsemacker.util;
 
 import java.io.IOException;
 
-import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleManager;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
 
-import de.his.core.tools.cs.sys.quality.eclipsemacker.Activator;
-import de.his.core.tools.cs.sys.quality.eclipsemacker.preferences.MackerGlobalPreferenceConstants;
-
 /**
- * Helper class for logging messages to a console
+ * Helper class for logging messages to a console.
  * 
- * @author keunecke
- *
+ * @author keunecke, tneumann
  */
-public class ConsoleLoggingHelper {
+public class ConsoleLogger {
 
     /** project in which context we are logging */
-    private IJavaProject javaProject;
+    private final String targetProjectName;
 
-    private String name;
+    private final String consoleName;
 
-    private boolean debugging = false;
+    private boolean loggingEnabled = false;
 
     /**
-     * Create a new ConsoleLoggingHelper
+     * Create a new ConsoleLogger.
      * 
-     * @param javaProject
-     * @param name
+     * @param targetProjectName
+     * @param consoleName
+     * @param loggingEnabled;
      */
-    public ConsoleLoggingHelper(IJavaProject javaProject, String name) {
-        this.javaProject = javaProject;
-        this.name = name;
-        if (Activator.getDefault().getPreferenceStore().getBoolean(MackerGlobalPreferenceConstants.DEBUG_SWITCH)) {
-            this.debugging = true;
-        }
+    public ConsoleLogger(String targetProjectName, String consoleName, boolean loggingEnabled) {
+        this.targetProjectName = targetProjectName;
+        this.consoleName = consoleName;
+        this.loggingEnabled = loggingEnabled;
     }
 
     /**
@@ -47,11 +41,11 @@ public class ConsoleLoggingHelper {
      * @param message
      */
     public void logToConsole(String message) {
-        if (debugging) {
-            MessageConsole console = findConsole(this.name);
+        if (loggingEnabled) {
+            MessageConsole console = findConsole(consoleName);
             MessageConsoleStream newMessageStream = console.newMessageStream();
             try {
-                newMessageStream.write("[" + this.javaProject.getElementName() + "] " + message + "\n");
+                newMessageStream.write("[" + targetProjectName + "] " + message + "\n");
                 newMessageStream.flush();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -69,13 +63,14 @@ public class ConsoleLoggingHelper {
         ConsolePlugin plugin = ConsolePlugin.getDefault();
         IConsoleManager conMan = plugin.getConsoleManager();
         IConsole[] existing = conMan.getConsoles();
-        for (int i = 0; i < existing.length; i++)
-            if (name.equals(existing[i].getName())) return (MessageConsole) existing[i];
+        for (int i = 0; i < existing.length; i++) {
+            if (name.equals(existing[i].getName())) {
+            	return (MessageConsole) existing[i];
+            }
+        }
         //no console found, so create a new one
         MessageConsole myConsole = new MessageConsole(name, null);
         conMan.addConsoles(new IConsole[] { myConsole });
         return myConsole;
     }
-
-
 }

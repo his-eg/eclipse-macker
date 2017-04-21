@@ -27,8 +27,10 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
 import de.andrena.tools.macker.rule.RulesException;
+import de.his.core.tools.cs.sys.quality.eclipsemacker.Activator;
 import de.his.core.tools.cs.sys.quality.eclipsemacker.custommacker.CustomMacker;
-import de.his.core.tools.cs.sys.quality.eclipsemacker.util.ConsoleLoggingHelper;
+import de.his.core.tools.cs.sys.quality.eclipsemacker.preferences.MackerGlobalPreferenceConstants;
+import de.his.core.tools.cs.sys.quality.eclipsemacker.util.ConsoleLogger;
 
 /**
  * Macker builder settings initialization. (rules, classpath, ...)
@@ -124,7 +126,7 @@ public abstract class AbstractBuilderSettings {
      *
      */
     public void setRulesFromDirectory() {
-        ConsoleLoggingHelper log = new ConsoleLoggingHelper(getjProject(), "Macker");
+        ConsoleLogger log = new ConsoleLogger(getjProject().getElementName(), "Macker", Activator.isLoggingEnabled());
         ArrayList<File> r = new ArrayList<File>();
         IWorkspace ws = ResourcesPlugin.getWorkspace();
         //log.logToConsole("ruleProject = " + ruleProject);
@@ -152,7 +154,7 @@ public abstract class AbstractBuilderSettings {
     }
 
     private void addRuleFiles(ArrayList<File> r, File dir) {
-        ConsoleLoggingHelper log = new ConsoleLoggingHelper(getjProject(), "Macker");
+        ConsoleLogger log = new ConsoleLogger(getjProject().getElementName(), "Macker", Activator.isLoggingEnabled());
         File[] fileList = dir.listFiles();
         for (File f : fileList) {
             if (f.getName().endsWith(".xml")) {
