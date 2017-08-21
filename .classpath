@@ -8,6 +8,6 @@
 	<classpathentry kind="lib" path="lib/ant-1.9.6.jar"/>
 	<classpathentry kind="lib" path="lib/ant-launcher-1.9.6.jar"/>
 	<classpathentry kind="lib" path="lib/jdom2-2.0.6.jar"/>
-	<classpathentry kind="lib" path="lib/macker-1.0.5.jar"/>
+	<classpathentry kind="lib" path="lib/macker-1.0.6.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
