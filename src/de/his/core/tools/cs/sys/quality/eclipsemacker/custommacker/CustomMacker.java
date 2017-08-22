@@ -45,7 +45,7 @@ public class CustomMacker extends Macker{
 
 
     /**
-     * Class Datei wird anahnd der definierten Macker-Rules geprueft.
+     * Class Datei wird anhand der definierten Macker-Rules geprueft.
      * @return true iff macker does not find any rule violation
      */
     public boolean checkClass() {
@@ -68,6 +68,7 @@ public class CustomMacker extends Macker{
         return erfolg;
     }
 
+    
     /**
      * @return the javaMap
      */
@@ -75,7 +76,7 @@ public class CustomMacker extends Macker{
         return javaMap;
     }
 
-
+    
     /**
      * @param javaMap the javaMap to set
      */
@@ -83,7 +84,7 @@ public class CustomMacker extends Macker{
         this.javaMap = javaMap;
     }
 
-
+    
     /**
      * @return the MackerListener
      */
@@ -91,13 +92,11 @@ public class CustomMacker extends Macker{
         return listener;
     }
 
+    
     /**
      * @param mackerListener the MackerListener to set
      */
     public void setListener(MackerListener mackerListener) {
         this.listener = mackerListener;
     }
-
-
-
 }
