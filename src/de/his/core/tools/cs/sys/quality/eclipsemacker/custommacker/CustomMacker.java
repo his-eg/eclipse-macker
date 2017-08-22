@@ -34,9 +34,7 @@ public class CustomMacker extends Macker{
     /**
      * Erweitertes Macker Objekt um eine Map (javaMap) und einem
      * MackerListener (listener).
-     *
      */
-
     public CustomMacker() {
         this.javaMap = new HashMap<String, IFile>();
         listener = new MackerListener();
