@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipsemacker
 Bundle-SymbolicName: de.his.core.tools.cs.sys.quality.eclipsemacker; singleton:=true
-Bundle-Version: 1.2.7.2017-08-21
+Bundle-Version: 1.2.7.2017-08-22
 Bundle-Activator: de.his.core.tools.cs.sys.quality.eclipsemacker.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
@@ -17,7 +17,7 @@ Export-Package: de.his.core.tools.cs.sys.quality.eclipsemacker,
  de.his.core.tools.cs.sys.quality.eclipsemacker.gui,
  de.his.core.tools.cs.sys.quality.eclipsemacker.view
 Bundle-ClassPath: .,
- lib/macker-1.0.5.jar,
+ lib/macker-1.0.6.jar,
  lib/commons-lang-2.3.jar,
  lib/javassist-3.17.1-GA.jar,
  lib/ant-1.9.6.jar,
